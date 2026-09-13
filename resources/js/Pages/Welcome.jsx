@@ -209,6 +209,7 @@ export default function Welcome({
                             </a>
                             <a href="#armada-mobil" className="hover:text-black">Sewa Mobil</a>
                             <a href="#armada-motor" className="hover:text-black">Sewa Motor</a>
+                            <Link href="/pesanan" className="hover:text-black">Riwayat Pesanan</Link>
                             <a href="#keunggulan" className="hover:text-black">Cara Pesan</a>
                             <a href="#mitra" className="hover:text-black">Jadi Mitra</a>
                         </nav>
@@ -256,7 +257,23 @@ export default function Welcome({
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="p-2">
+                                        <div className="p-2 space-y-1">
+                                            <Link
+                                                href="/pesanan"
+                                                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-stone-700 hover:bg-stone-50 hover:text-black transition-colors group"
+                                                onClick={() => setDropdownOpen(false)}
+                                            >
+                                                <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center text-stone-600 group-hover:bg-[#F5B800]/20 group-hover:text-[#b38600] transition-colors">
+                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <p className="leading-none">Pesanan Saya</p>
+                                                    <p className="text-[10px] text-stone-400 mt-0.5 font-normal">Riwayat &amp; status armada</p>
+                                                </div>
+                                            </Link>
+
                                             <Link
                                                 href={typeof route === 'function' ? route('profile.edit') : '/profile'}
                                                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-stone-700 hover:bg-stone-50 hover:text-black transition-colors group"
@@ -268,8 +285,8 @@ export default function Welcome({
                                                     </svg>
                                                 </div>
                                                 <div>
-                                                    <p className="leading-none">Profil &amp; Akun</p>
-                                                    <p className="text-[10px] text-stone-400 mt-0.5 font-normal">Kelola data &amp; kata sandi</p>
+                                                    <p className="leading-none">Profil &amp; Dokumen</p>
+                                                    <p className="text-[10px] text-stone-400 mt-0.5 font-normal">Kelola data, KTP &amp; SIM</p>
                                                 </div>
                                             </Link>
                                         </div>

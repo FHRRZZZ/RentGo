@@ -35,6 +35,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Halaman Riwayat Pesanan (Frontend Mockup)
+    Route::get('/pesanan', function () {
+        return Inertia::render('Orders/Index', [
+            'auth' => ['user' => auth()->user()],
+        ]);
+    })->name('pesanan.index');
 });
 
 require __DIR__.'/auth.php';
