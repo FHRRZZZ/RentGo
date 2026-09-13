@@ -4,9 +4,10 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
+import RentalVerificationForm from './Partials/RentalVerificationForm';
 
 export default function Edit({ auth, mustVerifyEmail, status }) {
-    const [activeTab, setActiveTab] = useState('info'); // 'info' | 'security' | 'danger'
+    const [activeTab, setActiveTab] = useState('verification'); // 'verification' | 'info' | 'security' | 'danger'
     const user = auth.user;
 
     const handleLogout = (e) => {
@@ -92,13 +93,19 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                                     <svg className="w-3.5 h-3.5 text-[#F5B800]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <span>Status: Terverifikasi</span>
+                                    <span>Status Akun: Aktif</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 text-amber-400 font-medium">
+                                    <svg className="w-3.5 h-3.5 text-[#F5B800]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                    </svg>
+                                    <span>Syarat Rental: Lengkapi KTP &amp; SIM</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                     <svg className="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                                     </svg>
-                                    <span>Terdaftar di RentGo Indonesia</span>
+                                    <span>Penyewa RentGo Indonesia</span>
                                 </div>
                             </div>
                         </div>
@@ -113,6 +120,37 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                     <div className="lg:col-span-4 space-y-4">
                         <div className="bg-white rounded-2xl p-3 border border-stone-200 shadow-sm">
                             <nav className="space-y-1">
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveTab('verification')}
+                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left ${
+                                        activeTab === 'verification'
+                                            ? 'bg-[#111111] text-white shadow-sm'
+                                            : 'text-stone-600 hover:bg-stone-50 hover:text-black'
+                                    }`}
+                                >
+                                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+                                        activeTab === 'verification' ? 'bg-[#F5B800] text-[#111111]' : 'bg-amber-100 text-[#b38600]'
+                                    }`}>
+                                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-2.48 7.442a9.006 9.006 0 01-5.02-2.128 9.008 9.008 0 01-2.498-5.362 9.008 9.008 0 012.498-5.362 9.006 9.006 0 015.02-2.128 9.006 9.006 0 015.02 2.128 9.008 9.008 0 012.498 5.362 9.008 9.008 0 01-2.498 5.362 9.006 9.006 0 01-5.02 2.128z" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center justify-between">
+                                            <p className="leading-tight">Syarat &amp; Dokumen</p>
+                                            <span className={`text-[9px] px-1.5 py-0.2 rounded font-extrabold uppercase ${
+                                                activeTab === 'verification' ? 'bg-[#F5B800] text-[#111111]' : 'bg-amber-100 text-amber-800'
+                                            }`}>
+                                                Wajib
+                                            </span>
+                                        </div>
+                                        <p className={`text-[10px] font-normal mt-0.5 ${
+                                            activeTab === 'verification' ? 'text-stone-400' : 'text-stone-400'
+                                        }`}>KTP, SIM &amp; Kontak Sewa</p>
+                                    </div>
+                                </button>
+
                                 <button
                                     type="button"
                                     onClick={() => setActiveTab('info')}
@@ -214,6 +252,12 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
 
                     {/* Right Form Panels */}
                     <div className="lg:col-span-8 space-y-6">
+                        {activeTab === 'verification' && (
+                            <div className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-sm animate-fade-in">
+                                <RentalVerificationForm />
+                            </div>
+                        )}
+
                         {activeTab === 'info' && (
                             <div className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-sm animate-fade-in">
                                 <UpdateProfileInformationForm
