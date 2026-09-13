@@ -408,7 +408,7 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
 
                                     <div className="mt-2.5 pt-2 border-t border-stone-100 flex items-center justify-between text-[11px]">
                                         <span className="font-bold text-stone-700">
-                                            🚗 {hub.mobilTersedia} Mobil | 🛵 {hub.motorTersedia} Motor
+                                            {hub.mobilTersedia} Mobil &bull; {hub.motorTersedia} Motor
                                         </span>
                                         <span className="font-black text-[#111111]">
                                             Mulai Rp {hub.hargaMulai.toLocaleString('id-ID')}
