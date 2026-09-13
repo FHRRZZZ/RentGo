@@ -187,7 +187,6 @@ export default function Welcome({
 
     const loginUrl = typeof route === 'function' ? route('login') : '/login';
     const registerUrl = typeof route === 'function' ? route('register') : '/register';
-    const dashboardUrl = typeof route === 'function' ? route('dashboard') : '/dashboard';
 
     return (
         <div className="min-h-screen bg-white text-[#111111] font-sans overflow-x-hidden">
@@ -215,56 +214,72 @@ export default function Welcome({
                             <div className="relative" ref={dropdownRef}>
                                 <button
                                     type="button"
+                                    id="user-menu-button"
                                     onClick={() => setDropdownOpen((v) => !v)}
-                                    className="flex items-center gap-2 text-xs font-bold bg-[#111111] text-[#F5B800] px-3 py-2 rounded-sm hover:bg-stone-900 transition-colors"
+                                    className="flex items-center gap-2.5 py-1.5 pl-2 pr-3.5 rounded-full border border-stone-200 bg-white hover:border-[#F5B800] hover:shadow-md hover:shadow-stone-200/50 transition-all duration-200 focus:outline-none"
                                 >
-                                    <div className="w-6 h-6 rounded-sm bg-[#F5B800] text-[#111111] font-black flex items-center justify-center text-[10px] uppercase">
-                                        {auth.user.name?.charAt(0)}
+                                    <div className="w-7 h-7 rounded-full bg-[#111111] text-[#F5B800] font-black flex items-center justify-center text-xs tracking-wider shadow-sm ring-2 ring-[#F5B800]">
+                                        {auth.user.name?.charAt(0)?.toUpperCase()}
                                     </div>
-                                    <span>{auth.user.name?.split(' ')[0]}</span>
-                                    <svg className={`w-3 h-3 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                    <div className="hidden sm:flex flex-col text-left">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-xs font-bold text-[#111111] leading-tight">
+                                                {auth.user.name?.split(' ')[0]}
+                                            </span>
+                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                                        </div>
+                                        <span className="text-[10px] text-stone-400 font-medium leading-none">Member RentGo</span>
+                                    </div>
+                                    <svg className={`w-3.5 h-3.5 text-stone-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180 text-black' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
 
                                 {dropdownOpen && (
-                                    <div className="absolute right-0 top-full mt-1.5 w-52 bg-white border border-stone-200 rounded-sm shadow-lg z-50 overflow-hidden">
-                                        <div className="px-4 py-3 border-b border-stone-100">
-                                            <p className="text-xs font-extrabold text-[#111111] truncate">{auth.user.name}</p>
-                                            <p className="text-[11px] text-stone-400 truncate">{auth.user.email}</p>
+                                    <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-stone-100 rounded-2xl shadow-2xl shadow-stone-900/15 z-50 overflow-hidden ring-1 ring-black/5">
+                                        <div className="p-4 bg-gradient-to-br from-stone-900 to-[#111111] text-white">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-[#F5B800] text-[#111111] font-black flex items-center justify-center text-sm uppercase shrink-0 shadow-inner">
+                                                    {auth.user.name?.charAt(0)?.toUpperCase()}
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-xs font-bold text-white truncate">{auth.user.name}</p>
+                                                    <p className="text-[11px] text-stone-400 truncate mt-0.5">{auth.user.email}</p>
+                                                    <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F5B800]/20 text-[#F5B800] text-[9px] font-extrabold uppercase tracking-wider">
+                                                        <span>●</span> Member Terverifikasi
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="py-1">
+                                        <div className="p-2">
                                             <Link
                                                 href={typeof route === 'function' ? route('profile.edit') : '/profile'}
-                                                className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 hover:text-black transition-colors"
+                                                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-stone-700 hover:bg-stone-50 hover:text-black transition-colors group"
                                                 onClick={() => setDropdownOpen(false)}
                                             >
-                                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                                                </svg>
-                                                Profil Saya
-                                            </Link>
-                                            <Link
-                                                href={dashboardUrl}
-                                                className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 hover:text-black transition-colors"
-                                                onClick={() => setDropdownOpen(false)}
-                                            >
-                                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
-                                                </svg>
-                                                Dashboard
+                                                <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center text-stone-600 group-hover:bg-[#F5B800]/20 group-hover:text-[#b38600] transition-colors">
+                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <p className="leading-none">Profil &amp; Akun</p>
+                                                    <p className="text-[10px] text-stone-400 mt-0.5 font-normal">Kelola data &amp; kata sandi</p>
+                                                </div>
                                             </Link>
                                         </div>
-                                        <div className="border-t border-stone-100 py-1">
+                                        <div className="p-2 border-t border-stone-100">
                                             <button
                                                 type="button"
                                                 onClick={handleLogout}
-                                                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-red-500 hover:bg-red-50 transition-colors"
+                                                className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors group"
                                             >
-                                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-                                                </svg>
-                                                Keluar
+                                                <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-500 group-hover:bg-red-100 transition-colors">
+                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                                                    </svg>
+                                                </div>
+                                                <span className="leading-none">Keluar dari Akun</span>
                                             </button>
                                         </div>
                                     </div>
@@ -275,7 +290,7 @@ export default function Welcome({
                                 {canLogin && (
                                     <Link
                                         href={loginUrl}
-                                        className="text-xs font-bold text-stone-700 hover:text-black px-3 py-2"
+                                        className="text-xs font-bold text-stone-600 hover:text-black px-3 py-2 transition-colors"
                                     >
                                         Masuk
                                     </Link>
@@ -283,9 +298,9 @@ export default function Welcome({
                                 {canRegister && (
                                     <Link
                                         href={registerUrl}
-                                        className="text-xs font-bold bg-[#F5B800] text-[#111111] hover:bg-[#e0a800] px-4 py-2 rounded-sm"
+                                        className="text-xs font-bold bg-[#F5B800] text-[#111111] hover:bg-[#e0a800] px-4 py-2 rounded-sm transition-colors"
                                     >
-                                        Daftar
+                                        Daftar Gratis
                                     </Link>
                                 )}
                             </>
