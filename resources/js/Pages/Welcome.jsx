@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
+import NearbyRentalMap from '@/Components/NearbyRentalMap';
 
 const CARS = [
     {
@@ -202,6 +203,10 @@ export default function Welcome({
                             <ApplicationLogo theme="light" />
                         </Link>
                         <nav className="hidden md:flex items-center gap-6 text-sm text-stone-600 font-medium">
+                            <a href="#sekitar-kita" className="text-black font-bold flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#F5B800]"></span>
+                                <span>Sekitar Kita</span>
+                            </a>
                             <a href="#armada-mobil" className="hover:text-black">Sewa Mobil</a>
                             <a href="#armada-motor" className="hover:text-black">Sewa Motor</a>
                             <a href="#keunggulan" className="hover:text-black">Cara Pesan</a>
@@ -494,6 +499,11 @@ export default function Welcome({
                         </div>
                     </div>
                 </div>
+            </section>
+
+            {/* Sekitar Kita Section — Peta Interaktif & Lokasi GPS */}
+            <section id="sekitar-kita" className="py-10 max-w-6xl mx-auto px-4 sm:px-6">
+                <NearbyRentalMap selectedCity={kota} />
             </section>
 
             <section id="armada-mobil" className="py-12 max-w-6xl mx-auto px-4 sm:px-6">
