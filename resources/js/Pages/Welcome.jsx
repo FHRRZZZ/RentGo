@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Head, Link } from '@inertiajs/react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 
 const CARS = [
@@ -133,6 +133,7 @@ const CITIES = [
 
 export default function Welcome({
     auth = {},
+    flash = {},
     mobilPopuler = [],
     motorPilihan = [],
     canLogin = true,
@@ -142,6 +143,32 @@ export default function Welcome({
     const [layananOpsi, setLayananOpsi] = useState('lepas-kunci');
     const [kota, setKota] = useState('Semua Kota');
     const [kategoriFilter, setKategoriFilter] = useState('Semua');
+    const [toast, setToast] = useState(flash?.success || null);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        if (flash?.success) {
+            setToast(flash.success);
+            const t = setTimeout(() => setToast(null), 4000);
+            return () => clearTimeout(t);
+        }
+    }, [flash?.success]);
+
+    useEffect(() => {
+        const handler = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                setDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
+    const handleLogout = (e) => {
+        e.preventDefault();
+        router.post(typeof route === 'function' ? route('logout') : '/logout');
+    };
 
     const displayCars = mobilPopuler && mobilPopuler.length > 0 ? mobilPopuler : CARS;
     const displayMotors = motorPilihan && motorPilihan.length > 0 ? motorPilihan : MOTORS;
@@ -185,12 +212,64 @@ export default function Welcome({
 
                     <div className="flex items-center gap-3">
                         {auth?.user ? (
-                            <Link
-                                href={dashboardUrl}
-                                className="text-xs font-bold bg-[#111111] text-[#F5B800] px-4 py-2 rounded-sm hover:bg-stone-900"
-                            >
-                                Dashboard ({auth.user.name?.split(' ')[0]})
-                            </Link>
+                            <div className="relative" ref={dropdownRef}>
+                                <button
+                                    type="button"
+                                    onClick={() => setDropdownOpen((v) => !v)}
+                                    className="flex items-center gap-2 text-xs font-bold bg-[#111111] text-[#F5B800] px-3 py-2 rounded-sm hover:bg-stone-900 transition-colors"
+                                >
+                                    <div className="w-6 h-6 rounded-sm bg-[#F5B800] text-[#111111] font-black flex items-center justify-center text-[10px] uppercase">
+                                        {auth.user.name?.charAt(0)}
+                                    </div>
+                                    <span>{auth.user.name?.split(' ')[0]}</span>
+                                    <svg className={`w-3 h-3 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+
+                                {dropdownOpen && (
+                                    <div className="absolute right-0 top-full mt-1.5 w-52 bg-white border border-stone-200 rounded-sm shadow-lg z-50 overflow-hidden">
+                                        <div className="px-4 py-3 border-b border-stone-100">
+                                            <p className="text-xs font-extrabold text-[#111111] truncate">{auth.user.name}</p>
+                                            <p className="text-[11px] text-stone-400 truncate">{auth.user.email}</p>
+                                        </div>
+                                        <div className="py-1">
+                                            <Link
+                                                href={typeof route === 'function' ? route('profile.edit') : '/profile'}
+                                                className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 hover:text-black transition-colors"
+                                                onClick={() => setDropdownOpen(false)}
+                                            >
+                                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                                </svg>
+                                                Profil Saya
+                                            </Link>
+                                            <Link
+                                                href={dashboardUrl}
+                                                className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 hover:text-black transition-colors"
+                                                onClick={() => setDropdownOpen(false)}
+                                            >
+                                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                                                </svg>
+                                                Dashboard
+                                            </Link>
+                                        </div>
+                                        <div className="border-t border-stone-100 py-1">
+                                            <button
+                                                type="button"
+                                                onClick={handleLogout}
+                                                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-red-500 hover:bg-red-50 transition-colors"
+                                            >
+                                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                                                </svg>
+                                                Keluar
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         ) : (
                             <>
                                 {canLogin && (
@@ -214,6 +293,23 @@ export default function Welcome({
                     </div>
                 </div>
             </header>
+
+            {toast && (
+                <div
+                    className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#111111] text-white text-xs font-semibold px-5 py-3 rounded-sm shadow-xl border border-stone-700 animate-fade-in"
+                    style={{ animation: 'slideDown 0.3s ease' }}
+                >
+                    <svg className="w-4 h-4 text-[#F5B800] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{toast}</span>
+                    <button type="button" onClick={() => setToast(null)} className="ml-2 text-stone-400 hover:text-white transition-colors">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            )}
 
             <section className="bg-[#111111] text-white py-14 sm:py-20 relative overflow-hidden">
                 <div className="absolute inset-0 pointer-events-none select-none z-0 flex items-center justify-end overflow-hidden">
