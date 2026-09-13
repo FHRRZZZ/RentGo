@@ -1,85 +1,89 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 
-// Daftar titik hub armada RentGo di berbagai kota di Indonesia
 const RENTAL_HUBS = [
     {
         id: 'jkt-1',
-        nama: 'RentGo Hub Soekarno-Hatta (CGK)',
+        kode: 'HUB-CGK01',
+        nama: 'Bandara Soekarno-Hatta (CGK)',
         kota: 'Jakarta',
         lat: -6.1275,
         lng: 106.6537,
-        alamat: 'Area Bandara Soetta Terminal 2 & 3',
+        alamat: 'Gedung Parkir Terminal 2 & 3 Domestik',
         mobilTersedia: 14,
         motorTersedia: 8,
         hargaMulai: 300000,
-        layanan: 'Antar Jemput Bandara & Lepas Kunci',
+        layanan: 'Layanan 24 Jam & Antar Terminal',
     },
     {
         id: 'jkt-2',
-        nama: 'RentGo Hub Jakarta Selatan',
+        kode: 'HUB-JKT02',
+        nama: 'Jakarta Selatan (Kemang)',
         kota: 'Jakarta',
         lat: -6.2615,
         lng: 106.8106,
-        alamat: 'Jl. Kemang Raya No. 45, Jaksel',
+        alamat: 'Jl. Kemang Raya No. 45, Bangka',
         mobilTersedia: 18,
         motorTersedia: 12,
         hargaMulai: 350000,
-        layanan: 'Lepas Kunci 24 Jam',
+        layanan: 'Lepas Kunci & Antar Hotel',
     },
     {
         id: 'bdg-1',
-        nama: 'RentGo Hub Stasiun Bandung',
+        kode: 'HUB-BDG01',
+        nama: 'Stasiun Hall Bandung',
         kota: 'Bandung',
         lat: -6.9147,
         lng: 107.6025,
-        alamat: 'Pintu Utara Stasiun Hall Bandung',
+        alamat: 'Drop Zone Pintu Utara Stasiun Bandung',
         mobilTersedia: 10,
         motorTersedia: 15,
         hargaMulai: 90000,
-        layanan: 'Siap Pakai Turis & Wisatawan',
+        layanan: 'Siap Pakai Khusus Turis & Liburan',
     },
     {
         id: 'jog-1',
-        nama: 'RentGo Hub Tugu Yogyakarta',
+        kode: 'HUB-JOG01',
+        nama: 'Tugu & Stasiun Yogyakarta',
         kota: 'Yogyakarta',
         lat: -7.7828,
         lng: 110.3671,
-        alamat: 'Dekat Stasiun Tugu & Malioboro',
+        alamat: 'Kawasan Stasiun Tugu, Malioboro',
         mobilTersedia: 12,
         motorTersedia: 20,
         hargaMulai: 80000,
-        layanan: 'Sewa Motor Harian & Mobil Wisata',
+        layanan: 'Sewa Motor Matic & Mobil Wisata',
     },
     {
         id: 'bali-1',
-        nama: 'RentGo Hub Ngurah Rai Bali',
+        kode: 'HUB-DPS01',
+        nama: 'Bandara I Gusti Ngurah Rai (DPS)',
         kota: 'Bali',
         lat: -8.7467,
         lng: 115.1668,
-        alamat: 'Kedatangan Domestik Bandara DPS',
+        alamat: 'Pick Up Zone Kedatangan Domestik Bali',
         mobilTersedia: 25,
         motorTersedia: 30,
         hargaMulai: 110000,
-        layanan: 'Gratis Antar Kuta, Seminyak & Airport',
+        layanan: 'Free Antar Kuta, Seminyak & Airport',
     },
     {
         id: 'sby-1',
-        nama: 'RentGo Hub Surabaya Gubeng',
+        kode: 'HUB-SUB01',
+        nama: 'Surabaya Pusat (Gubeng)',
         kota: 'Surabaya',
         lat: -7.2654,
         lng: 112.7521,
-        alamat: 'Jl. Gubeng Pojok No. 12',
+        alamat: 'Jl. Gubeng Pojok No. 12, Genteng',
         mobilTersedia: 11,
         motorTersedia: 9,
         hargaMulai: 350000,
-        layanan: 'Mobil Dinas & Lepas Kunci',
+        layanan: 'Mobil Perjalanan Dinas & Keluarga',
     },
 ];
 
-// Helper menghitung jarak garis lurus (Haversine formula dalam km)
 function calculateDistanceKm(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Radius bumi dalam km
+    const R = 6371;
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
     const a =
@@ -103,27 +107,25 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
     const [geoErrorMsg, setGeoErrorMsg] = useState('');
     const [selectedHub, setSelectedHub] = useState(RENTAL_HUBS[0]);
     const [hubsWithDistance, setHubsWithDistance] = useState(RENTAL_HUBS);
+    const [filterKota, setFilterKota] = useState('Semua');
 
-    // Inisialisasi Map Leaflet
     useEffect(() => {
         if (!mapContainerRef.current) return;
-
-        // Cegah re-inisialisasi ganda
         if (mapInstanceRef.current) return;
 
-        const defaultCenter = [-6.2088, 106.8456]; // Jakarta
+        // Inisialisasi Map
         const map = L.map(mapContainerRef.current, {
-            center: defaultCenter,
+            center: [-6.2088, 106.8456],
             zoom: 11,
             zoomControl: false,
+            attributionControl: false,
         });
 
-        // Zoom control di pojok kanan atas dengan style minimalis
+        // Kontrol zoom kustom di pojok kanan atas
         L.control.zoom({ position: 'topright' }).addTo(map);
 
-        // Tile layer CartoDB Voyager (bersih, modern, tajam, gratis)
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        // Tile layer dark-theme CartoDB Dark Matter
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png', {
             subdomains: 'abcd',
             maxZoom: 19,
         }).addTo(map);
@@ -132,7 +134,7 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
         markersLayerRef.current = markersLayer;
         mapInstanceRef.current = map;
 
-        renderHubMarkers(RENTAL_HUBS, map, markersLayer);
+        renderHubPins(RENTAL_HUBS, map, markersLayer, RENTAL_HUBS[0].id);
 
         return () => {
             map.remove();
@@ -140,64 +142,74 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
         };
     }, []);
 
-    // Render Pin Markers Hub
-    const renderHubMarkers = (hubs, map, layer) => {
+    const renderHubPins = (hubs, map, layer, activeHubId) => {
         if (!layer) return;
         layer.clearLayers();
 
         hubs.forEach((hub) => {
-            // Custom HTML Marker bertema RentGo
-            const hubIcon = L.divIcon({
-                className: 'custom-hub-marker',
-                html: `
+            const isActive = hub.id === activeHubId;
+            const priceText = `Rp ${(hub.hargaMulai / 1000).toFixed(0)}rb`;
+
+            const markerHtml = `
+                <div style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    cursor: pointer;
+                    transform: translate(-50%, -100%);
+                ">
                     <div style="
-                        background: #111111;
-                        color: #F5B800;
-                        width: 32px;
-                        height: 32px;
+                        background: ${isActive ? '#F5B800' : '#111111'};
+                        color: ${isActive ? '#111111' : '#FFFFFF'};
+                        border: 1px solid ${isActive ? '#111111' : '#444444'};
+                        padding: 3px 7px;
                         border-radius: 2px;
-                        border: 2px solid #F5B800;
+                        font-size: 11px;
+                        font-weight: 900;
+                        letter-spacing: 0.05em;
+                        white-space: nowrap;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.6);
                         display: flex;
                         align-items: center;
-                        justify-content: center;
-                        font-weight: 900;
-                        font-size: 11px;
-                        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-                        cursor: pointer;
+                        gap: 4px;
                     ">
-                        RG
+                        <span style="
+                            display: inline-block;
+                            width: 6px;
+                            height: 6px;
+                            border-radius: 1px;
+                            background: ${isActive ? '#111111' : '#F5B800'};
+                        "></span>
+                        <span>${priceText}</span>
                     </div>
-                `,
-                iconSize: [32, 32],
-                iconAnchor: [16, 32],
-                popupAnchor: [0, -32],
+                    <div style="
+                        width: 0;
+                        height: 0;
+                        border-left: 5px solid transparent;
+                        border-right: 5px solid transparent;
+                        border-top: 5px solid ${isActive ? '#F5B800' : '#111111'};
+                    "></div>
+                </div>
+            `;
+
+            const icon = L.divIcon({
+                className: 'rentgo-dark-marker',
+                html: markerHtml,
+                iconSize: [0, 0],
             });
 
-            const marker = L.marker([hub.lat, hub.lng], { icon: hubIcon }).addTo(layer);
-
+            const marker = L.marker([hub.lat, hub.lng], { icon }).addTo(layer);
             marker.on('click', () => {
                 setSelectedHub(hub);
+                renderHubPins(hubs, map, layer, hub.id);
             });
-
-            // Popup bawaan Leaflet
-            marker.bindPopup(`
-                <div style="font-family: inherit; padding: 4px;">
-                    <div style="font-size: 10px; font-weight: 800; color: #b38600; text-transform: uppercase;">Hub Resmi RentGo</div>
-                    <div style="font-size: 13px; font-weight: 900; color: #111111; margin-top: 2px;">${hub.nama}</div>
-                    <div style="font-size: 11px; color: #666; margin-top: 4px;">${hub.alamat}</div>
-                    <div style="font-size: 11px; font-weight: 700; color: #111111; margin-top: 6px;">
-                        Mulai Rp ${hub.hargaMulai.toLocaleString('id-ID')} / hari
-                    </div>
-                </div>
-            `);
         });
     };
 
-    // Fungsi Akses Lokasi via Geolocation API Browser
     const handleGetLocation = () => {
         if (!navigator.geolocation) {
             setGeoStatus('error');
-            setGeoErrorMsg('Browser Anda tidak mendukung deteksi lokasi (Geolocation).');
+            setGeoErrorMsg('Browser Anda tidak mendukung deteksi lokasi.');
             return;
         }
 
@@ -212,220 +224,241 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
 
                 const map = mapInstanceRef.current;
                 if (map) {
-                    // Pusatkan peta ke lokasi pengguna
-                    map.flyTo([latitude, longitude], 13, { duration: 1.5 });
+                    map.flyTo([latitude, longitude], 13, { duration: 1.2 });
 
-                    // Tambahkan atau pindahkan marker pengguna
                     if (userMarkerRef.current) {
                         userMarkerRef.current.setLatLng([latitude, longitude]);
                     } else {
                         const userIcon = L.divIcon({
-                            className: 'user-pulse-marker',
+                            className: 'rentgo-radar-user',
                             html: `
-                                <div style="position: relative; width: 24px; height: 24px;">
+                                <div style="
+                                    position: relative;
+                                    width: 20px;
+                                    height: 20px;
+                                    transform: translate(-50%, -50%);
+                                ">
                                     <div style="
                                         position: absolute;
-                                        inset: 0;
+                                        inset: -6px;
                                         border-radius: 9999px;
-                                        background: #F5B800;
-                                        opacity: 0.4;
+                                        border: 2px solid #F5B800;
+                                        opacity: 0.6;
                                         animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
                                     "></div>
                                     <div style="
-                                        position: relative;
-                                        width: 24px;
-                                        height: 24px;
+                                        width: 20px;
+                                        height: 20px;
                                         border-radius: 9999px;
                                         background: #111111;
-                                        border: 3px solid #F5B800;
+                                        border: 2px solid #F5B800;
                                         display: flex;
                                         align-items: center;
                                         justify-content: center;
-                                        box-shadow: 0 2px 8px rgba(0,0,0,0.4);
                                     ">
                                         <div style="width: 6px; height: 6px; border-radius: 9999px; background: #F5B800;"></div>
                                     </div>
                                 </div>
                             `,
-                            iconSize: [24, 24],
-                            iconAnchor: [12, 12],
+                            iconSize: [0, 0],
                         });
 
-                        userMarkerRef.current = L.marker([latitude, longitude], { icon: userIcon })
-                            .addTo(map)
-                            .bindPopup('<b>Lokasi Anda Saat Ini</b><br>Mencari armada terdekat...')
-                            .openPopup();
+                        userMarkerRef.current = L.marker([latitude, longitude], { icon: userIcon }).addTo(map);
                     }
 
-                    // Buat titik armada buatan di sekitar lokasi user secara dinamis jika jauh dari hub
-                    const sortedWithDistance = RENTAL_HUBS.map((hub) => {
-                        const distance = calculateDistanceKm(latitude, longitude, hub.lat, hub.lng);
-                        return { ...hub, distance: parseFloat(distance) };
+                    const sorted = RENTAL_HUBS.map((hub) => {
+                        const dist = calculateDistanceKm(latitude, longitude, hub.lat, hub.lng);
+                        return { ...hub, distance: parseFloat(dist) };
                     }).sort((a, b) => a.distance - b.distance);
 
-                    setHubsWithDistance(sortedWithDistance);
-                    setSelectedHub(sortedWithDistance[0]);
+                    setHubsWithDistance(sorted);
+                    setSelectedHub(sorted[0]);
+                    renderHubPins(sorted, map, markersLayerRef.current, sorted[0].id);
                 }
             },
-            (error) => {
+            (err) => {
                 setGeoStatus('error');
-                if (error.code === error.PERMISSION_DENIED) {
-                    setGeoErrorMsg('Izin lokasi ditolak di browser. Silakan aktifkan izin lokasi di pengaturan browser.');
-                } else {
-                    setGeoErrorMsg('Gagal mendapatkan koordinat GPS. Menampilkan titik armada default.');
-                }
+                setGeoErrorMsg(err.code === 1 ? 'Izin akses lokasi ditolak pada browser.' : 'Gagal membaca koordinat GPS.');
             },
-            {
-                enableHighAccuracy: true,
-                timeout: 8000,
-                maximumAge: 60000,
-            }
+            { enableHighAccuracy: true, timeout: 8000 }
         );
     };
 
-    // Zoom ke Hub tertentu saat diklik di list
     const handleSelectHub = (hub) => {
         setSelectedHub(hub);
         if (mapInstanceRef.current) {
-            mapInstanceRef.current.flyTo([hub.lat, hub.lng], 14, { duration: 1.2 });
+            mapInstanceRef.current.flyTo([hub.lat, hub.lng], 14, { duration: 1 });
+            renderHubPins(hubsWithDistance, mapInstanceRef.current, markersLayerRef.current, hub.id);
         }
     };
 
+    const filteredHubs = filterKota === 'Semua'
+        ? hubsWithDistance
+        : hubsWithDistance.filter((h) => h.kota === filterKota);
+
     return (
-        <div className="bg-white border border-stone-200 rounded-sm shadow-sm overflow-hidden">
-            {/* Header Sekitar Kita */}
-            <div className="p-4 sm:p-5 border-b border-stone-200 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-stone-50/50">
+        <div className="border border-stone-800 bg-[#111111] text-white rounded-sm overflow-hidden shadow-2xl">
+            {/* Top Control Bar: Industrial Console Header */}
+            <div className="p-4 sm:p-5 border-b border-stone-800 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#141414]">
                 <div>
                     <div className="flex items-center gap-2 mb-1">
                         <span className="w-2 h-2 bg-[#F5B800]"></span>
-                        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-stone-500">
-                            PETA JARINGAN &amp; LOKASI TERDEKAT
+                        <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#F5B800]">
+                            RADAR LOKASI ARMADA &bull; TITIK SERAH TERIMA
                         </span>
                     </div>
-                    <h3 className="text-base sm:text-lg font-black text-[#111111] tracking-tight">
-                        Titik Armada &amp; Hub Rental di Sekitar Kita
+                    <h3 className="text-base sm:text-lg font-black tracking-tight text-white uppercase">
+                        Jaringan Hub Kendaraan di Sekitar Anda
                     </h3>
-                    <p className="text-xs text-stone-500 mt-0.5">
-                        Lihat lokasi serah terima unit, ketersediaan mobil &amp; motor, serta estimasi jarak dari posisi Anda.
+                    <p className="text-xs text-stone-400 mt-0.5">
+                        Pantau ketersediaan unit mobil dan motor siap jalan berdasarkan titik penjemputan terdekat.
                     </p>
                 </div>
 
-                {/* Tombol Akses Lokasi GPS */}
-                <div className="flex items-center gap-2">
+                {/* City Filter & GPS Trigger */}
+                <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center gap-1 bg-stone-900 border border-stone-800 p-1 rounded-sm">
+                        {['Semua', 'Jakarta', 'Bandung', 'Yogyakarta', 'Bali'].map((city) => (
+                            <button
+                                key={city}
+                                type="button"
+                                onClick={() => {
+                                    setFilterKota(city);
+                                    const targetHub = city === 'Semua'
+                                        ? hubsWithDistance[0]
+                                        : hubsWithDistance.find((h) => h.kota === city);
+                                    if (targetHub) handleSelectHub(targetHub);
+                                }}
+                                className={`text-[11px] font-bold px-2.5 py-1.5 rounded-sm transition-colors ${
+                                    filterKota === city
+                                        ? 'bg-[#F5B800] text-[#111111]'
+                                        : 'text-stone-400 hover:text-white'
+                                }`}
+                            >
+                                {city}
+                            </button>
+                        ))}
+                    </div>
+
                     <button
                         type="button"
                         onClick={handleGetLocation}
                         disabled={geoStatus === 'loading'}
-                        className="inline-flex items-center gap-2 bg-[#111111] hover:bg-black text-[#F5B800] px-4 py-2.5 rounded-sm font-bold text-xs uppercase tracking-wider transition-colors disabled:opacity-50"
+                        className="text-xs font-bold bg-[#111111] hover:bg-stone-900 text-[#F5B800] border border-[#F5B800] px-3 py-2 rounded-sm uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center gap-1.5"
                     >
-                        <svg className={`w-4 h-4 text-[#F5B800] ${geoStatus === 'loading' ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                            {geoStatus === 'loading' ? (
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                            ) : (
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0zM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                            )}
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0zM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                         </svg>
-                        <span>{geoStatus === 'loading' ? 'Mencari Lokasi...' : 'Deteksi Lokasi Saya'}</span>
+                        <span>{geoStatus === 'loading' ? 'Mencari...' : 'Lokasi Saya'}</span>
                     </button>
                 </div>
             </div>
 
-            {/* Alert Status Geolocation */}
+            {/* Geolocation Status Bar */}
             {geoStatus === 'success' && (
-                <div className="px-5 py-2.5 bg-emerald-50 border-b border-emerald-200 text-xs font-semibold text-emerald-800 flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        Lokasi Anda terdeteksi! Peta telah disesuaikan dan jarak hub diurutkan dari yang paling dekat.
-                    </span>
-                    <span className="text-[11px] font-mono text-emerald-700">GPS Aktif</span>
+                <div className="px-4 py-2 bg-stone-900 border-b border-stone-800 text-xs font-mono text-[#F5B800] flex items-center justify-between">
+                    <span>GPS TERKONEKSI: Menghitung radius jarak ke seluruh armada RentGo...</span>
+                    <span className="text-[10px] text-stone-400 uppercase">AKURASI TINGGI</span>
                 </div>
             )}
 
             {geoStatus === 'error' && (
-                <div className="px-5 py-2.5 bg-amber-50 border-b border-amber-200 text-xs text-amber-900 flex items-center gap-2">
-                    <svg className="w-4 h-4 text-amber-700 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                    </svg>
-                    <span>{geoErrorMsg}</span>
+                <div className="px-4 py-2 bg-red-950/60 border-b border-red-900 text-xs font-mono text-red-300">
+                    {geoErrorMsg}
                 </div>
             )}
 
-            {/* Layout Grid: Peta + List Hub */}
+            {/* Main Stage: Dark Map Canvas + Industrial Side Panel */}
             <div className="grid grid-cols-1 lg:grid-cols-12">
-                {/* Kolom Peta Interaktif Leaflet */}
-                <div className="lg:col-span-8 relative border-b lg:border-b-0 lg:border-r border-stone-200">
+                {/* Dark Map Canvas */}
+                <div className="lg:col-span-8 relative border-b lg:border-b-0 lg:border-r border-stone-800">
                     <div
                         ref={mapContainerRef}
-                        className="w-full h-[360px] sm:h-[440px] z-10"
-                        style={{ background: '#f5f5f0' }}
+                        className="w-full h-[360px] sm:h-[460px]"
+                        style={{ background: '#0a0a0a' }}
                     />
 
-                    {/* Floating Info Pill di atas peta */}
-                    <div className="absolute bottom-4 left-4 z-20 bg-white/95 backdrop-blur-xs border border-stone-200 p-2.5 rounded-sm shadow-md text-xs max-w-xs">
-                        <div className="flex items-center gap-2 font-bold text-[#111111]">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            <span>{selectedHub.nama}</span>
+                    {/* HUD Tactical Box on Top of Map */}
+                    <div className="absolute top-3 left-3 z-10 bg-[#111111]/90 backdrop-blur-xs border border-stone-700 p-3 rounded-sm shadow-xl max-w-xs text-xs">
+                        <div className="flex items-center justify-between gap-3 pb-1.5 border-b border-stone-800">
+                            <span className="text-[10px] font-mono text-[#F5B800] font-bold">{selectedHub.kode}</span>
+                            <span className="text-[10px] text-stone-400 uppercase font-mono">STATUS: AKTIF</span>
                         </div>
-                        <p className="text-[11px] text-stone-500 mt-0.5 leading-snug">{selectedHub.alamat}</p>
+                        <p className="font-black text-white text-xs mt-1.5">{selectedHub.nama}</p>
+                        <p className="text-[11px] text-stone-400 mt-0.5 leading-snug">{selectedHub.alamat}</p>
+                        <div className="mt-2 pt-1.5 border-t border-stone-800 flex items-center justify-between text-[11px] font-mono">
+                            <span className="text-stone-300">Stok: {selectedHub.mobilTersedia} Mobil / {selectedHub.motorTersedia} Motor</span>
+                            <span className="text-[#F5B800] font-bold">Mulai Rp {(selectedHub.hargaMulai / 1000).toFixed(0)}rb</span>
+                        </div>
                     </div>
                 </div>
 
-                {/* Kolom List Hub & Ketersediaan Armada */}
-                <div className="lg:col-span-4 p-4 flex flex-col justify-between max-h-[440px] overflow-y-auto">
+                {/* Hub Inventory List */}
+                <div className="lg:col-span-4 p-4 bg-[#141414] flex flex-col justify-between max-h-[460px] overflow-y-auto">
                     <div>
-                        <div className="flex items-center justify-between pb-3 border-b border-stone-200 mb-3">
-                            <span className="text-xs font-bold text-stone-700 uppercase tracking-wider">
-                                Titik Armada Terdekat
+                        <div className="flex items-center justify-between pb-3 border-b border-stone-800 mb-3">
+                            <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">
+                                Daftar Titik Penjemputan
                             </span>
-                            <span className="text-[10px] font-bold text-stone-400">
-                                {hubsWithDistance.length} Lokasi
+                            <span className="text-[10px] font-mono text-[#F5B800]">
+                                {filteredHubs.length} Titik Terpasang
                             </span>
                         </div>
 
                         <div className="space-y-2">
-                            {hubsWithDistance.slice(0, 4).map((hub) => (
-                                <div
-                                    key={hub.id}
-                                    onClick={() => handleSelectHub(hub)}
-                                    className={`p-3 rounded-sm border cursor-pointer transition-all text-left ${
-                                        selectedHub.id === hub.id
-                                            ? 'border-black bg-stone-50 ring-1 ring-black'
-                                            : 'border-stone-200 hover:border-stone-400 bg-white'
-                                    }`}
-                                >
-                                    <div className="flex items-start justify-between gap-2">
-                                        <h4 className="text-xs font-black text-[#111111] leading-snug">
-                                            {hub.nama}
-                                        </h4>
-                                        {hub.distance !== undefined && (
-                                            <span className="text-[10px] font-extrabold bg-[#F5B800] text-[#111111] px-1.5 py-0.5 rounded-sm shrink-0">
-                                                {hub.distance} km
+                            {filteredHubs.map((hub) => {
+                                const isSelected = selectedHub.id === hub.id;
+                                return (
+                                    <div
+                                        key={hub.id}
+                                        onClick={() => handleSelectHub(hub)}
+                                        className={`p-3 rounded-sm border cursor-pointer transition-all text-left ${
+                                            isSelected
+                                                ? 'border-[#F5B800] bg-[#1a1a1a]'
+                                                : 'border-stone-800 hover:border-stone-700 bg-[#111111]'
+                                        }`}
+                                    >
+                                        <div className="flex items-start justify-between gap-2">
+                                            <div>
+                                                <span className="text-[10px] font-mono text-stone-400 block mb-0.5">
+                                                    {hub.kode} &bull; {hub.kota}
+                                                </span>
+                                                <h4 className="text-xs font-black text-white leading-tight">
+                                                    {hub.nama}
+                                                </h4>
+                                            </div>
+                                            {hub.distance !== undefined && (
+                                                <span className="text-[10px] font-mono font-black bg-[#F5B800] text-[#111111] px-1.5 py-0.5 rounded-xs shrink-0">
+                                                    {hub.distance} KM
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <p className="text-[11px] text-stone-400 mt-1 line-clamp-1">
+                                            {hub.alamat}
+                                        </p>
+
+                                        <div className="mt-2.5 pt-2 border-t border-stone-800/80 flex items-center justify-between text-[11px] font-mono">
+                                            <span className="text-stone-300">
+                                                {hub.mobilTersedia} Mobil &bull; {hub.motorTersedia} Motor
                                             </span>
-                                        )}
+                                            <span className="text-[#F5B800] font-bold">
+                                                Rp {hub.hargaMulai.toLocaleString('id-ID')}/hr
+                                            </span>
+                                        </div>
                                     </div>
-
-                                    <p className="text-[11px] text-stone-500 mt-1 line-clamp-1">{hub.alamat}</p>
-
-                                    <div className="mt-2.5 pt-2 border-t border-stone-100 flex items-center justify-between text-[11px]">
-                                        <span className="font-bold text-stone-700">
-                                            {hub.mobilTersedia} Mobil &bull; {hub.motorTersedia} Motor
-                                        </span>
-                                        <span className="font-black text-[#111111]">
-                                            Mulai Rp {hub.hargaMulai.toLocaleString('id-ID')}
-                                        </span>
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
 
-                    {/* Action Bar */}
-                    <div className="pt-4 border-t border-stone-200 mt-3">
+                    {/* Action Link */}
+                    <div className="pt-4 border-t border-stone-800 mt-3">
                         <a
                             href="#armada-mobil"
-                            className="w-full inline-flex items-center justify-center gap-2 bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] font-bold text-xs p-2.5 rounded-sm uppercase tracking-wider transition-colors"
+                            className="w-full inline-flex items-center justify-center gap-2 bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] font-bold text-xs p-2.5 rounded-sm uppercase tracking-wider transition-colors text-center"
                         >
-                            <span>Pilih Armada di Hub Ini</span>
+                            <span>Lihat Unit di {selectedHub.kota}</span>
                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                             </svg>
