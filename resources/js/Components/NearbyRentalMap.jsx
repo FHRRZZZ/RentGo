@@ -102,9 +102,7 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
     const markersLayerRef = useRef(null);
     const userMarkerRef = useRef(null);
 
-    const [userLocation, setUserLocation] = useState(null);
     const [geoStatus, setGeoStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
-    const [geoErrorMsg, setGeoErrorMsg] = useState('');
     const [selectedHub, setSelectedHub] = useState(RENTAL_HUBS[0]);
     const [hubsWithDistance, setHubsWithDistance] = useState(RENTAL_HUBS);
     const [filterKota, setFilterKota] = useState('Semua');
@@ -124,9 +122,8 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
         // Kontrol zoom di pojok kanan atas
         L.control.zoom({ position: 'topright' }).addTo(map);
 
-        // Tile layer CartoDB Voyager: Sangat jernih, teks jalanan jelas, nama kota kontras dan mudah dibaca
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            subdomains: 'abcd',
+        // OpenStreetMap Standard Tiles: Bebas watermark, teks jalanan jelas dan tajam
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
         }).addTo(map);
 
@@ -159,16 +156,16 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
                     transform: translate(-50%, -100%);
                 ">
                     <div style="
-                        background: ${isActive ? '#F5B800' : '#111111'};
-                        color: ${isActive ? '#111111' : '#FFFFFF'};
-                        border: 2px solid ${isActive ? '#111111' : '#F5B800'};
+                        background: ${isActive ? '#111111' : '#FFFFFF'};
+                        color: ${isActive ? '#F5B800' : '#111111'};
+                        border: 2px solid ${isActive ? '#111111' : '#333333'};
                         padding: 3px 8px;
                         border-radius: 2px;
                         font-size: 11px;
                         font-weight: 800;
-                        letter-spacing: 0.03em;
+                        letter-spacing: 0.02em;
                         white-space: nowrap;
-                        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                        box-shadow: 0 3px 8px rgba(0,0,0,0.25);
                         display: flex;
                         align-items: center;
                         gap: 5px;
@@ -178,7 +175,7 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
                             width: 6px;
                             height: 6px;
                             border-radius: 1px;
-                            background: ${isActive ? '#111111' : '#F5B800'};
+                            background: ${isActive ? '#F5B800' : '#111111'};
                         "></span>
                         <span>${priceText}</span>
                     </div>
@@ -187,7 +184,7 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
                         height: 0;
                         border-left: 5px solid transparent;
                         border-right: 5px solid transparent;
-                        border-top: 6px solid ${isActive ? '#111111' : '#111111'};
+                        border-top: 6px solid ${isActive ? '#111111' : '#333333'};
                     "></div>
                 </div>
             `;
@@ -207,19 +204,13 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
     };
 
     const handleGetLocation = () => {
-        if (!navigator.geolocation) {
-            setGeoStatus('error');
-            setGeoErrorMsg('Browser Anda tidak mendukung deteksi lokasi.');
-            return;
-        }
+        if (!navigator.geolocation) return;
 
         setGeoStatus('loading');
-        setGeoErrorMsg('');
 
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude } = position.coords;
-                setUserLocation({ lat: latitude, lng: longitude });
                 setGeoStatus('success');
 
                 const map = mapInstanceRef.current;
@@ -234,21 +225,21 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
                             html: `
                                 <div style="
                                     position: relative;
-                                    width: 20px;
-                                    height: 20px;
+                                    width: 18px;
+                                    height: 18px;
                                     transform: translate(-50%, -50%);
                                 ">
                                     <div style="
                                         position: absolute;
-                                        inset: -6px;
+                                        inset: -5px;
                                         border-radius: 9999px;
                                         background: #111111;
-                                        opacity: 0.3;
+                                        opacity: 0.25;
                                         animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
                                     "></div>
                                     <div style="
-                                        width: 20px;
-                                        height: 20px;
+                                        width: 18px;
+                                        height: 18px;
                                         border-radius: 9999px;
                                         background: #111111;
                                         border: 2px solid #F5B800;
@@ -256,7 +247,7 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
                                         align-items: center;
                                         justify-content: center;
                                     ">
-                                        <div style="width: 6px; height: 6px; border-radius: 9999px; background: #F5B800;"></div>
+                                        <div style="width: 5px; height: 5px; border-radius: 9999px; background: #F5B800;"></div>
                                     </div>
                                 </div>
                             `,
@@ -276,9 +267,8 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
                     renderHubPins(sorted, map, markersLayerRef.current, sorted[0].id);
                 }
             },
-            (err) => {
+            () => {
                 setGeoStatus('error');
-                setGeoErrorMsg(err.code === 1 ? 'Izin akses lokasi ditolak pada browser.' : 'Gagal membaca koordinat GPS.');
             },
             { enableHighAccuracy: true, timeout: 8000 }
         );
@@ -297,111 +287,94 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
         : hubsWithDistance.filter((h) => h.kota === filterKota);
 
     return (
-        <div className="border border-stone-200 bg-white text-[#111111] rounded-sm overflow-hidden shadow-sm">
-            {/* Header Kontrol Peta: Bersih, Jelas & Terang */}
-            <div className="p-4 sm:p-5 border-b border-stone-200 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-stone-50/60">
+        <div>
+            {/* Header Section: Mengikuti Struktur Asli Welcome.jsx */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
                 <div>
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className="w-2 h-2 bg-[#F5B800]"></span>
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-500">
-                            PETA LOKASI &bull; TITIK SERAH TERIMA
-                        </span>
-                    </div>
-                    <h3 className="text-base sm:text-lg font-black tracking-tight text-[#111111]">
-                        Titik Armada &amp; Hub Rental di Sekitar Kita
-                    </h3>
+                    <span className="text-xs font-bold text-[#F5B800] bg-[#111111] px-2 py-0.5 rounded-xs inline-block mb-1">
+                        TITIK PENJEMPUTAN
+                    </span>
+                    <h2 className="text-2xl font-bold tracking-tight text-[#111111]">
+                        Titik Armada di Sekitar Anda
+                    </h2>
                     <p className="text-xs text-stone-500 mt-0.5">
-                        Jalur penjemputan armada resmi RentGo dengan petunjuk jalan yang mudah dilihat dan jelas.
+                        Pilih kota penjemputan atau deteksi lokasi untuk melihat titik serah terima kendaraan terdekat.
                     </p>
                 </div>
 
-                {/* Filter Kota & Tombol GPS */}
-                <div className="flex flex-wrap items-center gap-2">
-                    <div className="flex items-center gap-1 bg-white border border-stone-200 p-1 rounded-sm">
-                        {['Semua', 'Jakarta', 'Bandung', 'Yogyakarta', 'Bali'].map((city) => (
-                            <button
-                                key={city}
-                                type="button"
-                                onClick={() => {
-                                    setFilterKota(city);
-                                    const targetHub = city === 'Semua'
-                                        ? hubsWithDistance[0]
-                                        : hubsWithDistance.find((h) => h.kota === city);
-                                    if (targetHub) handleSelectHub(targetHub);
-                                }}
-                                className={`text-[11px] font-bold px-2.5 py-1.5 rounded-sm transition-colors ${
-                                    filterKota === city
-                                        ? 'bg-[#111111] text-[#F5B800]'
-                                        : 'text-stone-600 hover:text-black hover:bg-stone-100'
-                                }`}
-                            >
-                                {city}
-                            </button>
-                        ))}
-                    </div>
+                {/* Filter Kota & Tombol GPS — Bersatu dengan Gaya Tombol Welcome.jsx */}
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                    {['Semua', 'Jakarta', 'Bandung', 'Yogyakarta', 'Bali'].map((city) => (
+                        <button
+                            key={city}
+                            type="button"
+                            onClick={() => {
+                                setFilterKota(city);
+                                const targetHub = city === 'Semua'
+                                    ? hubsWithDistance[0]
+                                    : hubsWithDistance.find((h) => h.kota === city);
+                                if (targetHub) handleSelectHub(targetHub);
+                            }}
+                            className={`text-xs font-bold px-3 py-1.5 rounded-sm border transition-colors whitespace-nowrap ${
+                                filterKota === city
+                                    ? 'bg-[#111111] text-[#F5B800] border-[#111111]'
+                                    : 'bg-white text-stone-700 border-stone-300 hover:border-black'
+                            }`}
+                        >
+                            {city}
+                        </button>
+                    ))}
 
                     <button
                         type="button"
                         onClick={handleGetLocation}
                         disabled={geoStatus === 'loading'}
-                        className="text-xs font-bold bg-[#111111] hover:bg-stone-900 text-[#F5B800] px-3.5 py-2 rounded-sm uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                        className="text-xs font-bold px-3 py-1.5 rounded-sm bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] border border-[#F5B800] transition-colors whitespace-nowrap disabled:opacity-50 flex items-center gap-1"
                     >
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0zM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                         </svg>
-                        <span>{geoStatus === 'loading' ? 'Mencari...' : 'Gunakan Lokasi Saya'}</span>
+                        <span>{geoStatus === 'loading' ? 'Mencari...' : 'Gunakan GPS'}</span>
                     </button>
                 </div>
             </div>
 
-            {/* Status Geolocation Bar */}
-            {geoStatus === 'success' && (
-                <div className="px-4 py-2 bg-emerald-50 border-b border-emerald-200 text-xs font-medium text-emerald-800 flex items-center justify-between">
-                    <span>Lokasi Anda terdeteksi. Hub armada diurutkan dari yang paling dekat dengan Anda.</span>
-                    <span className="text-[10px] font-bold text-emerald-700 uppercase">GPS Aktif</span>
-                </div>
-            )}
-
-            {geoStatus === 'error' && (
-                <div className="px-4 py-2 bg-amber-50 border-b border-amber-200 text-xs text-amber-800">
-                    {geoErrorMsg}
-                </div>
-            )}
-
-            {/* Grid: Peta Jernih + Daftar Hub */}
-            <div className="grid grid-cols-1 lg:grid-cols-12">
-                {/* Kolom Peta Voyager yang Terang & Mudah Dilihat */}
+            {/* Container Peta & Daftar Hub: Kotak Bersih Tanpa Header Berulang */}
+            <div className="border border-stone-200 bg-white rounded-sm overflow-hidden shadow-sm grid grid-cols-1 lg:grid-cols-12">
+                {/* Kolom Peta OpenStreetMap Bebas Watermark */}
                 <div className="lg:col-span-8 relative border-b lg:border-b-0 lg:border-r border-stone-200">
                     <div
                         ref={mapContainerRef}
-                        className="w-full h-[360px] sm:h-[460px]"
+                        className="w-full h-[360px] sm:h-[440px]"
                         style={{ background: '#eef0f2' }}
                     />
 
-                    {/* Info Card Mengambang di atas peta */}
-                    <div className="absolute top-3 left-3 z-10 bg-white/95 backdrop-blur-xs border border-stone-200 p-3 rounded-sm shadow-md max-w-xs text-xs">
-                        <div className="flex items-center justify-between gap-3 pb-1.5 border-b border-stone-100">
-                            <span className="text-[10px] font-mono text-stone-700 font-bold">{selectedHub.kode}</span>
-                            <span className="text-[10px] text-emerald-700 font-bold uppercase">Tersedia</span>
+                    {/* Badge Lokasi Terpilih di Sudut Peta */}
+                    <div className="absolute bottom-3 left-3 z-10 bg-white/95 backdrop-blur-xs border border-stone-300 px-3 py-2 rounded-sm shadow-sm text-xs max-w-xs">
+                        <div className="flex items-center gap-1.5 font-bold text-[#111111]">
+                            <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+                            <span>{selectedHub.nama}</span>
                         </div>
-                        <p className="font-black text-[#111111] text-xs mt-1.5">{selectedHub.nama}</p>
-                        <p className="text-[11px] text-stone-500 mt-0.5 leading-snug">{selectedHub.alamat}</p>
-                        <div className="mt-2 pt-1.5 border-t border-stone-100 flex items-center justify-between text-[11px]">
-                            <span className="text-stone-700 font-medium">Stok: {selectedHub.mobilTersedia} Mobil / {selectedHub.motorTersedia} Motor</span>
-                            <span className="text-black font-extrabold">Mulai Rp {(selectedHub.hargaMulai / 1000).toFixed(0)}rb</span>
-                        </div>
+                        <p className="text-[11px] text-stone-500 mt-0.5 line-clamp-1">{selectedHub.alamat}</p>
                     </div>
+
+                    {/* Indikator GPS Ringkas jika Aktif */}
+                    {geoStatus === 'success' && (
+                        <div className="absolute top-3 left-3 z-10 bg-[#111111] text-[#F5B800] px-2.5 py-1 rounded-sm text-[11px] font-bold shadow-sm">
+                            GPS Aktif &bull; Jarak Terdekat: {hubsWithDistance[0]?.distance || '0'} km
+                        </div>
+                    )}
                 </div>
 
-                {/* Kolom Daftar Hub */}
-                <div className="lg:col-span-4 p-4 bg-stone-50/40 flex flex-col justify-between max-h-[460px] overflow-y-auto">
+                {/* Kolom Daftar Titik Penjemputan */}
+                <div className="lg:col-span-4 p-4 bg-stone-50/50 flex flex-col justify-between max-h-[440px] overflow-y-auto">
                     <div>
                         <div className="flex items-center justify-between pb-3 border-b border-stone-200 mb-3">
                             <span className="text-xs font-bold text-stone-700 uppercase tracking-wider">
                                 Titik Penjemputan
                             </span>
                             <span className="text-[10px] font-bold text-stone-400">
-                                {filteredHubs.length} Titik
+                                {filteredHubs.length} Lokasi
                             </span>
                         </div>
 
@@ -414,22 +387,22 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
                                         onClick={() => handleSelectHub(hub)}
                                         className={`p-3 rounded-sm border cursor-pointer transition-all text-left ${
                                             isSelected
-                                                ? 'border-black bg-white ring-1 ring-black shadow-xs'
+                                                ? 'border-[#111111] bg-white ring-1 ring-[#111111] shadow-xs'
                                                 : 'border-stone-200 hover:border-stone-400 bg-white'
                                         }`}
                                     >
                                         <div className="flex items-start justify-between gap-2">
                                             <div>
-                                                <span className="text-[10px] font-mono text-stone-500 block mb-0.5">
+                                                <span className="text-[10px] font-mono text-stone-400 block mb-0.5">
                                                     {hub.kode} &bull; {hub.kota}
                                                 </span>
-                                                <h4 className="text-xs font-black text-[#111111] leading-tight">
+                                                <h4 className="text-xs font-bold text-[#111111] leading-tight">
                                                     {hub.nama}
                                                 </h4>
                                             </div>
                                             {hub.distance !== undefined && (
                                                 <span className="text-[10px] font-bold bg-[#F5B800] text-[#111111] px-1.5 py-0.5 rounded-xs shrink-0">
-                                                    {hub.distance} KM
+                                                    {hub.distance} km
                                                 </span>
                                             )}
                                         </div>
@@ -442,8 +415,8 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
                                             <span className="text-stone-600 font-medium">
                                                 {hub.mobilTersedia} Mobil &bull; {hub.motorTersedia} Motor
                                             </span>
-                                            <span className="text-black font-extrabold">
-                                                Rp {hub.hargaMulai.toLocaleString('id-ID')}/hr
+                                            <span className="text-[#111111] font-bold">
+                                                Mulai Rp {(hub.hargaMulai / 1000).toFixed(0)}rb
                                             </span>
                                         </div>
                                     </div>
@@ -458,7 +431,7 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
                             href="#armada-mobil"
                             className="w-full inline-flex items-center justify-center gap-2 bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] font-bold text-xs p-2.5 rounded-sm uppercase tracking-wider transition-colors text-center"
                         >
-                            <span>Lihat Armada di {selectedHub.kota}</span>
+                            <span>Pilih Armada di {selectedHub.kota}</span>
                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                             </svg>
