@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import MorphStage from '@/Components/MorphStage';
+import PageTransition from '@/Components/PageTransition';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -15,11 +16,14 @@ createInertiaApp({
         const root = createRoot(el);
 
         root.render(
-            <App {...props}>
-                {({ Component, key, props: pageProps }) => (
-                    <MorphStage Component={Component} pageKey={key} pageProps={pageProps} />
-                )}
-            </App>
+            <>
+                <PageTransition />
+                <App {...props}>
+                    {({ Component, key, props: pageProps }) => (
+                        <MorphStage Component={Component} pageKey={key} pageProps={pageProps} />
+                    )}
+                </App>
+            </>
         );
     },
     progress: {

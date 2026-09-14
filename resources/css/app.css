@@ -38,71 +38,127 @@
   }
 }
 
-/* ============================================================
-   RentGo Morph View Transitions (seperti Morph di PPT)
-   Elemen desain pecah, bertransformasi & menyatu ke halaman baru
-   ============================================================ */
-@view-transition {
-  navigation: auto;
+.rentgo-loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: rgba(245, 245, 240, 0.82);
+  backdrop-filter: blur(5px);
 }
 
-::view-transition-group(root) {
-  animation-duration: 0.42s;
-  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+.rentgo-loader-content {
+  width: min(290px, calc(100vw - 40px));
+  padding: 28px 26px 24px;
+  text-align: center;
 }
 
-/* Desain lama: pecah, melebur, sedikit menyusut dan memudar */
-::view-transition-old(root) {
-  animation: morphBreakOut 0.38s cubic-bezier(0.4, 0, 0.2, 1) both;
+.rentgo-loader-road {
+  position: relative;
+  height: 4px;
+  margin: 34px 0 24px;
+  overflow: hidden;
+  background: #111111;
 }
 
-/* Desain baru: mengembang dari pecahan, menyatu dan membesar pas ke layar */
-::view-transition-new(root) {
-  animation: morphAssembleIn 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+.rentgo-loader-road-line {
+  position: absolute;
+  inset: 1px 0;
+  width: 52px;
+  background: #f5b800;
+  animation: rentgo-road 0.8s linear infinite;
 }
 
-@keyframes morphBreakOut {
-  0% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-    filter: blur(0px);
+.rentgo-loader-car {
+  position: absolute;
+  width: 58px;
+  height: 32px;
+  margin-top: -55px;
+  margin-left: 90px;
+  animation: rentgo-car 1.6s ease-in-out infinite;
+}
+
+.rentgo-loader-car-body {
+  position: absolute;
+  left: 3px;
+  bottom: 5px;
+  width: 52px;
+  height: 17px;
+  border-radius: 8px 10px 3px 3px;
+  background: #f5b800;
+  border: 2px solid #111111;
+}
+
+.rentgo-loader-car-body::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: -10px;
+  width: 26px;
+  height: 12px;
+  border: 2px solid #111111;
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+  background: #ffffff;
+}
+
+.rentgo-loader-wheel {
+  position: absolute;
+  bottom: 0;
+  width: 11px;
+  height: 11px;
+  border: 3px solid #111111;
+  border-radius: 50%;
+  background: #ffffff;
+  animation: rentgo-wheel 0.45s linear infinite;
+}
+
+.rentgo-loader-wheel-front { right: 7px; }
+.rentgo-loader-wheel-back { left: 8px; }
+
+.rentgo-loader-label {
+  margin: 0;
+  color: #111111;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.rentgo-loader-dots {
+  display: inline-block;
+  width: 18px;
+  overflow: hidden;
+  vertical-align: bottom;
+  animation: rentgo-dots 1.1s steps(4, end) infinite;
+}
+
+@keyframes rentgo-car {
+  0%, 100% { transform: translateX(-55px); }
+  50% { transform: translateX(55px); }
+}
+
+@keyframes rentgo-road {
+  from { transform: translateX(-55px); }
+  to { transform: translateX(290px); }
+}
+
+@keyframes rentgo-wheel {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rentgo-dots {
+  0%, 20% { width: 0; }
+  40% { width: 6px; }
+  60% { width: 12px; }
+  80%, 100% { width: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rentgo-loader-car,
+  .rentgo-loader-road-line,
+  .rentgo-loader-wheel,
+  .rentgo-loader-dots {
+    animation: none;
   }
-  100% {
-    opacity: 0;
-    transform: scale(0.97) translateY(-6px);
-    filter: blur(3px);
-  }
-}
-
-@keyframes morphAssembleIn {
-  0% {
-    opacity: 0;
-    transform: scale(1.03) translateY(8px);
-    filter: blur(3px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-    filter: blur(0px);
-  }
-}
-
-/* Header navbar menyatu & bertransformasi mulus di posisi tetap */
-::view-transition-group(main-navbar) {
-  animation-duration: 0.35s;
-  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-.morph-navbar {
-  view-transition-name: main-navbar;
-}
-
-/* Hero section morph antar halaman */
-::view-transition-group(page-hero) {
-  animation-duration: 0.4s;
-  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-.morph-hero {
-  view-transition-name: page-hero;
 }

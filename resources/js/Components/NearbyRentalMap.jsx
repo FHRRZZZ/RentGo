@@ -96,7 +96,7 @@ function calculateDistanceKm(lat1, lon1, lat2, lon2) {
     return (R * c).toFixed(1);
 }
 
-export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
+export default function NearbyRentalMap({ selectedCity = 'Semua Kota', compact = false }) {
     const mapContainerRef = useRef(null);
     const mapInstanceRef = useRef(null);
     const markersLayerRef = useRef(null);
@@ -294,7 +294,7 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
                     <span className="text-xs font-bold text-[#F5B800] bg-[#111111] px-2 py-0.5 rounded-xs inline-block mb-1">
                         TITIK PENJEMPUTAN
                     </span>
-                    <h2 className="text-2xl font-bold tracking-tight text-[#111111]">
+                    <h2 className={`${compact ? 'text-xl' : 'text-2xl'} font-bold tracking-tight text-[#111111]`}>
                         Titik Armada di Sekitar Anda
                     </h2>
                     <p className="text-xs text-stone-500 mt-0.5">
@@ -340,9 +340,9 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
             </div>
 
             {/* Container Peta & Daftar Hub: Kotak Bersih Tanpa Header Berulang */}
-            <div className="border border-stone-200 bg-white rounded-sm overflow-hidden shadow-sm grid grid-cols-1 lg:grid-cols-12">
+            <div className={`border border-stone-200 bg-white rounded-sm overflow-hidden shadow-sm grid grid-cols-1 ${compact ? '' : 'lg:grid-cols-12'}`}>
                 {/* Kolom Peta OpenStreetMap Bebas Watermark */}
-                <div className="lg:col-span-8 relative border-b lg:border-b-0 lg:border-r border-stone-200">
+                <div className={`${compact ? '' : 'lg:col-span-8 lg:border-b-0 lg:border-r'} relative border-b border-stone-200`}>
                     <div
                         ref={mapContainerRef}
                         className="w-full h-[360px] sm:h-[440px]"
@@ -367,7 +367,7 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota' }) {
                 </div>
 
                 {/* Kolom Daftar Titik Penjemputan */}
-                <div className="lg:col-span-4 p-4 bg-stone-50/50 flex flex-col justify-between max-h-[440px] overflow-y-auto">
+                <div className={`${compact ? 'max-h-[320px]' : 'lg:col-span-4 max-h-[440px]'} p-4 bg-stone-50/50 flex flex-col justify-between overflow-y-auto`}>
                     <div>
                         <div className="flex items-center justify-between pb-3 border-b border-stone-200 mb-3">
                             <span className="text-xs font-bold text-stone-700 uppercase tracking-wider">

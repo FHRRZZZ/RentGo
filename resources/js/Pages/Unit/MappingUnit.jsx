@@ -16,6 +16,7 @@ const UNITS = [
 ];
 
 const formatRupiah = (value) => `Rp ${value.toLocaleString('id-ID')}`;
+const FALLBACK_UNIT_IMAGE = 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=900&q=80';
 
 export default function MappingUnit({ auth = {}, search = {} }) {
     const [sort, setSort] = useState('relevan');
@@ -69,35 +70,40 @@ export default function MappingUnit({ auth = {}, search = {} }) {
                         </div>
                     </section>
 
-                    <section className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-                        <div className="xl:col-span-7">
-                            <div className="flex items-center justify-between mb-3">
+                    <section>
+                        <div>
+                            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-4 pb-4 border-b border-stone-200">
                                 <div>
-                                    <p className="text-xs text-stone-500">Menampilkan</p>
-                                    <h2 className="text-lg font-semibold">{filteredUnits.length} unit siap disewa</h2>
-                                    {keyword && <p className="text-[11px] text-stone-500 mt-1">Hasil untuk: <span className="font-semibold text-[#111111]">{search.q}</span></p>}
+                                    <p className="text-[10px] text-stone-500 uppercase tracking-[0.16em] font-bold">Hasil pencarian</p>
+                                    <h2 className="text-xl font-semibold mt-1">{filteredUnits.length} unit siap disewa</h2>
+                                    {keyword && <p className="text-xs text-stone-500 mt-1">Menampilkan hasil untuk <span className="font-semibold text-[#111111]">“{search.q}”</span></p>}
                                 </div>
-                                <select value={sort} onChange={(e) => setSort(e.target.value)} className="text-xs font-semibold bg-white border border-stone-300 rounded-sm px-3 py-2 focus:border-black outline-none">
-                                    <option value="relevan">Paling relevan</option>
-                                    <option value="termurah">Harga terendah</option>
-                                </select>
+                                <label className="flex items-center gap-2 text-[11px] font-semibold text-stone-500 shrink-0">
+                                    Urutkan
+                                    <select value={sort} onChange={(e) => setSort(e.target.value)} className="text-xs font-semibold bg-white border border-stone-300 rounded-sm px-3 py-2 focus:border-black outline-none">
+                                        <option value="relevan">Paling relevan</option>
+                                        <option value="termurah">Harga terendah</option>
+                                    </select>
+                                </label>
                             </div>
 
                             {filteredUnits.length === 0 ? (
                                 <div className="bg-white border border-stone-200 rounded-sm p-10 text-center"><p className="text-sm font-semibold">Belum ada unit di kota ini</p><Link href="/pencarian" className="inline-block mt-3 text-xs font-semibold bg-[#F5B800] px-4 py-2 rounded-sm">Lihat semua unit</Link></div>
                             ) : (
-                                <div className="grid sm:grid-cols-2 gap-4">
+                                <div className="grid sm:grid-cols-2 gap-5">
                                     {filteredUnits.map((unit) => (
-                                        <article key={unit.id} className="bg-white border border-stone-200 rounded-sm overflow-hidden hover:border-stone-400 transition-colors">
-                                            <div className="h-40 bg-stone-100 relative overflow-hidden"><img src={unit.img} alt={unit.nama} className="w-full h-full object-cover" /><span className="absolute top-3 left-3 bg-[#111111] text-[#F5B800] text-[10px] font-bold px-2 py-1 rounded-sm">{unit.status}</span></div>
-                                            <div className="p-4"><div className="flex justify-between gap-3"><div><p className="text-[10px] text-stone-400 font-mono">{unit.id} / {unit.kota}</p><h3 className="text-sm font-semibold mt-1 leading-tight">{unit.nama}</h3></div><span className="text-[10px] font-semibold text-stone-500">{unit.kategori}</span></div><div className="flex gap-2 mt-3 text-[10px] text-stone-500"><span>{unit.transmisi}</span><span>·</span><span>{unit.kursi}</span></div><div className="flex items-end justify-between border-t border-stone-100 mt-3 pt-3"><div><p className="text-[10px] text-stone-400">{unit.lokasi}</p><p className="text-sm font-bold mt-0.5">{formatRupiah(unit.harga)}<span className="text-[10px] font-normal text-stone-400"> / hari</span></p></div><button type="button" className="bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] text-[10px] font-bold px-3 py-2 rounded-sm">Pilih Unit</button></div></div>
+                                        <article key={unit.id} className="bg-white border border-stone-200 rounded-sm overflow-hidden hover:border-stone-400 hover:shadow-sm transition-all flex flex-col">
+                                            <div className="h-44 bg-stone-100 relative overflow-hidden"><img src={unit.img} alt={unit.nama} onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = FALLBACK_UNIT_IMAGE; }} className="w-full h-full object-cover" /><span className="absolute top-3 left-3 bg-[#111111] text-[#F5B800] text-[10px] font-bold px-2 py-1 rounded-sm">{unit.status}</span></div>
+                                            <div className="p-4 flex flex-col flex-1"><div className="flex justify-between gap-3 min-h-11"><div><p className="text-[10px] text-stone-400 font-mono">{unit.id} / {unit.kota}</p><h3 className="text-sm font-semibold mt-1 leading-tight">{unit.nama}</h3></div><span className="text-[10px] font-semibold text-stone-500 text-right shrink-0">{unit.kategori}</span></div><div className="flex gap-2 mt-3 text-[10px] text-stone-500"><span>{unit.transmisi}</span><span>·</span><span>{unit.kursi}</span></div><div className="flex items-end justify-between border-t border-stone-100 mt-auto pt-3"><div><p className="text-[10px] text-stone-400 line-clamp-1">{unit.lokasi}</p><p className="text-sm font-bold mt-0.5">{formatRupiah(unit.harga)}<span className="text-[10px] font-normal text-stone-400"> / hari</span></p></div><button type="button" className="bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] text-[10px] font-bold px-3 py-2 rounded-sm shrink-0">Pilih Unit</button></div></div>
                                         </article>
                                     ))}
                                 </div>
                             )}
                         </div>
 
-                        <div className="xl:col-span-5 xl:sticky xl:top-24"><NearbyRentalMap selectedCity={mapCity} /></div>
+                        <div className="mt-10 pt-8 border-t border-stone-200">
+                            <NearbyRentalMap selectedCity={mapCity} />
+                        </div>
                     </section>
                 </main>
             </div>
