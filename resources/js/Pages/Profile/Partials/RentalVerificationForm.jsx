@@ -78,11 +78,11 @@ export default function RentalVerificationForm({ className = '' }) {
                 <div>
                     <div className="flex items-center gap-2 mb-1">
                         <span className="w-2 h-2 bg-[#F5B800]"></span>
-                        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-stone-500">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-500">
                             PERSYARATAN SEWA
                         </span>
                     </div>
-                    <h2 className="text-lg font-black text-[#111111] tracking-tight">
+                    <h2 className="text-lg font-semibold text-[#111111] tracking-tight">
                         Dokumen Verifikasi Identitas
                     </h2>
                     <p className="text-xs text-stone-500 mt-0.5">
@@ -92,7 +92,7 @@ export default function RentalVerificationForm({ className = '' }) {
 
                 {/* Progress Bar Kelengkapan */}
                 <div className="bg-stone-50 border border-stone-200 p-3 rounded-sm sm:w-60 shrink-0">
-                    <div className="flex items-center justify-between text-xs mb-1.5 font-bold">
+                    <div className="flex items-center justify-between text-xs mb-1.5 font-medium">
                         <span className="text-stone-700">Kelengkapan Dokumen</span>
                         <span className={progress === 100 ? 'text-emerald-600' : 'text-[#111111]'}>{progress}%</span>
                     </div>
@@ -112,7 +112,7 @@ export default function RentalVerificationForm({ className = '' }) {
 
             {/* Banner Keamanan Data */}
             <div className="mb-6 p-4 bg-stone-50 border-l-4 border-[#F5B800] border-t border-r border-b border-stone-200 rounded-sm text-xs text-stone-700">
-                <span className="font-bold text-black">Catatan Asuransi &amp; Serah Terima:</span> Dokumen Anda hanya digunakan oleh mitra penyedia armada RentGo untuk verifikasi fisik saat serah terima unit dan klaim asuransi perjalanan.
+                <span className="font-semibold text-black">Catatan Asuransi &amp; Serah Terima:</span> Dokumen Anda hanya digunakan oleh mitra penyedia armada RentGo untuk verifikasi fisik saat serah terima unit dan klaim asuransi perjalanan.
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-7">
@@ -127,7 +127,7 @@ export default function RentalVerificationForm({ className = '' }) {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label htmlFor="nik" className="block text-xs font-bold text-stone-700 mb-1">
+                            <label htmlFor="nik" className="block text-xs font-medium text-stone-700 mb-1">
                                 Nomor NIK / KTP (16 Digit) <span className="text-red-500">*</span>
                             </label>
                             <input
@@ -144,7 +144,7 @@ export default function RentalVerificationForm({ className = '' }) {
                         </div>
 
                         <div>
-                            <label htmlFor="whatsapp" className="block text-xs font-bold text-stone-700 mb-1">
+                            <label htmlFor="whatsapp" className="block text-xs font-medium text-stone-700 mb-1">
                                 Nomor WhatsApp Aktif <span className="text-red-500">*</span>
                             </label>
                             <input
@@ -162,7 +162,7 @@ export default function RentalVerificationForm({ className = '' }) {
 
                     {/* Foto KTP */}
                     <div>
-                        <label className="block text-xs font-bold text-stone-700 mb-1">
+                        <label className="block text-xs font-medium text-stone-700 mb-1">
                             Foto KTP Asli (Jelas &amp; Terbaca) <span className="text-red-500">*</span>
                         </label>
                         
@@ -172,7 +172,7 @@ export default function RentalVerificationForm({ className = '' }) {
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
                                 </svg>
-                                <span className="text-xs font-bold text-black">Klik untuk Unggah Foto KTP</span>
+                                <span className="text-xs font-medium text-black">Klik untuk Unggah Foto KTP</span>
                                 <span className="text-[11px] text-stone-500 mt-0.5">Format JPG, PNG, atau WebP (Maksimal 5MB)</span>
                                 <input
                                     type="file"
@@ -185,7 +185,7 @@ export default function RentalVerificationForm({ className = '' }) {
                             <div className="relative rounded-sm overflow-hidden border border-stone-300 bg-stone-900 max-w-sm">
                                 <img src={ktpPreview} alt="Preview KTP" className="w-full h-44 object-cover" />
                                 <div className="p-3 bg-white border-t border-stone-200 flex items-center justify-between">
-                                    <span className="text-xs font-bold text-emerald-700 flex items-center gap-1">
+                                    <span className="text-xs font-medium text-emerald-700 flex items-center gap-1">
                                         <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                         </svg>
@@ -194,7 +194,7 @@ export default function RentalVerificationForm({ className = '' }) {
                                     <button
                                         type="button"
                                         onClick={removeKtp}
-                                        className="text-xs font-bold text-red-600 hover:text-red-700"
+                                        className="text-xs font-medium text-red-600 hover:text-red-700"
                                     >
                                         Ganti / Hapus
                                     </button>
@@ -263,7 +263,7 @@ export default function RentalVerificationForm({ className = '' }) {
 
                     {/* Foto SIM */}
                     <div>
-                        <label className="block text-xs font-bold text-stone-700 mb-1">
+                        <label className="block text-xs font-medium text-stone-700 mb-1">
                             Foto SIM Masih Berlaku <span className="text-red-500">*</span>
                         </label>
                         
@@ -272,7 +272,7 @@ export default function RentalVerificationForm({ className = '' }) {
                                 <svg className="w-8 h-8 text-stone-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z" />
                                 </svg>
-                                <span className="text-xs font-bold text-black">Klik untuk Unggah Foto SIM</span>
+                                <span className="text-xs font-medium text-black">Klik untuk Unggah Foto SIM</span>
                                 <span className="text-[11px] text-stone-500 mt-0.5">Pastikan masa berlaku dan nomor SIM terbaca</span>
                                 <input
                                     type="file"
@@ -285,7 +285,7 @@ export default function RentalVerificationForm({ className = '' }) {
                             <div className="relative rounded-sm overflow-hidden border border-stone-300 bg-stone-900 max-w-sm">
                                 <img src={simPreview} alt="Preview SIM" className="w-full h-44 object-cover" />
                                 <div className="p-3 bg-white border-t border-stone-200 flex items-center justify-between">
-                                    <span className="text-xs font-bold text-emerald-700 flex items-center gap-1">
+                                    <span className="text-xs font-medium text-emerald-700 flex items-center gap-1">
                                         <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                         </svg>
@@ -294,7 +294,7 @@ export default function RentalVerificationForm({ className = '' }) {
                                     <button
                                         type="button"
                                         onClick={removeSim}
-                                        className="text-xs font-bold text-red-600 hover:text-red-700"
+                                        className="text-xs font-medium text-red-600 hover:text-red-700"
                                     >
                                         Ganti / Hapus
                                     </button>
@@ -392,7 +392,7 @@ export default function RentalVerificationForm({ className = '' }) {
                     <button
                         type="submit"
                         disabled={isSaving}
-                        className="text-xs font-bold bg-[#F5B800] text-[#111111] hover:bg-[#e0a800] px-6 py-3 rounded-sm uppercase tracking-wider transition-colors disabled:opacity-50"
+                        className="text-xs font-medium bg-[#F5B800] text-[#111111] hover:bg-[#e0a800] px-6 py-3 rounded-sm uppercase tracking-wider transition-colors disabled:opacity-50"
                     >
                         {isSaving ? 'Menyimpan Dokumen...' : 'Simpan Dokumen Sewa'}
                     </button>
@@ -405,7 +405,7 @@ export default function RentalVerificationForm({ className = '' }) {
                         leave="transition ease-in duration-150"
                         leaveTo="opacity-0"
                     >
-                        <span className="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-sm flex items-center gap-1.5">
+                        <span className="text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-sm flex items-center gap-1.5">
                             <svg className="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                             </svg>

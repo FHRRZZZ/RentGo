@@ -30,7 +30,7 @@ export default function Register() {
 
             <div className="bg-white border border-stone-200 rounded-sm p-6 sm:p-7 shadow-sm">
                 <div className="mb-6">
-                    <h1 className="text-xl font-extrabold tracking-tight text-[#111111]">Buat akun baru</h1>
+                    <h1 className="text-xl font-semibold tracking-tight text-[#111111]">Buat akun baru</h1>
                     <p className="text-xs text-stone-500 mt-1.5 leading-relaxed">
                         Daftar gratis dan mulai sewa kendaraan dari mitra terverifikasi.
                     </p>
@@ -38,7 +38,7 @@ export default function Register() {
 
                 <form onSubmit={submit} className="space-y-4">
                     <div>
-                        <label htmlFor="name" className="block text-xs font-bold text-stone-700 mb-1.5">
+                        <label htmlFor="name" className="block text-xs font-medium text-stone-700 mb-1.5">
                             Nama Lengkap
                         </label>
                         <input
@@ -59,7 +59,7 @@ export default function Register() {
                     </div>
 
                     <div>
-                        <label htmlFor="email" className="block text-xs font-bold text-stone-700 mb-1.5">
+                        <label htmlFor="email" className="block text-xs font-medium text-stone-700 mb-1.5">
                             Email
                         </label>
                         <input
@@ -79,7 +79,7 @@ export default function Register() {
                     </div>
 
                     <div>
-                        <label htmlFor="password" className="block text-xs font-bold text-stone-700 mb-1.5">
+                        <label htmlFor="password" className="block text-xs font-medium text-stone-700 mb-1.5">
                             Kata Sandi
                         </label>
                         <div className="relative">
@@ -118,7 +118,7 @@ export default function Register() {
                     </div>
 
                     <div>
-                        <label htmlFor="password_confirmation" className="block text-xs font-bold text-stone-700 mb-1.5">
+                        <label htmlFor="password_confirmation" className="block text-xs font-medium text-stone-700 mb-1.5">
                             Konfirmasi Kata Sandi
                         </label>
                         <div className="relative">
@@ -161,7 +161,7 @@ export default function Register() {
                     <button
                         type="submit"
                         disabled={processing}
-                        className="w-full bg-[#F5B800] text-[#111111] text-sm font-extrabold py-3 rounded-sm hover:bg-[#e0a800] active:bg-[#c99600] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full bg-[#F5B800] text-[#111111] text-sm font-semibold py-3 rounded-sm hover:bg-[#e0a800] active:bg-[#c99600] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                         {processing ? (
                             <>
@@ -178,7 +178,7 @@ export default function Register() {
                 <div className="mt-5 pt-5 border-t border-stone-100 text-center">
                     <p className="text-xs text-stone-500">
                         Sudah punya akun?{' '}
-                        <Link href="/login" className="font-bold text-[#111111] hover:underline underline-offset-2">
+                        <Link href="/login" className="font-semibold text-[#111111] hover:underline underline-offset-2">
                             Masuk sekarang
                         </Link>
                     </p>

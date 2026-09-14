@@ -142,7 +142,10 @@ export default function Welcome({
 }) {
     const [kendaraanTipe, setKendaraanTipe] = useState('mobil');
     const [layananOpsi, setLayananOpsi] = useState('lepas-kunci');
+    const [kataKunci, setKataKunci] = useState('');
     const [kota, setKota] = useState('Semua Kota');
+    const [tanggal, setTanggal] = useState(new Date().toISOString().split('T')[0]);
+    const [durasi, setDurasi] = useState('1 Hari');
     const [kategoriFilter, setKategoriFilter] = useState('Semua');
     const [toast, setToast] = useState(flash?.success || null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -189,21 +192,33 @@ export default function Welcome({
     const loginUrl = typeof route === 'function' ? route('login') : '/login';
     const registerUrl = typeof route === 'function' ? route('register') : '/register';
 
+    const handleSearch = (e) => {
+        e.preventDefault();
+        router.get('/pencarian', {
+            tipe: kendaraanTipe,
+            q: kataKunci,
+            layanan: layananOpsi,
+            kota,
+            tanggal,
+            durasi,
+        });
+    };
+
     return (
-        <div className="min-h-screen bg-white text-[#111111] font-sans overflow-x-hidden">
+        <div className="min-h-screen bg-white text-[#111111] font-sans overflow-x-hidden page-enter">
             <Head>
                 <title>RentGo - Rental Mobil &amp; Motor di Indonesia</title>
                 <meta name="description" content="Sewa mobil dan motor lepas kunci atau dengan supir dari mitra lokal terpercaya di berbagai kota di Indonesia." />
             </Head>
 
-            <header className="border-b border-stone-200 bg-white sticky top-0 z-30">
+            <header className="border-b border-stone-200 bg-white sticky top-0 z-30 morph-navbar">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-8">
                         <Link href="/">
                             <ApplicationLogo theme="light" />
                         </Link>
                         <nav className="hidden md:flex items-center gap-6 text-sm text-stone-600 font-medium">
-                            <a href="#sekitar-kita" className="text-black font-bold flex items-center gap-1.5">
+                            <a href="#sekitar-kita" className="text-black font-semibold flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-[#F5B800]"></span>
                                 <span>Sekitar Kita</span>
                             </a>
@@ -224,12 +239,12 @@ export default function Welcome({
                                     onClick={() => setDropdownOpen((v) => !v)}
                                     className="flex items-center gap-2.5 py-1.5 pl-2 pr-3.5 rounded-full border border-stone-200 bg-white hover:border-[#F5B800] hover:shadow-md hover:shadow-stone-200/50 transition-all duration-200 focus:outline-none"
                                 >
-                                    <div className="w-7 h-7 rounded-full bg-[#111111] text-[#F5B800] font-black flex items-center justify-center text-xs tracking-wider shadow-sm ring-2 ring-[#F5B800]">
+                                    <div className="w-7 h-7 rounded-full bg-[#111111] text-[#F5B800] font-semibold flex items-center justify-center text-xs tracking-wider shadow-sm ring-2 ring-[#F5B800]">
                                         {auth.user.name?.charAt(0)?.toUpperCase()}
                                     </div>
                                     <div className="hidden sm:flex flex-col text-left">
                                         <div className="flex items-center gap-1.5">
-                                            <span className="text-xs font-bold text-[#111111] leading-tight">
+                                            <span className="text-xs font-medium text-[#111111] leading-tight">
                                                 {auth.user.name?.split(' ')[0]}
                                             </span>
                                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
@@ -245,13 +260,13 @@ export default function Welcome({
                                     <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-stone-100 rounded-2xl shadow-2xl shadow-stone-900/15 z-50 overflow-hidden ring-1 ring-black/5">
                                         <div className="p-4 bg-gradient-to-br from-stone-900 to-[#111111] text-white">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-[#F5B800] text-[#111111] font-black flex items-center justify-center text-sm uppercase shrink-0 shadow-inner">
+                                                <div className="w-10 h-10 rounded-full bg-[#F5B800] text-[#111111] font-semibold flex items-center justify-center text-sm uppercase shrink-0 shadow-inner">
                                                     {auth.user.name?.charAt(0)?.toUpperCase()}
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <p className="text-xs font-bold text-white truncate">{auth.user.name}</p>
+                                                    <p className="text-xs font-medium text-white truncate">{auth.user.name}</p>
                                                     <p className="text-[11px] text-stone-400 truncate mt-0.5">{auth.user.email}</p>
-                                                    <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F5B800]/20 text-[#F5B800] text-[9px] font-extrabold uppercase tracking-wider">
+                                                    <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F5B800]/20 text-[#F5B800] text-[9px] font-semibold uppercase tracking-wider">
                                                         <span>●</span> Member Terverifikasi
                                                     </div>
                                                 </div>
@@ -312,7 +327,7 @@ export default function Welcome({
                                 {canLogin && (
                                     <Link
                                         href={loginUrl}
-                                        className="text-xs font-bold text-stone-600 hover:text-black px-3 py-2 transition-colors"
+                                        className="text-xs font-medium text-stone-600 hover:text-black px-3 py-2 transition-colors"
                                     >
                                         Masuk
                                     </Link>
@@ -320,7 +335,7 @@ export default function Welcome({
                                 {canRegister && (
                                     <Link
                                         href={registerUrl}
-                                        className="text-xs font-bold bg-[#F5B800] text-[#111111] hover:bg-[#e0a800] px-4 py-2 rounded-sm transition-colors"
+                                        className="text-xs font-medium bg-[#F5B800] text-[#111111] hover:bg-[#e0a800] px-4 py-2 rounded-sm transition-colors"
                                     >
                                         Daftar Gratis
                                     </Link>
@@ -331,38 +346,39 @@ export default function Welcome({
                 </div>
             </header>
 
-            {toast && (
-                <div
-                    className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#111111] text-white text-xs font-semibold px-5 py-3 rounded-sm shadow-xl border border-stone-700 animate-fade-in"
-                    style={{ animation: 'slideDown 0.3s ease' }}
-                >
-                    <svg className="w-4 h-4 text-[#F5B800] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>{toast}</span>
-                    <button type="button" onClick={() => setToast(null)} className="ml-2 text-stone-400 hover:text-white transition-colors">
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            <main className="morph-page-container">
+                {toast && (
+                    <div
+                        className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#111111] text-white text-xs font-semibold px-5 py-3 rounded-sm shadow-xl border border-stone-700 animate-fade-in"
+                        style={{ animation: 'slideDown 0.3s ease' }}
+                    >
+                        <svg className="w-4 h-4 text-[#F5B800] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                    </button>
-                </div>
-            )}
+                        <span>{toast}</span>
+                        <button type="button" onClick={() => setToast(null)} className="ml-2 text-stone-400 hover:text-white transition-colors">
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                )}
 
-            <section className="bg-[#111111] text-white py-14 sm:py-20 relative overflow-hidden">
-                <div className="absolute inset-0 pointer-events-none select-none z-0 flex items-center justify-end overflow-hidden">
-                    <img
-                        src="/landing-pagei-2-removebg-preview.png"
-                        alt=""
-                        className="w-[650px] sm:w-[900px] lg:w-[1250px] max-w-none opacity-30 sm:opacity-35 lg:opacity-40 -translate-y-14 sm:-translate-y-24 lg:-translate-y-36 translate-x-4 sm:translate-x-8 lg:translate-x-12 object-contain"
-                    />
-                </div>
+                <section className="bg-[#111111] text-white py-14 sm:py-20 relative overflow-hidden">
+                    <div className="absolute inset-0 pointer-events-none select-none z-0 flex items-center justify-end overflow-hidden">
+                        <img
+                            src="/landing-pagei-2-removebg-preview.png"
+                            alt=""
+                            className="w-[650px] sm:w-[900px] lg:w-[1250px] max-w-none opacity-30 sm:opacity-35 lg:opacity-40 -translate-y-14 sm:-translate-y-24 lg:-translate-y-36 translate-x-4 sm:translate-x-8 lg:translate-x-12 object-contain"
+                        />
+                    </div>
 
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
-                    <div className="max-w-3xl mb-10 sm:mb-12">
-                        <span className="text-[#F5B800] font-bold text-xs uppercase tracking-wider block mb-2">
-                            Sewa Mobil &amp; Motor Mudah
-                        </span>
-                        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white">
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
+                        <div className="max-w-3xl mb-10 sm:mb-12">
+                            <span className="text-[#F5B800] font-semibold text-xs uppercase tracking-wider block mb-2">
+                                Sewa Mobil &amp; Motor Mudah
+                            </span>
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight leading-tight text-white">
                             Pesan kendaraan untuk liburan dan kebutuhan dinas Anda.
                         </h1>
                         <p className="text-stone-300 text-sm sm:text-base mt-3 max-w-2xl leading-relaxed">
@@ -376,7 +392,7 @@ export default function Welcome({
                                 <button
                                     type="button"
                                     onClick={() => setKendaraanTipe('mobil')}
-                                    className={`text-xs font-bold px-4 py-2 rounded-sm transition-colors ${
+                                    className={`text-xs font-medium px-4 py-2 rounded-sm transition-colors ${
                                         kendaraanTipe === 'mobil'
                                             ? 'bg-[#111111] text-[#F5B800]'
                                             : 'text-stone-600 hover:text-black'
@@ -387,7 +403,7 @@ export default function Welcome({
                                 <button
                                     type="button"
                                     onClick={() => setKendaraanTipe('motor')}
-                                    className={`text-xs font-bold px-4 py-2 rounded-sm transition-colors ${
+                                    className={`text-xs font-medium px-4 py-2 rounded-sm transition-colors ${
                                         kendaraanTipe === 'motor'
                                             ? 'bg-[#111111] text-[#F5B800]'
                                             : 'text-stone-600 hover:text-black'
@@ -422,9 +438,27 @@ export default function Welcome({
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 items-end">
+                        <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 pt-4 items-end">
                             <div>
-                                <label className="block text-xs font-bold text-stone-700 mb-1">
+                                <label htmlFor="kata-kunci" className="block text-xs font-medium text-stone-700 mb-1">
+                                    Cari Kendaraan
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        id="kata-kunci"
+                                        type="search"
+                                        value={kataKunci}
+                                        onChange={(e) => setKataKunci(e.target.value)}
+                                        placeholder="Nama unit atau kategori"
+                                        className="w-full text-xs font-medium bg-stone-50 border border-stone-300 rounded-sm p-2.5 pl-9 focus:bg-white focus:border-black outline-none"
+                                    />
+                                    <svg className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-4.35-4.35m2.1-5.4a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-stone-700 mb-1">
                                     Kota Penjemputan
                                 </label>
                                 <select
@@ -439,22 +473,24 @@ export default function Welcome({
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-stone-700 mb-1">
+                                <label className="block text-xs font-medium text-stone-700 mb-1">
                                     Tanggal Mulai
                                 </label>
                                 <input
                                     type="date"
-                                    defaultValue={new Date().toISOString().split('T')[0]}
+                                    value={tanggal}
+                                    onChange={(e) => setTanggal(e.target.value)}
                                     className="w-full text-xs font-medium bg-stone-50 border border-stone-300 rounded-sm p-2.5 focus:bg-white focus:border-black outline-none"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-stone-700 mb-1">
+                                <label className="block text-xs font-medium text-stone-700 mb-1">
                                     Durasi Sewa
                                 </label>
                                 <select
-                                    defaultValue="1 Hari"
+                                    value={durasi}
+                                    onChange={(e) => setDurasi(e.target.value)}
                                     className="w-full text-xs font-semibold bg-stone-50 border border-stone-300 rounded-sm p-2.5 focus:bg-white focus:border-black outline-none"
                                 >
                                     <option value="1 Hari">1 Hari (24 Jam)</option>
@@ -467,30 +503,30 @@ export default function Welcome({
                             </div>
 
                             <div>
-                                <a
-                                    href={kendaraanTipe === 'mobil' ? '#armada-mobil' : '#armada-motor'}
-                                    className="w-full bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] font-bold text-xs p-2.5 rounded-sm flex items-center justify-center gap-1.5 transition-colors"
+                                <button
+                                    type="submit"
+                                    className="w-full bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] font-medium text-xs p-2.5 rounded-sm flex items-center justify-center gap-1.5 transition-colors"
                                 >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
                                     <span>Cari Kendaraan</span>
-                                </a>
+                                </button>
                             </div>
-                        </div>
-                    </div>
+                    </form>
                 </div>
+            </div>
             </section>
 
             <section className="border-b border-stone-200 bg-[#F5F5F0] py-6">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
                         <div className="flex items-start gap-3">
-                            <div className="w-8 h-8 rounded-sm bg-[#111111] text-[#F5B800] flex items-center justify-center font-bold shrink-0">
+                            <div className="w-8 h-8 rounded-sm bg-[#111111] text-[#F5B800] flex items-center justify-center font-semibold shrink-0">
                                 01
                             </div>
                             <div>
-                                <h2 className="font-bold text-sm text-[#111111]">Unit Terawat &amp; Bersih</h2>
+                                <h2 className="font-semibold text-sm text-[#111111]">Unit Terawat &amp; Bersih</h2>
                                 <p className="text-stone-600 mt-0.5">Armada diperiksa kondisi rem, ban, AC, dan surat-suratnya sebelum diserahkan.</p>
                             </div>
                         </div>
@@ -500,7 +536,7 @@ export default function Welcome({
                                 02
                             </div>
                             <div>
-                                <h2 className="font-bold text-sm text-[#111111]">Antar-Jemput Fleksibel</h2>
+                                <h2 className="font-semibold text-sm text-[#111111]">Antar-Jemput Fleksibel</h2>
                                 <p className="text-stone-600 mt-0.5">Unit siap diantar ke bandara, stasiun, hotel, atau alamat tujuan Anda.</p>
                             </div>
                         </div>
@@ -510,7 +546,7 @@ export default function Welcome({
                                 03
                             </div>
                             <div>
-                                <h2 className="font-bold text-sm text-[#111111]">Harga Jelas di Awal</h2>
+                                <h2 className="font-semibold text-sm text-[#111111]">Harga Jelas di Awal</h2>
                                 <p className="text-stone-600 mt-0.5">Tanpa biaya tak terduga saat pengembalian unit. Pilihan asuransi tersedia.</p>
                             </div>
                         </div>
@@ -526,10 +562,10 @@ export default function Welcome({
             <section id="armada-mobil" className="py-12 max-w-6xl mx-auto px-4 sm:px-6">
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
                     <div>
-                        <span className="text-xs font-bold text-[#F5B800] bg-[#111111] px-2 py-0.5 rounded-xs inline-block mb-1">
+                        <span className="text-xs font-medium text-[#F5B800] bg-[#111111] px-2 py-0.5 rounded-xs inline-block mb-1">
                             PILIHAN ARMADA
                         </span>
-                        <h2 className="text-2xl font-bold tracking-tight text-[#111111]">Pilihan Mobil Populer</h2>
+                        <h2 className="text-2xl font-semibold tracking-tight text-[#111111]">Pilihan Mobil Populer</h2>
                         <p className="text-xs text-stone-500 mt-0.5">Koleksi mobil yang paling sering disewa untuk keperluan keluarga dan pekerjaan.</p>
                     </div>
 
@@ -539,7 +575,7 @@ export default function Welcome({
                                 key={kategori}
                                 type="button"
                                 onClick={() => setKategoriFilter(kategori)}
-                                className={`text-xs font-bold px-3 py-1.5 rounded-sm border transition-colors ${
+                                className={`text-xs font-medium px-3 py-1.5 rounded-sm border transition-colors ${
                                     kategoriFilter === kategori
                                         ? 'bg-[#111111] text-[#F5B800] border-[#111111]'
                                         : 'bg-white text-stone-700 border-stone-300 hover:border-black'
@@ -568,13 +604,13 @@ export default function Welcome({
                                             e.target.src = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80';
                                         }}
                                     />
-                                    <span className="absolute top-2.5 left-2.5 bg-[#111111] text-[#F5B800] text-[10px] font-bold px-2 py-0.5 rounded-xs">
+                                    <span className="absolute top-2.5 left-2.5 bg-[#111111] text-[#F5B800] text-[10px] font-medium px-2 py-0.5 rounded-xs">
                                         {car.kategori}
                                     </span>
                                 </div>
 
                                 <div className="p-4">
-                                    <h3 className="font-bold text-base text-[#111111]">{car.nama}</h3>
+                                    <h3 className="font-semibold text-base text-[#111111]">{car.nama}</h3>
                                     <p className="text-xs text-stone-500 mt-0.5">{car.lokasi}</p>
 
                                     <div className="flex items-center gap-4 text-xs text-stone-600 mt-3 pt-3 border-t border-stone-100">
@@ -591,14 +627,14 @@ export default function Welcome({
                                 <div className="pt-3 border-t border-stone-200 flex items-center justify-between">
                                     <div>
                                         <span className="text-[10px] text-stone-400 block">Tarif Sewa</span>
-                                        <span className="font-extrabold text-base text-[#111111]">
+                                        <span className="font-semibold text-base text-[#111111]">
                                             {formatRupiah(car.harga)}
                                         </span>
                                         <span className="text-[11px] text-stone-500"> / hari</span>
                                     </div>
                                     <Link
                                         href={canLogin ? loginUrl : '#'}
-                                        className="bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] text-xs font-bold px-3.5 py-2 rounded-sm transition-colors"
+                                        className="bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] text-xs font-medium px-3.5 py-2 rounded-sm transition-colors"
                                     >
                                         Pilih Unit
                                     </Link>
@@ -613,10 +649,10 @@ export default function Welcome({
                 <div className="max-w-6xl mx-auto px-4 sm:px-6">
                     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
                         <div>
-                            <span className="text-xs font-bold text-[#F5B800] bg-[#111111] px-2 py-0.5 rounded-xs inline-block mb-1">
+                            <span className="text-xs font-medium text-[#F5B800] bg-[#111111] px-2 py-0.5 rounded-xs inline-block mb-1">
                                 MOTORCYCLE RENTAL
                             </span>
-                            <h2 className="text-2xl font-bold tracking-tight text-[#111111]">Pilihan Sewa Motor</h2>
+                            <h2 className="text-2xl font-semibold tracking-tight text-[#111111]">Pilihan Sewa Motor</h2>
                             <p className="text-xs text-stone-600 mt-0.5">Solusi praktis dan hemat untuk menjelajahi area kota dan rute padat.</p>
                         </div>
                         <span className="text-xs text-stone-600 font-medium">
@@ -641,13 +677,13 @@ export default function Welcome({
                                                 e.target.src = 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=800&q=80';
                                             }}
                                         />
-                                        <span className="absolute top-2 left-2 bg-[#111111] text-[#F5B800] text-[10px] font-bold px-1.5 py-0.5 rounded-xs">
+                                        <span className="absolute top-2 left-2 bg-[#111111] text-[#F5B800] text-[10px] font-medium px-1.5 py-0.5 rounded-xs">
                                             {moto.kategori}
                                         </span>
                                     </div>
 
                                     <div className="p-3.5">
-                                        <h3 className="font-bold text-sm text-[#111111]">{moto.nama}</h3>
+                                        <h3 className="font-semibold text-sm text-[#111111]">{moto.nama}</h3>
                                         <p className="text-xs text-stone-500 mt-0.5">{moto.lokasi}</p>
                                         <p className="text-xs text-stone-600 mt-2 font-medium">{moto.transmisi} &bull; {moto.cc}</p>
                                     </div>
@@ -656,14 +692,14 @@ export default function Welcome({
                                 <div className="p-3.5 pt-0">
                                     <div className="pt-2.5 border-t border-stone-200 flex items-center justify-between">
                                         <div>
-                                            <span className="font-bold text-sm text-[#111111]">
+                                            <span className="font-semibold text-sm text-[#111111]">
                                                 {formatRupiah(moto.harga)}
                                             </span>
                                             <span className="text-[10px] text-stone-500"> / hari</span>
                                         </div>
                                         <Link
                                             href={canLogin ? loginUrl : '#'}
-                                            className="bg-[#111111] hover:bg-stone-800 text-[#F5B800] text-xs font-bold px-3 py-1.5 rounded-sm"
+                                            className="bg-[#111111] hover:bg-stone-800 text-[#F5B800] text-xs font-medium px-3 py-1.5 rounded-sm"
                                         >
                                             Sewa
                                         </Link>
@@ -677,49 +713,49 @@ export default function Welcome({
 
             <section id="keunggulan" className="py-12 max-w-6xl mx-auto px-4 sm:px-6">
                 <div className="mb-8">
-                    <span className="text-xs font-bold text-[#F5B800] bg-[#111111] px-2 py-0.5 rounded-xs inline-block mb-1">
+                    <span className="text-xs font-medium text-[#F5B800] bg-[#111111] px-2 py-0.5 rounded-xs inline-block mb-1">
                         CARA PEMESANAN
                     </span>
-                    <h2 className="text-2xl font-bold tracking-tight text-[#111111]">Bagaimana Cara Sewa di RentGo?</h2>
+                    <h2 className="text-2xl font-semibold tracking-tight text-[#111111]">Bagaimana Cara Sewa di RentGo?</h2>
                     <p className="text-xs text-stone-500 mt-0.5">Empat langkah mudah untuk memulai perjalanan Anda.</p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="border border-stone-200 p-4 rounded-sm bg-white">
-                        <span className="text-xs font-black text-[#111111] bg-[#F5B800] px-2 py-1 rounded-xs inline-block mb-3">
+                        <span className="text-xs font-semibold text-[#111111] bg-[#F5B800] px-2 py-1 rounded-xs inline-block mb-3">
                             Langkah 1
                         </span>
-                        <h3 className="font-bold text-sm text-[#111111]">Pilih Armada</h3>
+                        <h3 className="font-semibold text-sm text-[#111111]">Pilih Armada</h3>
                         <p className="text-xs text-stone-600 mt-1 leading-relaxed">
                             Cari mobil atau motor yang sesuai kapasitas dan kota tujuan penjemputan Anda.
                         </p>
                     </div>
 
                     <div className="border border-stone-200 p-4 rounded-sm bg-white">
-                        <span className="text-xs font-black text-[#111111] bg-[#F5B800] px-2 py-1 rounded-xs inline-block mb-3">
+                        <span className="text-xs font-semibold text-[#111111] bg-[#F5B800] px-2 py-1 rounded-xs inline-block mb-3">
                             Langkah 2
                         </span>
-                        <h3 className="font-bold text-sm text-[#111111]">Verifikasi Identitas</h3>
+                        <h3 className="font-semibold text-sm text-[#111111]">Verifikasi Identitas</h3>
                         <p className="text-xs text-stone-600 mt-1 leading-relaxed">
                             Unggah foto KTP dan SIM secara digital. Verifikasi berlangsung cepat secara online.
                         </p>
                     </div>
 
                     <div className="border border-stone-200 p-4 rounded-sm bg-white">
-                        <span className="text-xs font-black text-[#111111] bg-[#F5B800] px-2 py-1 rounded-xs inline-block mb-3">
+                        <span className="text-xs font-semibold text-[#111111] bg-[#F5B800] px-2 py-1 rounded-xs inline-block mb-3">
                             Langkah 3
                         </span>
-                        <h3 className="font-bold text-sm text-[#111111]">Serah Terima</h3>
+                        <h3 className="font-semibold text-sm text-[#111111]">Serah Terima</h3>
                         <p className="text-xs text-stone-600 mt-1 leading-relaxed">
                             Mitra kami mengantar unit langsung ke bandara, stasiun, hotel, atau alamat Anda.
                         </p>
                     </div>
 
                     <div className="border border-stone-200 p-4 rounded-sm bg-white">
-                        <span className="text-xs font-black text-[#111111] bg-[#F5B800] px-2 py-1 rounded-xs inline-block mb-3">
+                        <span className="text-xs font-semibold text-[#111111] bg-[#F5B800] px-2 py-1 rounded-xs inline-block mb-3">
                             Langkah 4
                         </span>
-                        <h3 className="font-bold text-sm text-[#111111]">Mulai Perjalanan</h3>
+                        <h3 className="font-semibold text-sm text-[#111111]">Mulai Perjalanan</h3>
                         <p className="text-xs text-stone-600 mt-1 leading-relaxed">
                             Kendaraan siap dipakai dengan dukungan tim bantuan darurat 24 jam jika dibutuhkan.
                         </p>
@@ -730,10 +766,10 @@ export default function Welcome({
             <section id="mitra" className="bg-[#111111] text-white py-12">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="max-w-xl">
-                        <span className="text-xs font-bold text-[#F5B800] uppercase tracking-wider block mb-1">
+                        <span className="text-xs font-semibold text-[#F5B800] uppercase tracking-wider block mb-1">
                             Gabung Sebagai Mitra
                         </span>
-                        <h2 className="text-2xl font-bold text-white">Memiliki Usaha Rental atau Kendaraan yang Jarang Dipakai?</h2>
+                        <h2 className="text-2xl font-semibold text-white">Memiliki Usaha Rental atau Kendaraan yang Jarang Dipakai?</h2>
                         <p className="text-xs sm:text-sm text-stone-300 mt-2 leading-relaxed">
                             Daftarkan armada Anda di platform RentGo untuk mendapatkan calon penyewa terverifikasi dan kelola jadwal sewa dengan mudah.
                         </p>
@@ -742,7 +778,7 @@ export default function Welcome({
                     <div className="flex items-center gap-3 shrink-0">
                         <Link
                             href={canRegister ? registerUrl : '#'}
-                            className="bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] text-xs font-bold px-5 py-3 rounded-sm transition-colors"
+                            className="bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] text-xs font-medium px-5 py-3 rounded-sm transition-colors"
                         >
                             Daftar Mitra Rental
                         </Link>
@@ -772,7 +808,7 @@ export default function Welcome({
                         </div>
 
                         <div>
-                            <h4 className="font-bold text-[#111111] mb-2 uppercase tracking-wide text-[11px]">Layanan</h4>
+                            <h4 className="font-semibold text-[#111111] mb-2 uppercase tracking-wide text-[11px]">Layanan</h4>
                             <ul className="space-y-1.5">
                                 <li><a href="#armada-mobil" className="hover:text-black">Sewa Mobil Lepas Kunci</a></li>
                                 <li><a href="#armada-mobil" className="hover:text-black">Sewa Mobil dengan Supir</a></li>
@@ -782,7 +818,7 @@ export default function Welcome({
                         </div>
 
                         <div>
-                            <h4 className="font-bold text-[#111111] mb-2 uppercase tracking-wide text-[11px]">Kota Populer</h4>
+                            <h4 className="font-semibold text-[#111111] mb-2 uppercase tracking-wide text-[11px]">Kota Populer</h4>
                             <ul className="space-y-1.5">
                                 <li><a href="#armada-mobil" className="hover:text-black">Rental Mobil Bali</a></li>
                                 <li><a href="#armada-mobil" className="hover:text-black">Rental Mobil Jakarta</a></li>
@@ -792,7 +828,7 @@ export default function Welcome({
                         </div>
 
                         <div>
-                            <h4 className="font-bold text-[#111111] mb-2 uppercase tracking-wide text-[11px]">Bantuan &amp; Mitra</h4>
+                            <h4 className="font-semibold text-[#111111] mb-2 uppercase tracking-wide text-[11px]">Bantuan &amp; Mitra</h4>
                             <ul className="space-y-1.5">
                                 <li><a href="#mitra" className="hover:text-black">Daftar Mitra Rental</a></li>
                                 <li><a href="#keunggulan" className="hover:text-black">Syarat &amp; Ketentuan</a></li>
@@ -808,6 +844,7 @@ export default function Welcome({
                     </div>
                 </div>
             </footer>
-        </div>
-    );
+        </main>
+    </div>
+);
 }

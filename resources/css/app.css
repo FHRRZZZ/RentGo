@@ -16,8 +16,9 @@
   --color-card: #F5F5F0;
   --color-success: #1F8A56;
 
-  --font-display: "Archivo Black", "Arial Black", sans-serif;
-  --font-body: "Inter", system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-display: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -26,4 +27,82 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+/* ============================================================
+   RentGo Morph View Transitions (seperti Morph di PPT)
+   Elemen desain pecah, bertransformasi & menyatu ke halaman baru
+   ============================================================ */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-group(root) {
+  animation-duration: 0.42s;
+  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Desain lama: pecah, melebur, sedikit menyusut dan memudar */
+::view-transition-old(root) {
+  animation: morphBreakOut 0.38s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Desain baru: mengembang dari pecahan, menyatu dan membesar pas ke layar */
+::view-transition-new(root) {
+  animation: morphAssembleIn 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes morphBreakOut {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.97) translateY(-6px);
+    filter: blur(3px);
+  }
+}
+
+@keyframes morphAssembleIn {
+  0% {
+    opacity: 0;
+    transform: scale(1.03) translateY(8px);
+    filter: blur(3px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0px);
+  }
+}
+
+/* Header navbar menyatu & bertransformasi mulus di posisi tetap */
+::view-transition-group(main-navbar) {
+  animation-duration: 0.35s;
+  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.morph-navbar {
+  view-transition-name: main-navbar;
+}
+
+/* Hero section morph antar halaman */
+::view-transition-group(page-hero) {
+  animation-duration: 0.4s;
+  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.morph-hero {
+  view-transition-name: page-hero;
 }

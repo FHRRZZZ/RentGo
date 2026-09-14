@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -26,6 +27,20 @@ Route::get('/', function () {
         ],
     ]);
 })->name('home');
+
+Route::get('/pencarian', function (Request $request) {
+    return Inertia::render('Unit/MappingUnit', [
+        'auth' => ['user' => auth()->user()],
+        'search' => [
+            'tipe' => $request->string('tipe', 'mobil')->toString(),
+            'q' => $request->string('q')->toString(),
+            'layanan' => $request->string('layanan', 'lepas-kunci')->toString(),
+            'kota' => $request->string('kota', 'Semua Kota')->toString(),
+            'tanggal' => $request->string('tanggal')->toString(),
+            'durasi' => $request->string('durasi', '1 Hari')->toString(),
+        ],
+    ]);
+})->name('unit.search');
 
 Route::get('/dashboard', function () {
     return redirect('/');

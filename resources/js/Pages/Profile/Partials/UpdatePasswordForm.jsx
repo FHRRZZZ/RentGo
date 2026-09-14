@@ -38,11 +38,11 @@ export default function UpdatePasswordForm({ className = '' }) {
             <div className="pb-5 border-b border-stone-200 mb-6">
                 <div className="flex items-center gap-2 mb-1">
                     <span className="w-2 h-2 bg-[#F5B800]"></span>
-                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-stone-500">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-500">
                         KEAMANAN AKUN
                     </span>
                 </div>
-                <h2 className="text-lg font-black text-[#111111] tracking-tight">
+                <h2 className="text-lg font-semibold text-[#111111] tracking-tight">
                     Perbarui Kata Sandi
                 </h2>
                 <p className="text-xs text-stone-500 mt-0.5">
@@ -52,7 +52,7 @@ export default function UpdatePasswordForm({ className = '' }) {
 
             <form onSubmit={updatePassword} className="space-y-5">
                 <div>
-                    <label htmlFor="current_password" className="block text-xs font-bold text-stone-700 mb-1">
+                    <label htmlFor="current_password" className="block text-xs font-medium text-stone-700 mb-1">
                         Kata Sandi Saat Ini
                     </label>
                     <input
@@ -69,7 +69,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                 </div>
 
                 <div>
-                    <label htmlFor="password" className="block text-xs font-bold text-stone-700 mb-1">
+                    <label htmlFor="password" className="block text-xs font-medium text-stone-700 mb-1">
                         Kata Sandi Baru
                     </label>
                     <input
@@ -86,7 +86,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                 </div>
 
                 <div>
-                    <label htmlFor="password_confirmation" className="block text-xs font-bold text-stone-700 mb-1">
+                    <label htmlFor="password_confirmation" className="block text-xs font-medium text-stone-700 mb-1">
                         Konfirmasi Kata Sandi Baru
                     </label>
                     <input
@@ -105,7 +105,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                     <button
                         type="submit"
                         disabled={processing}
-                        className="text-xs font-bold bg-[#111111] text-[#F5B800] hover:bg-black px-6 py-2.5 rounded-sm uppercase tracking-wider transition-colors disabled:opacity-50"
+                        className="text-xs font-medium bg-[#111111] text-[#F5B800] hover:bg-black px-6 py-2.5 rounded-sm uppercase tracking-wider transition-colors disabled:opacity-50"
                     >
                         {processing ? 'Menyimpan...' : 'Perbarui Kata Sandi'}
                     </button>
@@ -118,7 +118,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                         leave="transition ease-in duration-150"
                         leaveTo="opacity-0"
                     >
-                        <span className="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-sm">
+                        <span className="text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-sm">
                             ✓ Kata sandi berhasil diperbarui
                         </span>
                     </Transition>

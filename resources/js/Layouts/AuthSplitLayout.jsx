@@ -66,14 +66,14 @@ export default function AuthSplitLayout({ children }) {
                     {isLogin ? (
                         <Link
                             href="/register"
-                            className="text-xs font-bold border border-stone-600 hover:border-[#F5B800] text-stone-300 hover:text-[#F5B800] px-4 py-2 rounded-sm transition-colors"
+                            className="text-xs font-medium border border-stone-600 hover:border-[#F5B800] text-stone-300 hover:text-[#F5B800] px-4 py-2 rounded-sm transition-colors"
                         >
                             Daftar Gratis
                         </Link>
                     ) : (
                         <Link
                             href="/login"
-                            className="text-xs font-bold border border-stone-600 hover:border-[#F5B800] text-stone-300 hover:text-[#F5B800] px-4 py-2 rounded-sm transition-colors"
+                            className="text-xs font-medium border border-stone-600 hover:border-[#F5B800] text-stone-300 hover:text-[#F5B800] px-4 py-2 rounded-sm transition-colors"
                         >
                             Masuk
                         </Link>
@@ -84,10 +84,10 @@ export default function AuthSplitLayout({ children }) {
                     className="transition-all duration-300"
                     style={{ opacity: contentVisible ? 1 : 0, transform: contentVisible ? 'translateY(0)' : 'translateY(10px)' }}
                 >
-                    <span className="text-[#F5B800] font-bold text-xs uppercase tracking-wider block mb-4">
+                    <span className="text-[#F5B800] font-semibold text-xs uppercase tracking-wider block mb-4">
                         Sewa Mobil &amp; Motor Mudah
                     </span>
-                    <h2 className="text-3xl xl:text-4xl font-extrabold tracking-tight leading-tight text-white max-w-sm">
+                    <h2 className="text-3xl xl:text-4xl font-semibold tracking-tight leading-tight text-white max-w-sm">
                         {isLogin
                             ? 'Masuk dan lanjutkan pemesanan Anda'
                             : 'Bergabung dan mulai sewa kendaraan hari ini'}
@@ -125,7 +125,7 @@ export default function AuthSplitLayout({ children }) {
                     </div>
                     <p className="text-sm text-stone-300 leading-relaxed italic">"{REVIEWS[reviewIdx].text}"</p>
                     <div className="mt-3 flex items-center justify-between">
-                        <span className="text-xs font-bold text-white">
+                        <span className="text-xs font-semibold text-white">
                             {REVIEWS[reviewIdx].name}{' '}
                             <span className="font-normal text-stone-500">· {REVIEWS[reviewIdx].kota}</span>
                         </span>
@@ -144,15 +144,15 @@ export default function AuthSplitLayout({ children }) {
 
                 <div className="mt-6 pt-6 border-t border-stone-700 grid grid-cols-3 gap-4 text-center text-xs text-stone-400">
                     <div>
-                        <span className="block text-lg font-extrabold text-white mb-0.5">500+</span>
+                        <span className="block text-lg font-semibold text-white mb-0.5">500+</span>
                         Unit Tersedia
                     </div>
                     <div>
-                        <span className="block text-lg font-extrabold text-white mb-0.5">25+</span>
+                        <span className="block text-lg font-semibold text-white mb-0.5">25+</span>
                         Kota
                     </div>
                     <div>
-                        <span className="block text-lg font-extrabold text-white mb-0.5">24/7</span>
+                        <span className="block text-lg font-semibold text-white mb-0.5">24/7</span>
                         Bantuan
                     </div>
                 </div>

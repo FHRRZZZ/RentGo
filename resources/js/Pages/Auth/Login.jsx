@@ -24,7 +24,7 @@ export default function Login({ status, canResetPassword = true }) {
 
             <div className="bg-white border border-stone-200 rounded-sm p-6 sm:p-7 shadow-sm">
                 <div className="mb-7">
-                    <h1 className="text-xl font-extrabold tracking-tight text-[#111111]">Masuk ke akun Anda</h1>
+                    <h1 className="text-xl font-semibold tracking-tight text-[#111111]">Masuk ke akun Anda</h1>
                     <p className="text-xs text-stone-500 mt-1.5 leading-relaxed">
                         Masukkan email dan kata sandi untuk mengakses dashboard RentGo.
                     </p>
@@ -38,7 +38,7 @@ export default function Login({ status, canResetPassword = true }) {
 
                 <form onSubmit={submit} className="space-y-4">
                     <div>
-                        <label htmlFor="email" className="block text-xs font-bold text-stone-700 mb-1.5">
+                        <label htmlFor="email" className="block text-xs font-medium text-stone-700 mb-1.5">
                             Email
                         </label>
                         <input
@@ -59,13 +59,13 @@ export default function Login({ status, canResetPassword = true }) {
 
                     <div>
                         <div className="flex items-center justify-between mb-1.5">
-                            <label htmlFor="password" className="block text-xs font-bold text-stone-700">
+                            <label htmlFor="password" className="block text-xs font-medium text-stone-700">
                                 Kata Sandi
                             </label>
                             {canResetPassword && (
                                 <Link
                                     href={route('password.request')}
-                                    className="text-xs font-semibold text-stone-400 hover:text-black transition-colors"
+                                    className="text-xs font-medium text-stone-400 hover:text-black transition-colors"
                                 >
                                     Lupa kata sandi?
                                 </Link>
@@ -122,7 +122,7 @@ export default function Login({ status, canResetPassword = true }) {
                     <button
                         type="submit"
                         disabled={processing}
-                        className="w-full bg-[#F5B800] text-[#111111] text-sm font-extrabold py-3 rounded-sm hover:bg-[#e0a800] active:bg-[#c99600] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full bg-[#F5B800] text-[#111111] text-sm font-semibold py-3 rounded-sm hover:bg-[#e0a800] active:bg-[#c99600] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                         {processing ? (
                             <>
@@ -139,7 +139,7 @@ export default function Login({ status, canResetPassword = true }) {
                 <div className="mt-5 pt-5 border-t border-stone-100 text-center">
                     <p className="text-xs text-stone-500">
                         Belum punya akun?{' '}
-                        <Link href="/register" className="font-bold text-[#111111] hover:underline underline-offset-2">
+                        <Link href="/register" className="font-semibold text-[#111111] hover:underline underline-offset-2">
                             Daftar sekarang
                         </Link>
                     </p>
