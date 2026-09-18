@@ -23,16 +23,13 @@ class RentalCheckout extends Model
         'customer_confirmed_at',
     ];
 
-    protected function casts(): array
-    {
-        return [
+    protected $casts = [
             'checkout_at' => 'datetime',
             'photos' => 'array',
             'equipment' => 'array',
             'customer_confirmed' => 'boolean',
             'customer_confirmed_at' => 'datetime',
-        ];
-    }
+    ];
 
     public function booking()
     {

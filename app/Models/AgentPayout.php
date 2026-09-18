@@ -25,13 +25,10 @@ class AgentPayout extends Model
         'notes',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'amount' => 'decimal:2',
-            'paid_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'amount' => 'decimal:2',
+        'paid_at' => 'datetime',
+    ];
 
     public function agentProfile()
     {
@@ -46,13 +43,15 @@ class AgentPayout extends Model
     public function transactionCommission()
     {
         return $this->belongsTo(
-            TransactionCommission::class,
-            'transaction_commission_id'
+            TransactionCommission::class
         );
     }
 
     public function processor()
     {
-        return $this->belongsTo(User::class, 'processed_by');
+        return $this->belongsTo(
+            User::class,
+            'processed_by'
+        );
     }
 }

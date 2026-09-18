@@ -21,13 +21,11 @@ class CustomerProfile extends Model
         'is_active',
     ];
 
-    protected function casts(): array
-    {
-        return [
+    protected $casts = [
             'date_of_birth' => 'date',
             'is_active' => 'boolean',
-        ];
-    }
+    ];
+    
 
     public function user()
     {

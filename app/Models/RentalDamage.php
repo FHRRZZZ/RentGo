@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Booking;
+use App\Models\RentalCheckin;
+use App\Models\Vehicle;
 
 class RentalDamage extends Model
 {
@@ -24,15 +27,12 @@ class RentalDamage extends Model
         'notes',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'photos' => 'array',
-            'repair_cost' => 'decimal:2',
-            'customer_charge' => 'decimal:2',
-            'deducted_from_deposit' => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'photos' => 'array',
+        'repair_cost' => 'decimal:2',
+        'customer_charge' => 'decimal:2',
+        'deducted_from_deposit' => 'boolean',
+    ];
 
     public function booking()
     {
@@ -46,6 +46,9 @@ class RentalDamage extends Model
 
     public function rentalCheckin()
     {
-        return $this->belongsTo(RentalCheckin::class);
+        return $this->belongsTo(
+            RentalCheckin::class,
+            'rental_checkin_id'
+        );
     }
 }

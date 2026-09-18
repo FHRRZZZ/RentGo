@@ -21,13 +21,11 @@ class CustomerDocument extends Model
         'expires_at',
     ];
 
-    protected function casts(): array
-    {
-        return [
+    protected $casts = [
             'verified_at' => 'datetime',
             'expires_at' => 'date',
         ];
-    }
+    
 
     public function customerProfile()
     {

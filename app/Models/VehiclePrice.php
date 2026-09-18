@@ -17,15 +17,12 @@ class VehiclePrice extends Model
         'is_active',
     ];
 
-    protected function casts(): array
-    {
-        return [
+    protected $casts = [
             'price_per_day' => 'decimal:2',
             'start_date' => 'date',
             'end_date' => 'date',
             'is_active' => 'boolean',
-        ];
-    }
+    ];
 
     public function vehicle()
     {

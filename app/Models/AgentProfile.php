@@ -4,6 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\AgentPayout;
+use App\Models\Review;
+use App\Models\AgentDocument;
+use App\Models\TransactionCommission;
+use App\Models\Transaction;
+use App\Models\Booking;
+use App\Models\Vehicle;
+use App\Models\User;
 
 class AgentProfile extends Model
 {
@@ -22,12 +30,9 @@ class AgentProfile extends Model
         'is_active',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'is_active' => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 
     public function user()
     {

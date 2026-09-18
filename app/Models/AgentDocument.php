@@ -19,12 +19,9 @@ class AgentDocument extends Model
         'status',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'verified_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'verified_at' => 'datetime',
+    ];
 
     public function agentProfile()
     {

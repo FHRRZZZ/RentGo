@@ -21,13 +21,10 @@ class Refund extends Model
         'notes',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'amount' => 'decimal:2',
-            'refunded_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'amount' => 'decimal:2',
+        'refunded_at' => 'datetime',
+    ];
 
     public function booking()
     {

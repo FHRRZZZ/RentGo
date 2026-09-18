@@ -22,13 +22,10 @@ class AuditLog extends Model
         'user_agent',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'old_values' => 'array',
-            'new_values' => 'array',
-        ];
-    }
+    protected $casts = [
+        'old_values' => 'array',
+        'new_values' => 'array',
+    ];
 
     public function user()
     {

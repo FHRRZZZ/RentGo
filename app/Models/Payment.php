@@ -22,14 +22,11 @@ class Payment extends Model
         'notes',
     ];
 
-    protected function casts(): array
-    {
-        return [
+    protected $casts = [
             'amount' => 'decimal:2',
             'paid_at' => 'datetime',
             'verified_at' => 'datetime',
         ];
-    }
 
     public function booking()
     {

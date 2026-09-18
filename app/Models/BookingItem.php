@@ -20,15 +20,12 @@ class BookingItem extends Model
         'notes',
     ];
 
-    protected function casts(): array
-    {
-        return [
+    protected $casts = [
             'rental_start' => 'datetime',
             'rental_end' => 'datetime',
             'price_per_day' => 'decimal:2',
             'rental_amount' => 'decimal:2',
-        ];
-    }
+    ];
 
     public function booking()
     {

@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use App\Policies\VehicleCategoryPolicy;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+#[UsePolicy(VehicleCategoryPolicy::class)]
 class VehicleCategory extends Model
 {
     use HasFactory;
@@ -16,12 +19,9 @@ class VehicleCategory extends Model
         'is_active',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'is_active' => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 
     public function vehicles()
     {

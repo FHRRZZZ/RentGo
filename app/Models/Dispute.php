@@ -26,14 +26,12 @@ class Dispute extends Model
         'notes',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'attachments' => 'array',
-            'refund_amount' => 'decimal:2',
-            'resolved_at' => 'datetime',
+    protected $casts = [
+        'attachments' => 'array',
+        'refund_amount' => 'decimal:2',
+        'resolved_at' => 'datetime',
         ];
-    }
+    
 
     public function booking()
     {

@@ -24,13 +24,10 @@ class Complaint extends Model
         'resolution',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'attachments' => 'array',
-            'resolved_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'attachments' => 'array',
+        'resolved_at' => 'datetime',
+    ];
 
     public function booking()
     {

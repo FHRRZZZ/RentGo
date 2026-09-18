@@ -19,14 +19,12 @@ class BookingCancellation extends Model
         'refund_amount',
     ];
 
-    protected function casts(): array
-    {
-        return [
+    protected $casts = [
             'cancelled_at' => 'datetime',
             'refund_percentage' => 'decimal:2',
             'refund_amount' => 'decimal:2',
         ];
-    }
+    
 
     public function booking()
     {

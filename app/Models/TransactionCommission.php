@@ -12,25 +12,22 @@ class TransactionCommission extends Model
     protected $fillable = [
         'transaction_id',
         'agent_profile_id',
-        'commission_base_amount',
+        'commission_base',
         'commission_percentage',
         'commission_amount',
-        'agent_net_amount',
+        'net_amount',
         'status',
         'calculated_at',
         'notes',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'commission_base_amount' => 'decimal:2',
-            'commission_percentage' => 'decimal:2',
-            'commission_amount' => 'decimal:2',
-            'agent_net_amount' => 'decimal:2',
-            'calculated_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'commission_base' => 'decimal:2',
+        'commission_percentage' => 'decimal:2',
+        'commission_amount' => 'decimal:2',
+        'net_amount' => 'decimal:2',
+        'calculated_at' => 'datetime',
+    ];
 
     public function transaction()
     {
@@ -42,8 +39,8 @@ class TransactionCommission extends Model
         return $this->belongsTo(AgentProfile::class);
     }
 
-    public function payout()
+    public function payouts()
     {
-        return $this->hasOne(AgentPayout::class);
+        return $this->hasMany(AgentPayout::class);
     }
 }

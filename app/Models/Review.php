@@ -22,13 +22,10 @@ class Review extends Model
         'moderated_by',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'rating' => 'integer',
-            'published_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'rating' => 'integer',
+        'published_at' => 'datetime',
+    ];
 
     public function booking()
     {

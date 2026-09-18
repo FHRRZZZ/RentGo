@@ -4,6 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Refund;
+use App\Models\RentalDamage;
+use App\Models\RentalCheckout;
+use App\Models\RentalCheckin;
+use App\Models\Transaction;
+use App\Models\Review;
+use App\Models\Complaint;
+use App\Models\Dispute;
+
 
 class Booking extends Model
 {
@@ -27,13 +36,13 @@ class Booking extends Model
         'status',
         'customer_note',
         'agent_note',
+        'payment_deadline',
     ];
 
-    protected function casts(): array
-    {
-        return [
+    protected $casts = [
             'rental_start' => 'datetime',
             'rental_end' => 'datetime',
+            'payment_deadline' => 'datetime',
             'rental_amount' => 'decimal:2',
             'delivery_fee' => 'decimal:2',
             'service_fee' => 'decimal:2',
@@ -41,7 +50,7 @@ class Booking extends Model
             'deposit_amount' => 'decimal:2',
             'total_amount' => 'decimal:2',
         ];
-    }
+    
 
     public function customer()
     {
@@ -83,6 +92,11 @@ class Booking extends Model
         return $this->hasOne(RentalCheckin::class);
     }
 
+    public function rentalDamages()
+    {
+        return $this->hasMany(RentalDamage::class);
+    }
+
     public function transaction()
     {
         return $this->hasOne(Transaction::class);
@@ -101,5 +115,15 @@ class Booking extends Model
     public function disputes()
     {
         return $this->hasMany(Dispute::class);
+    }
+
+    public function rentalCheckout()
+    {
+        return $this->hasOne(RentalCheckout::class);
+    }
+
+    public function rentalCheckin()
+    {
+        return $this->hasOne(RentalCheckin::class);
     }
 }

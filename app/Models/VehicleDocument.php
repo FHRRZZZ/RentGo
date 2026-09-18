@@ -20,13 +20,10 @@ class VehicleDocument extends Model
         'rejection_reason',
     ];
 
-    protected function casts(): array
-    {
-        return [
+    protected $casts = [
             'issued_at' => 'date',
             'expires_at' => 'date',
-        ];
-    }
+    ];
 
     public function vehicle()
     {

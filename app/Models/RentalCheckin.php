@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Booking;
+use App\Models\RentalDamage;
+use App\Models\Vehicle;
 
 class RentalCheckin extends Model
 {
@@ -25,18 +28,18 @@ class RentalCheckin extends Model
         'customer_confirmed_at',
     ];
 
-    protected function casts(): array
-    {
-        return [
+    protected $casts = [
             'checkin_at' => 'datetime',
             'photos' => 'array',
             'equipment' => 'array',
+            'odometer' => 'decimal:2',
+            'fuel_level' => 'decimal:2',
             'is_late_return' => 'boolean',
             'late_return_fee' => 'decimal:2',
             'customer_confirmed' => 'boolean',
             'customer_confirmed_at' => 'datetime',
-        ];
-    }
+    ];
+    
 
     public function booking()
     {

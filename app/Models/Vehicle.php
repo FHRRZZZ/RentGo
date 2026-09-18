@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Review;
+
 
 class Vehicle extends Model
 {
@@ -29,11 +31,27 @@ class Vehicle extends Model
         'status',
     ];
 
+    protected $casts =[
+        'year' => 'integer',
+        'seat_capacity' => 'integer',];
+
     public function agentProfile()
     {
-        return $this->belongsTo(AgentProfile::class);
+        return $this->belongsTo(AgentProfile::class, 'agent_profile_id');
     }
 
+    public function vehicleCategory()
+    {
+        return $this->belongsTo(
+            VehicleCategory::class,
+            'vehicle_category_id'
+        );
+    }
+
+    /**
+     * Alias untuk vehicleCategory() agar kompatibel dengan
+     * VehicleSearchService yang memanggil ->with('category').
+     */
     public function category()
     {
         return $this->belongsTo(

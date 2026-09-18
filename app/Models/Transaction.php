@@ -19,28 +19,25 @@ class Transaction extends Model
         'service_fee',
         'additional_fee',
         'deposit_amount',
-        'deposit_deduction',
-        'deposit_refund',
+        'deduction_amount',
+        'refund_amount',
         'total_amount',
         'status',
         'completed_at',
         'notes',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'rental_amount' => 'decimal:2',
-            'delivery_fee' => 'decimal:2',
-            'service_fee' => 'decimal:2',
-            'additional_fee' => 'decimal:2',
-            'deposit_amount' => 'decimal:2',
-            'deposit_deduction' => 'decimal:2',
-            'deposit_refund' => 'decimal:2',
-            'total_amount' => 'decimal:2',
-            'completed_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'rental_amount' => 'decimal:2',
+        'delivery_fee' => 'decimal:2',
+        'service_fee' => 'decimal:2',
+        'additional_fee' => 'decimal:2',
+        'deposit_amount' => 'decimal:2',
+        'deduction_amount' => 'decimal:2',
+        'refund_amount' => 'decimal:2',
+        'total_amount' => 'decimal:2',
+        'completed_at' => 'datetime',
+    ];
 
     public function booking()
     {
@@ -62,8 +59,8 @@ class Transaction extends Model
         return $this->hasOne(TransactionCommission::class);
     }
 
-    public function payout()
+    public function payouts()
     {
-        return $this->hasOne(AgentPayout::class);
+        return $this->hasMany(AgentPayout::class);
     }
 }
