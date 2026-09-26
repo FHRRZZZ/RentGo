@@ -2,141 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import NearbyRentalMap from '@/Components/NearbyRentalMap';
+import UserAvatar from '@/Components/UserAvatar';
 
-const CARS = [
-    {
-        id: 1,
-        nama: 'Toyota Avanza 1.3 G',
-        kategori: 'MPV',
-        transmisi: 'Matic',
-        kursi: '7 Kursi',
-        bensin: 'Bensin',
-        harga: 400000,
-        lokasi: 'Jakarta & Bandara Soetta',
-        lepasKunci: true,
-        img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-        id: 2,
-        nama: 'Honda Brio Satya E',
-        kategori: 'City Car',
-        transmisi: 'Matic',
-        kursi: '5 Kursi',
-        bensin: 'Bensin',
-        harga: 300000,
-        lokasi: 'Yogyakarta & Stasiun Tugu',
-        lepasKunci: true,
-        img: 'https://images.unsplash.com/photo-1590362891988-f778047831d6?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-        id: 3,
-        nama: 'Mitsubishi Xpander Sport',
-        kategori: 'MPV',
-        transmisi: 'Matic',
-        kursi: '7 Kursi',
-        bensin: 'Bensin',
-        harga: 450000,
-        lokasi: 'Bandung Kota',
-        lepasKunci: true,
-        img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-        id: 4,
-        nama: 'Toyota Innova Reborn 2.4 G',
-        kategori: 'MPV',
-        transmisi: 'Matic',
-        kursi: '7 Kursi',
-        bensin: 'Diesel',
-        harga: 650000,
-        lokasi: 'Surabaya & Juanda',
-        lepasKunci: true,
-        img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-        id: 5,
-        nama: 'Honda HR-V 1.5 E',
-        kategori: 'SUV',
-        transmisi: 'Matic',
-        kursi: '5 Kursi',
-        bensin: 'Bensin',
-        harga: 600000,
-        lokasi: 'Bali (Kuta & Bandara DPS)',
-        lepasKunci: true,
-        img: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-        id: 6,
-        nama: 'Toyota Fortuner VRZ 4x2',
-        kategori: 'SUV',
-        transmisi: 'Matic',
-        kursi: '7 Kursi',
-        bensin: 'Diesel',
-        harga: 1100000,
-        lokasi: 'Jakarta Selatan',
-        lepasKunci: true,
-        img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80',
-    },
-];
 
-const MOTORS = [
-    {
-        id: 1,
-        nama: 'Yamaha NMAX 155',
-        kategori: 'Maxi Scooter',
-        transmisi: 'Matic',
-        cc: '155 cc',
-        harga: 110000,
-        lokasi: 'Bali (Kuta & Seminyak)',
-        img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-        id: 2,
-        nama: 'Honda PCX 160',
-        kategori: 'Maxi Scooter',
-        transmisi: 'Matic',
-        cc: '160 cc',
-        harga: 120000,
-        lokasi: 'Yogyakarta',
-        img: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-        id: 3,
-        nama: 'Vespa Primavera 150',
-        kategori: 'Scooter Klasik',
-        transmisi: 'Matic',
-        cc: '150 cc',
-        harga: 180000,
-        lokasi: 'Bandung & Canggu Bali',
-        img: 'https://images.unsplash.com/photo-1525160354320-d8e92641c563?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-        id: 4,
-        nama: 'Honda Vario 160',
-        kategori: 'Matic Harian',
-        transmisi: 'Matic',
-        cc: '160 cc',
-        harga: 90000,
-        lokasi: 'Jakarta & Depok',
-        img: 'https://images.unsplash.com/photo-1558980664-3a031cf67ea8?auto=format&fit=crop&w=800&q=80',
-    },
-];
-
-const CITIES = [
-    'Semua Kota',
-    'Jakarta & Sekitarnya',
-    'Bali (Denpasar, Kuta, Airport)',
-    'Bandung Kota',
-    'Yogyakarta',
-    'Surabaya',
-    'Semarang',
-    'Medan',
-];
 
 export default function Welcome({
     auth = {},
     flash = {},
+    mitraApprovalNotice = null,
     mobilPopuler = [],
     motorPilihan = [],
+    cities = ['Semua Kota'],
+    mapUnits = [],
     canLogin = true,
     canRegister = true,
 }) {
@@ -150,6 +27,7 @@ export default function Welcome({
     const [toast, setToast] = useState(flash?.success || null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const [showMitraApprovalNotice, setShowMitraApprovalNotice] = useState(Boolean(mitraApprovalNotice));
 
     useEffect(() => {
         if (flash?.success) {
@@ -174,12 +52,18 @@ export default function Welcome({
         router.post(typeof route === 'function' ? route('logout') : '/logout');
     };
 
-    const displayCars = mobilPopuler && mobilPopuler.length > 0 ? mobilPopuler : CARS;
-    const displayMotors = motorPilihan && motorPilihan.length > 0 ? motorPilihan : MOTORS;
+    const handleMitraRelogin = () => {
+        router.post('/logout', { relogin: true });
+    };
+
+    const displayCars = mobilPopuler ?? [];
+    const displayMotors = motorPilihan ?? [];
+
+    const availableCategories = ['Semua', ...Array.from(new Set(displayCars.map((c) => c.kategori).filter(Boolean)))];
 
     const filteredCars = displayCars.filter((car) => {
         if (kategoriFilter === 'Semua') return true;
-        return car.kategori === kategoriFilter;
+        return (car.kategori || '').toLowerCase() === (kategoriFilter || '').toLowerCase();
     });
 
     const formatRupiah = (val) => {
@@ -191,6 +75,8 @@ export default function Welcome({
 
     const loginUrl = typeof route === 'function' ? route('login') : '/login';
     const registerUrl = typeof route === 'function' ? route('register') : '/register';
+    const isAdmin = auth?.user?.role === 'admin' || auth?.user?.email === 'admin@rentgo.test';
+    const isMitra = auth?.user?.role === 'mitra' || auth?.user?.email === 'mitra@rentgo.test';
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -212,115 +98,111 @@ export default function Welcome({
             </Head>
 
             <header className="border-b border-stone-200 bg-white sticky top-0 z-30 morph-navbar">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-8">
-                        <Link href="/">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 lg:h-[72px] flex items-center justify-between gap-4">
+                    {/* Brand Logo & Navigasi Terpisah */}
+                    <div className="flex items-center gap-8 lg:gap-10 min-w-0">
+                        <Link href="/" className="shrink-0">
                             <ApplicationLogo theme="light" />
                         </Link>
-                        <nav className="hidden md:flex items-center gap-6 text-sm text-stone-600 font-medium">
-                            <a href="#sekitar-kita" className="text-black font-semibold flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#F5B800]"></span>
-                                <span>Sekitar Kita</span>
-                            </a>
-                            <a href="#armada-mobil" className="hover:text-black">Sewa Mobil</a>
-                            <a href="#armada-motor" className="hover:text-black">Sewa Motor</a>
-                            <Link href="/pesanan" className="hover:text-black">Riwayat Pesanan</Link>
-                            <a href="#keunggulan" className="hover:text-black">Cara Pesan</a>
-                            <a href="#mitra" className="hover:text-black">Jadi Mitra</a>
+
+                        <nav className="hidden md:flex items-center text-[13px] lg:text-sm font-medium text-stone-600">
+                            {/* Kelompok 1: Link Section (Navigasi Beranda) */}
+                            <div className="flex items-center gap-1">
+                                <a href="#sekitar-kita" className="text-black font-semibold flex items-center gap-1.5 px-3 py-2 rounded-sm hover:bg-stone-100 transition-colors">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#F5B800]"></span>
+                                    <span>Sekitar Kita</span>
+                                </a>
+                                <a href="#armada-mobil" className="px-3 py-2 rounded-sm hover:text-black hover:bg-stone-100 transition-colors">
+                                    Sewa Mobil
+                                </a>
+                                <a href="#armada-motor" className="px-3 py-2 rounded-sm hover:text-black hover:bg-stone-100 transition-colors">
+                                    Sewa Motor
+                                </a>
+                                <a href="#keunggulan" className="px-3 py-2 rounded-sm hover:text-black hover:bg-stone-100 transition-colors">
+                                    Cara Pesan
+                                </a>
+                                <a href="#mitra" className="px-3 py-2 rounded-sm hover:text-black hover:bg-stone-100 transition-colors">
+                                    Jadi Mitra
+                                </a>
+                            </div>
+
+                            {/* Garis Pemisah (Divider) antara Section & Halaman Aplikasi */}
+                            {auth?.user && <div className="h-5 w-px bg-stone-200 mx-3 lg:mx-4 shrink-0"></div>}
+
+                            {/* Kelompok 2: Link Halaman Aplikasi (hanya untuk pengguna yang login) */}
+                            {auth?.user && (
+                                <div className="flex items-center gap-1">
+                                    <Link
+                                        href="/pesanan"
+                                        className="flex items-center gap-1.5 px-3 py-2 rounded-sm text-stone-700 hover:text-black hover:bg-stone-100 transition-colors"
+                                    >
+                                        <svg className="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                        </svg>
+                                        <span>Pesanan</span>
+                                    </Link>
+
+                                    <Link
+                                        href="/message"
+                                        className="flex items-center gap-1.5 px-3 py-2 rounded-sm text-stone-700 hover:text-black hover:bg-stone-100 transition-colors"
+                                    >
+                                        <svg className="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3h6m-9.75 8.25 2.25-3h8.25A3.75 3.75 0 0018 12.75v-3A3.75 3.75 0 0014.25 6h-4.5A3.75 3.75 0 006 9.75v6.75z" />
+                                        </svg>
+                                        <span>Pesan</span>
+                                    </Link>
+                                </div>
+                            )}
                         </nav>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    {/* Sisi Kanan: Area Profile Pengguna & Auth */}
+                    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                         {auth?.user ? (
-                            <div className="relative" ref={dropdownRef}>
+                            <div className="flex items-center gap-3 lg:gap-4">
+                                {isAdmin && (
+                                    <Link
+                                        href="/admin"
+                                        className="hidden sm:inline-flex items-center gap-1 rounded-sm bg-[#111111] text-[#F5B800] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider hover:bg-black transition-colors"
+                                    >
+                                        Admin Panel
+                                    </Link>
+                                )}
+                                {isMitra && (
+                                    <Link
+                                        href="/mitra"
+                                        className="hidden sm:inline-flex items-center gap-1 rounded-sm bg-[#F5B800] text-[#111111] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider hover:bg-[#e0a800] transition-colors"
+                                    >
+                                        Portal Mitra
+                                    </Link>
+                                )}
+                                {/* Tombol Profil Pengguna: pill ringkas, avatar bulat */}
+                                <Link
+                                    href={typeof route === 'function' ? route('profile.edit') : '/profile'}
+                                    className="flex items-center gap-2 pl-1 pr-3 py-1.5 rounded-full hover:bg-stone-100 transition-colors group"
+                                    title="Buka Profil & Dokumen Anda"
+                                >
+                                    <UserAvatar user={auth.user} className="w-7 h-7" />
+                                    <span className="text-xs font-semibold text-[#111] leading-tight max-w-[110px] truncate">
+                                        {auth.user.name?.split(' ')[0]}
+                                    </span>
+                                    <svg className="w-3 h-3 text-stone-400 group-hover:text-stone-600 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                    </svg>
+                                </Link>
+
+                                {/* Tombol Keluar (Logout) Langsung */}
                                 <button
                                     type="button"
-                                    id="user-menu-button"
-                                    onClick={() => setDropdownOpen((v) => !v)}
-                                    className="flex items-center gap-2.5 py-1.5 pl-2 pr-3.5 rounded-full border border-stone-200 bg-white hover:border-[#F5B800] hover:shadow-md hover:shadow-stone-200/50 transition-all duration-200 focus:outline-none"
+                                    onClick={handleLogout}
+                                    className="flex items-center gap-1.5 px-2.5 py-2 rounded-sm border border-stone-200 bg-white hover:bg-red-50 hover:border-red-200 text-xs font-medium text-stone-600 hover:text-red-600 transition-colors"
+                                    title="Keluar dari Akun"
                                 >
-                                    <div className="w-7 h-7 rounded-full bg-[#111111] text-[#F5B800] font-semibold flex items-center justify-center text-xs tracking-wider shadow-sm ring-2 ring-[#F5B800]">
-                                        {auth.user.name?.charAt(0)?.toUpperCase()}
-                                    </div>
-                                    <div className="hidden sm:flex flex-col text-left">
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="text-xs font-medium text-[#111111] leading-tight">
-                                                {auth.user.name?.split(' ')[0]}
-                                            </span>
-                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
-                                        </div>
-                                        <span className="text-[10px] text-stone-400 font-medium leading-none">Member RentGo</span>
-                                    </div>
-                                    <svg className={`w-3.5 h-3.5 text-stone-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180 text-black' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                    <svg className="w-3.5 h-3.5 text-stone-400 group-hover:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
                                     </svg>
+                                    <span className="hidden sm:inline">Keluar</span>
                                 </button>
-
-                                {dropdownOpen && (
-                                    <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-stone-100 rounded-2xl shadow-2xl shadow-stone-900/15 z-50 overflow-hidden ring-1 ring-black/5">
-                                        <div className="p-4 bg-gradient-to-br from-stone-900 to-[#111111] text-white">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-[#F5B800] text-[#111111] font-semibold flex items-center justify-center text-sm uppercase shrink-0 shadow-inner">
-                                                    {auth.user.name?.charAt(0)?.toUpperCase()}
-                                                </div>
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="text-xs font-medium text-white truncate">{auth.user.name}</p>
-                                                    <p className="text-[11px] text-stone-400 truncate mt-0.5">{auth.user.email}</p>
-                                                    <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F5B800]/20 text-[#F5B800] text-[9px] font-semibold uppercase tracking-wider">
-                                                        <span>●</span> Member Terverifikasi
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="p-2 space-y-1">
-                                            <Link
-                                                href="/pesanan"
-                                                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-stone-700 hover:bg-stone-50 hover:text-black transition-colors group"
-                                                onClick={() => setDropdownOpen(false)}
-                                            >
-                                                <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center text-stone-600 group-hover:bg-[#F5B800]/20 group-hover:text-[#b38600] transition-colors">
-                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <p className="leading-none">Pesanan Saya</p>
-                                                    <p className="text-[10px] text-stone-400 mt-0.5 font-normal">Riwayat &amp; status armada</p>
-                                                </div>
-                                            </Link>
-
-                                            <Link
-                                                href={typeof route === 'function' ? route('profile.edit') : '/profile'}
-                                                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-stone-700 hover:bg-stone-50 hover:text-black transition-colors group"
-                                                onClick={() => setDropdownOpen(false)}
-                                            >
-                                                <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center text-stone-600 group-hover:bg-[#F5B800]/20 group-hover:text-[#b38600] transition-colors">
-                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <p className="leading-none">Profil &amp; Dokumen</p>
-                                                    <p className="text-[10px] text-stone-400 mt-0.5 font-normal">Kelola data, KTP &amp; SIM</p>
-                                                </div>
-                                            </Link>
-                                        </div>
-                                        <div className="p-2 border-t border-stone-100">
-                                            <button
-                                                type="button"
-                                                onClick={handleLogout}
-                                                className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors group"
-                                            >
-                                                <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-500 group-hover:bg-red-100 transition-colors">
-                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-                                                    </svg>
-                                                </div>
-                                                <span className="leading-none">Keluar dari Akun</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
                             </div>
                         ) : (
                             <>
@@ -335,7 +217,7 @@ export default function Welcome({
                                 {canRegister && (
                                     <Link
                                         href={registerUrl}
-                                        className="text-xs font-medium bg-[#F5B800] text-[#111111] hover:bg-[#e0a800] px-4 py-2 rounded-sm transition-colors"
+                                        className="text-xs font-semibold bg-[#F5B800] text-[#111111] hover:bg-[#e0a800] px-3.5 py-2 rounded-sm transition-colors shadow-xs"
                                     >
                                         Daftar Gratis
                                     </Link>
@@ -347,6 +229,40 @@ export default function Welcome({
             </header>
 
             <main className="morph-page-container">
+                {showMitraApprovalNotice && mitraApprovalNotice && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
+                        <div className="w-full max-w-md border border-emerald-200 bg-white p-6 shadow-xl">
+                            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-emerald-100 text-xl text-emerald-700">
+                                ✓
+                            </div>
+                            <h2 className="text-lg font-semibold text-[#111]">
+                                Pengajuan mitra disetujui
+                            </h2>
+                            <p className="mt-2 text-sm leading-relaxed text-stone-600">
+                                {mitraApprovalNotice.message}
+                            </p>
+                            <p className="mt-3 text-xs leading-relaxed text-amber-800">
+                                Silakan login ulang agar sesi akun diperbarui dan Anda dapat masuk ke Portal Mitra.
+                            </p>
+                            <div className="mt-6 flex justify-end gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowMitraApprovalNotice(false)}
+                                    className="border border-stone-300 px-4 py-2 text-xs font-semibold text-stone-700"
+                                >
+                                    Nanti
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleMitraRelogin}
+                                    className="bg-[#111] px-4 py-2 text-xs font-semibold text-white"
+                                >
+                                    Login Ulang
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 {toast && (
                     <div
                         className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#111111] text-white text-xs font-semibold px-5 py-3 rounded-sm shadow-xl border border-stone-700 animate-fade-in"
@@ -466,7 +382,7 @@ export default function Welcome({
                                     onChange={(e) => setKota(e.target.value)}
                                     className="w-full text-xs font-semibold bg-stone-50 border border-stone-300 rounded-sm p-2.5 focus:bg-white focus:border-black outline-none"
                                 >
-                                    {CITIES.map((c) => (
+                                    {cities.map((c) => (
                                         <option key={c} value={c}>{c}</option>
                                     ))}
                                 </select>
@@ -556,7 +472,7 @@ export default function Welcome({
 
             {/* Sekitar Kita Section — Peta Interaktif & Lokasi GPS */}
             <section id="sekitar-kita" className="py-10 max-w-6xl mx-auto px-4 sm:px-6">
-                <NearbyRentalMap selectedCity={kota} />
+                <NearbyRentalMap selectedCity={kota} units={mapUnits} />
             </section>
 
             <section id="armada-mobil" className="py-12 max-w-6xl mx-auto px-4 sm:px-6">
@@ -570,7 +486,7 @@ export default function Welcome({
                     </div>
 
                     <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-                        {['Semua', 'MPV', 'City Car', 'SUV'].map((kategori) => (
+                        {availableCategories.map((kategori) => (
                             <button
                                 key={kategori}
                                 type="button"
@@ -588,60 +504,69 @@ export default function Welcome({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {filteredCars.map((car) => (
-                        <div
-                            key={car.id}
-                            className="bg-white border border-stone-200 hover:border-stone-400 rounded-sm overflow-hidden flex flex-col justify-between"
-                        >
-                            <div>
-                                <div className="h-48 bg-stone-100 relative overflow-hidden">
-                                    <img
-                                        src={car.img}
-                                        alt={car.nama}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            e.target.onerror = null;
-                                            e.target.src = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80';
-                                        }}
-                                    />
-                                    <span className="absolute top-2.5 left-2.5 bg-[#111111] text-[#F5B800] text-[10px] font-medium px-2 py-0.5 rounded-xs">
-                                        {car.kategori}
-                                    </span>
-                                </div>
-
-                                <div className="p-4">
-                                    <h3 className="font-semibold text-base text-[#111111]">{car.nama}</h3>
-                                    <p className="text-xs text-stone-500 mt-0.5">{car.lokasi}</p>
-
-                                    <div className="flex items-center gap-4 text-xs text-stone-600 mt-3 pt-3 border-t border-stone-100">
-                                        <span>{car.transmisi}</span>
-                                        <span>&bull;</span>
-                                        <span>{car.kursi}</span>
-                                        <span>&bull;</span>
-                                        <span>{car.bensin}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="p-4 pt-0">
-                                <div className="pt-3 border-t border-stone-200 flex items-center justify-between">
-                                    <div>
-                                        <span className="text-[10px] text-stone-400 block">Tarif Sewa</span>
-                                        <span className="font-semibold text-base text-[#111111]">
-                                            {formatRupiah(car.harga)}
-                                        </span>
-                                        <span className="text-[11px] text-stone-500"> / hari</span>
-                                    </div>
-                                    <Link
-                                        href={canLogin ? loginUrl : '#'}
-                                        className="bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] text-xs font-medium px-3.5 py-2 rounded-sm transition-colors"
-                                    >
-                                        Pilih Unit
-                                    </Link>
-                                </div>
-                            </div>
+                    {filteredCars.length === 0 ? (
+                        <div className="col-span-full py-12 text-center border border-dashed border-stone-300 rounded-sm bg-stone-50">
+                            <svg className="w-8 h-8 text-stone-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                            <p className="text-stone-500 text-xs font-medium">Belum ada armada mobil yang tersedia.</p>
                         </div>
-                    ))}
+                    ) : (
+                        filteredCars.map((car) => (
+                            <div
+                                key={car.id}
+                                className="bg-white border border-stone-200 hover:border-stone-400 rounded-sm overflow-hidden flex flex-col justify-between"
+                            >
+                                <div>
+                                    <div className="h-48 bg-stone-100 relative overflow-hidden">
+                                        <img
+                                            src={car.img}
+                                            alt={car.nama}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.src = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80';
+                                            }}
+                                        />
+                                        <span className="absolute top-2.5 left-2.5 bg-[#111111] text-[#F5B800] text-[10px] font-medium px-2 py-0.5 rounded-xs">
+                                            {car.kategori}
+                                        </span>
+                                    </div>
+
+                                    <div className="p-4">
+                                        <h3 className="font-semibold text-base text-[#111111]">{car.nama}</h3>
+                                        <p className="text-xs text-stone-500 mt-0.5">{car.lokasi}</p>
+
+                                        <div className="flex items-center gap-4 text-xs text-stone-600 mt-3 pt-3 border-t border-stone-100">
+                                            <span>{car.transmisi}</span>
+                                            <span>&bull;</span>
+                                            <span>{car.kursi}</span>
+                                            <span>&bull;</span>
+                                            <span>{car.bensin}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="p-4 pt-0">
+                                    <div className="pt-3 border-t border-stone-200 flex items-center justify-between">
+                                        <div>
+                                            <span className="text-[10px] text-stone-400 block">Tarif Sewa</span>
+                                            <span className="font-semibold text-base text-[#111111]">
+                                                {formatRupiah(car.harga)}
+                                            </span>
+                                            <span className="text-[11px] text-stone-500"> / hari</span>
+                                        </div>
+                                        <Link
+                                            href={`/vehicles/${car.id}`}
+                                            className="bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] text-xs font-semibold px-3.5 py-2 rounded-sm transition-colors"
+                                        >
+                                            Pilih Unit
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
             </section>
 
@@ -661,52 +586,61 @@ export default function Welcome({
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {displayMotors.map((moto) => (
-                            <div
-                                key={moto.id}
-                                className="bg-white border border-stone-200 hover:border-stone-400 rounded-sm overflow-hidden flex flex-col justify-between"
-                            >
-                                <div>
-                                    <div className="h-40 bg-stone-100 relative overflow-hidden">
-                                        <img
-                                            src={moto.img}
-                                            alt={moto.nama}
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                                e.target.onerror = null;
-                                                e.target.src = 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=800&q=80';
-                                            }}
-                                        />
-                                        <span className="absolute top-2 left-2 bg-[#111111] text-[#F5B800] text-[10px] font-medium px-1.5 py-0.5 rounded-xs">
-                                            {moto.kategori}
-                                        </span>
-                                    </div>
-
-                                    <div className="p-3.5">
-                                        <h3 className="font-semibold text-sm text-[#111111]">{moto.nama}</h3>
-                                        <p className="text-xs text-stone-500 mt-0.5">{moto.lokasi}</p>
-                                        <p className="text-xs text-stone-600 mt-2 font-medium">{moto.transmisi} &bull; {moto.cc}</p>
-                                    </div>
-                                </div>
-
-                                <div className="p-3.5 pt-0">
-                                    <div className="pt-2.5 border-t border-stone-200 flex items-center justify-between">
-                                        <div>
-                                            <span className="font-semibold text-sm text-[#111111]">
-                                                {formatRupiah(moto.harga)}
-                                            </span>
-                                            <span className="text-[10px] text-stone-500"> / hari</span>
-                                        </div>
-                                        <Link
-                                            href={canLogin ? loginUrl : '#'}
-                                            className="bg-[#111111] hover:bg-stone-800 text-[#F5B800] text-xs font-medium px-3 py-1.5 rounded-sm"
-                                        >
-                                            Sewa
-                                        </Link>
-                                    </div>
-                                </div>
+                        {displayMotors.length === 0 ? (
+                            <div className="col-span-full py-12 text-center border border-dashed border-stone-300 rounded-sm bg-white">
+                                <svg className="w-8 h-8 text-stone-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                                <p className="text-stone-500 text-xs font-medium">Belum ada armada motor yang tersedia.</p>
                             </div>
-                        ))}
+                        ) : (
+                            displayMotors.map((moto) => (
+                                <div
+                                    key={moto.id}
+                                    className="bg-white border border-stone-200 hover:border-stone-400 rounded-sm overflow-hidden flex flex-col justify-between"
+                                >
+                                    <div>
+                                        <div className="h-40 bg-stone-100 relative overflow-hidden">
+                                            <img
+                                                src={moto.img}
+                                                alt={moto.nama}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.src = 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=800&q=80';
+                                                }}
+                                            />
+                                            <span className="absolute top-2 left-2 bg-[#111111] text-[#F5B800] text-[10px] font-medium px-1.5 py-0.5 rounded-xs">
+                                                {moto.kategori}
+                                            </span>
+                                        </div>
+
+                                        <div className="p-3.5">
+                                            <h3 className="font-semibold text-sm text-[#111111]">{moto.nama}</h3>
+                                            <p className="text-xs text-stone-500 mt-0.5">{moto.lokasi}</p>
+                                            <p className="text-xs text-stone-600 mt-2 font-medium">{moto.transmisi} &bull; {moto.cc}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="p-3.5 pt-0">
+                                        <div className="pt-2.5 border-t border-stone-200 flex items-center justify-between">
+                                            <div>
+                                                <span className="font-semibold text-sm text-[#111111]">
+                                                    {formatRupiah(moto.harga)}
+                                                </span>
+                                                <span className="text-[10px] text-stone-500"> / hari</span>
+                                            </div>
+                                            <Link
+                                                href={`/vehicles/${moto.id}`}
+                                                className="bg-[#111111] hover:bg-stone-800 text-[#F5B800] text-xs font-semibold px-3 py-1.5 rounded-sm"
+                                            >
+                                                Sewa
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
             </section>
@@ -777,10 +711,16 @@ export default function Welcome({
 
                     <div className="flex items-center gap-3 shrink-0">
                         <Link
-                            href={canRegister ? registerUrl : '#'}
+                            href={
+                                !auth?.user
+                                    ? (canRegister ? registerUrl : '#')
+                                    : (isAdmin || isMitra ? '/mitra' : '/mitra/daftar')
+                            }
                             className="bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] text-xs font-medium px-5 py-3 rounded-sm transition-colors"
                         >
-                            Daftar Mitra Rental
+                            {!auth?.user
+                                ? 'Daftar Mitra Rental'
+                                : (isAdmin || isMitra ? 'Buka Portal Mitra' : 'Ajukan Jadi Mitra')}
                         </Link>
                         <a
                             href="https://wa.me/"

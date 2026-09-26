@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from '@inertiajs/react';
 import L from 'leaflet';
 
 const RENTAL_HUBS = [
@@ -96,15 +97,124 @@ function calculateDistanceKm(lat1, lon1, lat2, lon2) {
     return (R * c).toFixed(1);
 }
 
-export default function NearbyRentalMap({ selectedCity = 'Semua Kota', compact = false }) {
+export default function NearbyRentalMap({ selectedCity = 'Semua Kota', compact = false, units = [] }) {
     const mapContainerRef = useRef(null);
     const mapInstanceRef = useRef(null);
     const markersLayerRef = useRef(null);
     const userMarkerRef = useRef(null);
 
+    const cityCoordinates = {
+        Jakarta: [-6.2088, 106.8456],
+        Bandung: [-6.9175, 107.6191],
+        Yogyakarta: [-7.7956, 110.3695],
+        Bali: [-8.4095, 115.1889],
+        Denpasar: [-8.65, 115.2167],
+        Surabaya: [-7.2575, 112.7521],
+        Semarang: [-6.9667, 110.4167],
+        Medan: [3.5952, 98.6722],
+        Makassar: [-5.1477, 119.4327],
+        Bekasi: [-6.2383, 106.9756],
+        Depok: [-6.4025, 106.7942],
+        Tangerang: [-6.1783, 106.6319],
+        Bogor: [-6.5950, 106.8166],
+        Malang: [-7.9666, 112.6326],
+        Solo: [-7.5755, 110.8243],
+        Palembang: [-2.9761, 104.7754],
+        Balikpapan: [-1.2379, 116.8529],
+        Manado: [1.4748, 124.8421],
+    };
+
+    /** Cari koordinat kota (case-insensitive, cocok sebagian). */
+    const resolveCityCoord = (cityName) => {
+        const key = String(cityName || '').toLowerCase().trim();
+        const found = Object.keys(cityCoordinates).find(
+            (c) => c.toLowerCase() === key || key.includes(c.toLowerCase()) || c.toLowerCase().includes(key),
+        );
+        return found ? cityCoordinates[found] : null;
+    };
+
+    /**
+     * Bangun titik penjemputan dari data unit, DIKELOMPOKKAN PER MITRA.
+     * Setiap mitra penyedia menjadi satu pin; alamat & kota diambil dari
+     * profil mitra (bukan teks bebas per-unit).
+     */
+    const dbHubs = useMemo(() => {
+        const groups = units.reduce((result, unit) => {
+            // Kunci grup: ID mitra (fallback ke nama mitra bila ID kosong).
+            const groupKey = unit.mitraId != null ? `mitra-${unit.mitraId}` : `mitra-${unit.mitra}`;
+            const group =
+                result[groupKey] ||
+                {
+                    mitraId: unit.mitraId ?? null,
+                    nama: unit.mitra || 'Mitra RentGo',
+                    alamat: unit.mitraAlamat || unit.lokasi || '',
+                    kota: unit.mitraKota || unit.kota || 'Indonesia',
+                    // Koordinat presisi lokasi usaha mitra (bila sudah ditandai).
+                    lat: unit.mitraLat ?? null,
+                    lng: unit.mitraLng ?? null,
+                    units: [],
+                    prices: [],
+                };
+            group.units.push(unit);
+            if (unit.harga) group.prices.push(unit.harga);
+            result[groupKey] = group;
+            return result;
+        }, {});
+
+        const grouped = Object.values(groups);
+
+        // Mitra yang SUDAH menandai titik lokasi usahanya tidak ikut dise­bar
+        // melingkar — pakai koordinat aslinya. Sisanya dise­bar sebagai fallback.
+        let unscatteredIndex = 0;
+
+        return grouped.map((group, index) => {
+            const hasRealCoord =
+                group.lat != null &&
+                group.lng != null &&
+                !Number.isNaN(Number(group.lat)) &&
+                !Number.isNaN(Number(group.lng));
+
+            let lat;
+            let lng;
+            let isExactLocation = false;
+
+            if (hasRealCoord) {
+                lat = Number(group.lat);
+                lng = Number(group.lng);
+                isExactLocation = true;
+            } else {
+                const base = resolveCityCoord(group.kota) || cityCoordinates.Jakarta;
+                // Sebar beberapa mitra di kota yang sama secara melingkar agar pin
+                // tidak saling menumpuk (offset kecil ~1.5km).
+                const angle = unscatteredIndex * (Math.PI / 3);
+                const radius = unscatteredIndex === 0 ? 0 : 0.013;
+                lat = base[0] + Math.cos(angle) * radius;
+                lng = base[1] + Math.sin(angle) * radius;
+                unscatteredIndex += 1;
+            }
+
+            return {
+                id: `db-mitra-${group.mitraId ?? index}`,
+                mitraId: group.mitraId ?? null,
+                kode: `MITRA-${String(group.mitraId ?? index).toString().padStart(3, '0')}`,
+                nama: group.nama,
+                kota: group.kota,
+                lat,
+                lng,
+                isExactLocation,
+                alamat: group.alamat || group.kota,
+                mobilTersedia: group.units.filter((unit) => unit.tipe === 'mobil').length,
+                motorTersedia: group.units.filter((unit) => unit.tipe === 'motor').length,
+                hargaMulai: group.prices.length ? Math.min(...group.prices) : 0,
+                unitCount: group.units.length,
+                layanan: 'Mitra penyedia unit RentGo',
+            };
+        });
+    }, [units]);
+    const mapHubs = dbHubs.length > 0 ? dbHubs : RENTAL_HUBS;
     const [geoStatus, setGeoStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
-    const [selectedHub, setSelectedHub] = useState(RENTAL_HUBS[0]);
-    const [hubsWithDistance, setHubsWithDistance] = useState(RENTAL_HUBS);
+    const [selectedHub, setSelectedHub] = useState(mapHubs[0]);
+    const [hubsWithDistance, setHubsWithDistance] = useState(mapHubs);
     const [filterKota, setFilterKota] = useState('Semua');
 
     useEffect(() => {
@@ -131,7 +241,7 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota', compact =
         markersLayerRef.current = markersLayer;
         mapInstanceRef.current = map;
 
-        renderHubPins(RENTAL_HUBS, map, markersLayer, RENTAL_HUBS[0].id);
+        renderHubPins(mapHubs, map, markersLayer, mapHubs[0]?.id);
 
         return () => {
             map.remove();
@@ -257,7 +367,7 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota', compact =
                         userMarkerRef.current = L.marker([latitude, longitude], { icon: userIcon }).addTo(map);
                     }
 
-                    const sorted = RENTAL_HUBS.map((hub) => {
+                    const sorted = mapHubs.map((hub) => {
                         const dist = calculateDistanceKm(latitude, longitude, hub.lat, hub.lng);
                         return { ...hub, distance: parseFloat(dist) };
                     }).sort((a, b) => a.distance - b.distance);
@@ -304,7 +414,7 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota', compact =
 
                 {/* Filter Kota & Tombol GPS — Bersatu dengan Gaya Tombol Welcome.jsx */}
                 <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-                    {['Semua', 'Jakarta', 'Bandung', 'Yogyakarta', 'Bali'].map((city) => (
+                    {['Semua', ...Array.from(new Set(hubsWithDistance.map((h) => h.kota).filter(Boolean)))].map((city) => (
                         <button
                             key={city}
                             type="button"
@@ -399,6 +509,11 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota', compact =
                                                 <h4 className="text-xs font-bold text-[#111111] leading-tight">
                                                     {hub.nama}
                                                 </h4>
+                                                {hub.isExactLocation && (
+                                                    <span className="mt-1 inline-block text-[9px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border-emerald-200 px-1.5 py-0.5 rounded-xs">
+                                                        Lokasi presisi
+                                                    </span>
+                                                )}
                                             </div>
                                             {hub.distance !== undefined && (
                                                 <span className="text-[10px] font-bold bg-[#F5B800] text-[#111111] px-1.5 py-0.5 rounded-xs shrink-0">
@@ -413,12 +528,26 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota', compact =
 
                                         <div className="mt-2.5 pt-2 border-t border-stone-100 flex items-center justify-between text-[11px]">
                                             <span className="text-stone-600 font-medium">
-                                                {hub.mobilTersedia} Mobil &bull; {hub.motorTersedia} Motor
+                                                {hub.unitCount ? `${hub.unitCount} unit • ` : ''}{hub.mobilTersedia} Mobil &bull; {hub.motorTersedia} Motor
                                             </span>
                                             <span className="text-[#111111] font-bold">
                                                 Mulai Rp {(hub.hargaMulai / 1000).toFixed(0)}rb
                                             </span>
                                         </div>
+
+                                        {/* Buka halaman toko mitra (profil + mapping unit). */}
+                                        {hub.mitraId && (
+                                            <Link
+                                                href={`/mitra/${hub.mitraId}`}
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="mt-2.5 w-full inline-flex items-center justify-center gap-1.5 bg-[#111] hover:bg-stone-800 text-[#F5B800] font-bold text-[11px] py-2 rounded-sm uppercase tracking-wider transition-colors"
+                                            >
+                                                <span>Lihat Toko</span>
+                                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                                </svg>
+                                            </Link>
+                                        )}
                                     </div>
                                 );
                             })}
@@ -427,15 +556,27 @@ export default function NearbyRentalMap({ selectedCity = 'Semua Kota', compact =
 
                     {/* Tombol Aksi */}
                     <div className="pt-4 border-t border-stone-200 mt-3">
-                        <a
-                            href="#armada-mobil"
-                            className="w-full inline-flex items-center justify-center gap-2 bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] font-bold text-xs p-2.5 rounded-sm uppercase tracking-wider transition-colors text-center"
-                        >
-                            <span>Pilih Armada di {selectedHub.kota}</span>
-                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                            </svg>
-                        </a>
+                        {selectedHub.mitraId ? (
+                            <Link
+                                href={`/mitra/${selectedHub.mitraId}`}
+                                className="w-full inline-flex items-center justify-center gap-2 bg-[#F5B800] hover:bg-[#e0a800] text-[#111] font-bold text-xs p-2.5 rounded-sm uppercase tracking-wider transition-colors text-center"
+                            >
+                                <span>Lihat Toko {selectedHub.nama}</span>
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>
+                            </Link>
+                        ) : (
+                            <a
+                                href="#armada-mobil"
+                                className="w-full inline-flex items-center justify-center gap-2 bg-[#F5B800] hover:bg-[#e0a800] text-[#111] font-bold text-xs p-2.5 rounded-sm uppercase tracking-wider transition-colors text-center"
+                            >
+                                <span>Pilih Armada di {selectedHub.kota}</span>
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>
+                            </a>
+                        )}
                     </div>
                 </div>
             </div>

@@ -44,6 +44,18 @@ return [
             'throw' => false,
         ],
 
+        /*
+         * Disk privat untuk dokumen sensitif (KTP, SIM, NIB, bukti
+         * pembayaran). Tidak dapat diakses langsung via URL publik;
+         * hanya lewat controller yang terautorisasi.
+         */
+        'private' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private'),
+            'visibility' => 'private',
+            'throw' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

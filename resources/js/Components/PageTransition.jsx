@@ -18,9 +18,37 @@ export default function PageTransition() {
             return '';
         };
 
+        const isAuthTarget = (urlOrPath) => {
+            if (!urlOrPath) return false;
+            const path = getCleanPath(urlOrPath).toLowerCase().replace(/\/+$/, '');
+            return (
+                path === '/login' ||
+                path === '/register' ||
+                path.startsWith('/login') ||
+                path.startsWith('/register') ||
+                path.startsWith('/forgot-password') ||
+                path.startsWith('/reset-password')
+            );
+        };
+
+        const isAuthComponent = (component) => {
+            return typeof component === 'string' && component.startsWith('Auth/');
+        };
+
         const handleStart = (event) => {
             const currentPath = window.location.pathname;
-            const targetPath = getCleanPath(event?.detail?.visit?.url);
+            const targetUrl = event?.detail?.visit?.url;
+            const targetPath = getCleanPath(targetUrl);
+
+            // Jangan tampilkan loading screen di halaman login & register
+            if (
+                isAuthTarget(currentPath) ||
+                isAuthTarget(targetPath) ||
+                isAuthComponent(router.page?.component)
+            ) {
+                setLoading(false);
+                return;
+            }
 
             if (currentPath === targetPath) {
                 return;
@@ -30,15 +58,40 @@ export default function PageTransition() {
         };
 
         const handleFinish = () => setLoading(false);
+        const handleNavigate = (event) => {
+            const pageComponent = event?.detail?.page?.component;
+            const pageUrl = event?.detail?.page?.url;
+            if (isAuthTarget(pageUrl) || isAuthComponent(pageComponent)) {
+                setLoading(false);
+            }
+        };
 
         const removeStart = router.on('start', handleStart);
         const removeFinish = router.on('finish', handleFinish);
+        const removeNavigate = router.on('navigate', handleNavigate);
 
         return () => {
             removeStart();
             removeFinish();
+            removeNavigate();
         };
     }, []);
+
+    // Proteksi tambahan: jika berada di halaman login atau register, jangan pernah render loading screen
+    if (typeof window !== 'undefined') {
+        const currentPath = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+        if (
+            currentPath === '/login' ||
+            currentPath === '/register' ||
+            currentPath.startsWith('/login') ||
+            currentPath.startsWith('/register') ||
+            currentPath.startsWith('/forgot-password') ||
+            currentPath.startsWith('/reset-password') ||
+            (router.page?.component && String(router.page.component).startsWith('Auth/'))
+        ) {
+            return null;
+        }
+    }
 
     if (!loading) return null;
 

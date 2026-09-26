@@ -1,76 +1,180 @@
 import React, { useMemo, useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
-import ApplicationLogo from '@/Components/ApplicationLogo';
+import CustomerLayout from '@/Layouts/CustomerLayout';
 import NearbyRentalMap from '@/Components/NearbyRentalMap';
 
-const UNITS = [
-    { id: 'RG-AVZ-01', tipe: 'mobil', nama: 'Toyota Avanza 1.3 G', kategori: 'MPV', transmisi: 'Matic', kursi: '7 Kursi', harga: 400000, kota: 'Jakarta', lokasi: 'Kemang, Jakarta Selatan', status: 'Tersedia', img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=900&q=80' },
-    { id: 'RG-BRIO-02', tipe: 'mobil', nama: 'Honda Brio Satya E', kategori: 'City Car', transmisi: 'Matic', kursi: '5 Kursi', harga: 300000, kota: 'Yogyakarta', lokasi: 'Sekitar Stasiun Tugu', status: 'Tersedia', img: 'https://images.unsplash.com/photo-1590362891988-f778047831d6?auto=format&fit=crop&w=900&q=80' },
-    { id: 'RG-XPD-03', tipe: 'mobil', nama: 'Mitsubishi Xpander Sport', kategori: 'MPV', transmisi: 'Matic', kursi: '7 Kursi', harga: 450000, kota: 'Bandung', lokasi: 'Stasiun Hall Bandung', status: 'Tersedia', img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=900&q=80' },
-    { id: 'RG-INN-04', tipe: 'mobil', nama: 'Toyota Innova Reborn 2.4 G', kategori: 'MPV', transmisi: 'Matic', kursi: '7 Kursi', harga: 650000, kota: 'Surabaya', lokasi: 'Gubeng, Surabaya Pusat', status: 'Tersedia', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=80' },
-    { id: 'RG-HRV-05', tipe: 'mobil', nama: 'Honda HR-V 1.5 E', kategori: 'SUV', transmisi: 'Matic', kursi: '5 Kursi', harga: 600000, kota: 'Bali', lokasi: 'Kuta & Bandara DPS', status: 'Tersedia', img: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=900&q=80' },
-    { id: 'RG-NMX-06', tipe: 'motor', nama: 'Yamaha NMAX 155', kategori: 'Maxi Scooter', transmisi: 'Matic', kursi: '2 Orang', harga: 110000, kota: 'Bali', lokasi: 'Seminyak, Bali', status: 'Tersedia', img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=900&q=80' },
-    { id: 'RG-PCX-07', tipe: 'motor', nama: 'Honda PCX 160', kategori: 'Maxi Scooter', transmisi: 'Matic', kursi: '2 Orang', harga: 120000, kota: 'Yogyakarta', lokasi: 'Kawasan Malioboro', status: 'Tersedia', img: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=900&q=80' },
-    { id: 'RG-VSP-08', tipe: 'motor', nama: 'Vespa Primavera 150', kategori: 'Scooter Klasik', transmisi: 'Matic', kursi: '2 Orang', harga: 180000, kota: 'Bandung', lokasi: 'Dago, Bandung', status: 'Tersedia', img: 'https://images.unsplash.com/photo-1525160354320-d8e92641c563?auto=format&fit=crop&w=900&q=80' },
-    { id: 'RG-VAR-09', tipe: 'motor', nama: 'Honda Vario 160', kategori: 'Matic Harian', transmisi: 'Matic', kursi: '2 Orang', harga: 90000, kota: 'Jakarta', lokasi: 'Depok & Jakarta Selatan', status: 'Tersedia', img: 'https://images.unsplash.com/photo-1558980664-3a031cf67ea8?auto=format&fit=crop&w=900&q=80' },
+const formatRupiah = (value) => `Rp ${Number(value || 0).toLocaleString('id-ID')}`;
+
+/** status database kendaraan → label Indonesia */
+const VEHICLE_STATUS = {
+    available: 'Tersedia',
+    booked: 'Sudah Dipesan',
+    rented: 'Sedang Disewa',
+    maintenance: 'Perawatan',
+    inactive: 'Nonaktif',
+    draft: 'Draft',
+    pending_review: 'Menunggu Verifikasi',
+    rejected: 'Ditolak',
+};
+
+/** Ambil foto pertama yang bukan video. */
+const primaryPhoto = (photos = []) =>
+    photos.find((media) => media.media_type !== 'video' && media.file_path) ||
+    photos.find((media) => media.file_path);
+
+/** Daftar kota yang dikenali, untuk menebak kota dari teks lokasi penjemputan. */
+const KNOWN_CITIES = [
+    'Jakarta', 'Bandung', 'Yogyakarta', 'Bali', 'Denpasar', 'Surabaya',
+    'Semarang', 'Medan', 'Makassar', 'Bekasi', 'Depok', 'Tangerang',
+    'Bogor', 'Malang', 'Solo', 'Palembang', 'Balikpapan', 'Manado',
 ];
 
-const formatRupiah = (value) => `Rp ${value.toLocaleString('id-ID')}`;
-const FALLBACK_UNIT_IMAGE = 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=900&q=80';
+/** Tebak nama kota dari teks lokasi penjemputan (mis. "Jl. Dago, Bandung"). */
+const cityFromLocation = (location) => {
+    const text = String(location || '').toLowerCase();
+    if (!text) return null;
+    return KNOWN_CITIES.find((city) => text.includes(city.toLowerCase())) || null;
+};
 
-export default function MappingUnit({ auth = {}, search = {} }) {
+export default function MappingUnit({ auth = {}, search = {}, units = [] }) {
     const [sort, setSort] = useState('relevan');
     const [type, setType] = useState(search.tipe || 'mobil');
     const city = search.kota || 'Semua Kota';
     const keyword = (search.q || '').trim().toLowerCase();
 
+    // Hanya data unit yang benar-benar ada di database (tanpa data dummy).
+    const activeUnits = useMemo(() => {
+        if (!units || units.length === 0) return [];
+        return units.map((u) => {
+            const price = u.search_price ?? u.prices?.[0]?.price_per_day ?? u.price_per_day ?? 0;
+            const photo = primaryPhoto(u.photos);
+            const photoPath = photo?.file_path;
+            const imgUrl = photoPath
+                ? (photoPath.startsWith('http') || photoPath.startsWith('/storage/') ? photoPath : `/storage/${photoPath}`)
+                : null;
+            const agent = u.agent_profile || u.agentProfile || {};
+            const agentUser = agent.user || {};
+            const agentName = agent.agency_name || agentUser.name || 'Mitra RentGo';
+
+            // Alamat & kota unit mengikuti PROFIL MITRA penyedianya (bukan teks
+            // bebas per-unit), sesuai model: 1 mitra → 1 alamat titik serah terima.
+            const alamatMitra = agent.address || u.pickup_location || 'Alamat mitra belum diisi';
+            const kotaMitra =
+                agent.city || cityFromLocation(agent.address) || cityFromLocation(u.pickup_location) || 'Indonesia';
+
+            return {
+                id: u.id,
+                dbId: u.id,
+                kode: u.license_plate || `UNIT-${u.id}`,
+                tipe: u.vehicle_type === 'motorcycle' ? 'motor' : 'mobil',
+                nama: u.name || `${u.brand || ''} ${u.model || ''}`.trim() || 'Unit Kendaraan',
+                kategori: (u.vehicle_category || u.category)?.name || '-',
+                transmisi: u.transmission === 'manual' ? 'Manual' : 'Matic',
+                kursi: u.seat_capacity ? `${u.seat_capacity} Kursi` : '-',
+                bahanBakar: u.fuel_type || '-',
+                harga: Number(price),
+                // Data mitra penyedia — dipakai untuk mapping unit per mitra.
+                mitraId: agent.id || null,
+                mitra: agentName,
+                mitraAlamat: alamatMitra,
+                mitraKota: kotaMitra,
+                // Koordinat presisi lokasi usaha mitra (dipilih di peta saat
+                // pengajuan). Menjadi titik pin asli pada peta unit.
+                mitraLat:
+                    agent.latitude ?? u.agent_latitude ?? null,
+                mitraLng:
+                    agent.longitude ?? u.agent_longitude ?? null,
+                kota: kotaMitra,
+                lokasi: alamatMitra,
+                status: VEHICLE_STATUS[u.status] || u.status || '-',
+                img: imgUrl,
+            };
+        });
+    }, [units]);
+
     const filteredUnits = useMemo(() => {
-        const cityKey = city.split(' ')[0];
-        const result = UNITS.filter((unit) => {
-            const matchesKeyword = !keyword || [unit.nama, unit.kategori, unit.kota, unit.lokasi].some((value) => value.toLowerCase().includes(keyword));
-            return unit.tipe === type && matchesKeyword && (city === 'Semua Kota' || unit.kota === cityKey);
+        const cityKey = (city || 'Semua Kota').split(' ')[0].toLowerCase();
+        const result = activeUnits.filter((unit) => {
+            const haystack = [unit.nama, unit.kategori, unit.kota, unit.lokasi, unit.kode, unit.mitra]
+                .filter(Boolean)
+                .map((value) => String(value).toLowerCase());
+            const matchesKeyword = !keyword || haystack.some((value) => value.includes(keyword));
+            const matchesType = type === 'all' || unit.tipe === type;
+            const unitKotaLower = String(unit.kota || '').toLowerCase();
+            const matchesCity = city === 'Semua Kota' || unitKotaLower.includes(cityKey) || cityKey.includes(unitKotaLower);
+
+            return matchesType && matchesKeyword && matchesCity;
         });
         return [...result].sort((a, b) => sort === 'termurah' ? a.harga - b.harga : a.nama.localeCompare(b.nama));
-    }, [city, keyword, sort, type]);
+    }, [activeUnits, city, keyword, sort, type]);
 
     const displayCity = city === 'Semua Kota' ? 'seluruh kota' : city;
     const mapCity = city === 'Semua Kota' ? 'Semua Kota' : city.split(' ')[0];
 
     return (
-        <>
+        <CustomerLayout auth={auth} activeNav="" backHref="/" backLabel="Beranda">
             <Head title="Cari Unit - RentGo" />
-            <div className="min-h-screen bg-[#F5F5F0] text-[#111111] font-sans">
-                <header className="border-b border-stone-200 bg-white sticky top-0 z-30">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-                        <Link href="/"><ApplicationLogo theme="light" /></Link>
-                        <div className="flex items-center gap-3">
-                            <Link href="/" className="text-xs font-medium text-stone-500 hover:text-black">Ubah Pencarian</Link>
-                            {auth?.user ? (
-                                <Link href="/pesanan" className="text-xs font-semibold bg-[#111111] text-[#F5B800] px-3 py-2 rounded-sm">Pesanan Saya</Link>
-                            ) : (
-                                <Link href="/login" className="text-xs font-semibold bg-[#F5B800] text-[#111111] px-3 py-2 rounded-sm">Masuk</Link>
-                            )}
-                        </div>
+
+            {/* Page Header */}
+            <div className="mb-6 rounded-sm border border-stone-200 bg-white p-5 shadow-sm">
+                <div className="mb-2 flex items-center gap-2">
+                    <span className="h-2 w-2 bg-[#F5B800]" />
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b38600]">
+                        Hasil Pencarian
+                    </span>
+                </div>
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                    <div>
+                        <h1 className="text-xl font-semibold tracking-tight text-[#111111]">
+                            Unit di {displayCity}
+                        </h1>
+                        <p className="mt-1 text-xs text-stone-500">
+                            {search.tanggal || 'Tanggal fleksibel'}
+                            <span className="mx-1.5 text-stone-300">/</span>
+                            {search.durasi || '1 Hari'}
+                            <span className="mx-1.5 text-stone-300">/</span>
+                            {search.layanan === 'supir' ? 'Dengan Supir' : 'Lepas Kunci'}
+                        </p>
                     </div>
-                </header>
+                    <div className="flex items-center gap-1.5 bg-stone-100 p-0.5 rounded-sm border border-stone-200">
+                        <button
+                            type="button"
+                            onClick={() => setType('all')}
+                            className={`rounded-xs px-3 py-1.5 text-xs font-semibold transition-colors ${
+                                type === 'all'
+                                    ? 'bg-[#111111] text-[#F5B800] shadow-xs'
+                                    : 'text-stone-600 hover:text-black'
+                            }`}
+                        >
+                            Semua
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setType('mobil')}
+                            className={`rounded-xs px-3 py-1.5 text-xs font-semibold transition-colors ${
+                                type === 'mobil'
+                                    ? 'bg-[#111111] text-[#F5B800] shadow-xs'
+                                    : 'text-stone-600 hover:text-black'
+                            }`}
+                        >
+                            Mobil
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setType('motor')}
+                            className={`rounded-xs px-3 py-1.5 text-xs font-semibold transition-colors ${
+                                type === 'motor'
+                                    ? 'bg-[#111111] text-[#F5B800] shadow-xs'
+                                    : 'text-stone-600 hover:text-black'
+                            }`}
+                        >
+                            Motor
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-                <main className="max-w-7xl mx-auto px-4 sm:px-6 py-7">
-                    <section className="bg-[#111111] text-white rounded-sm p-5 sm:p-6 mb-6 relative overflow-hidden">
-                        <div className="absolute right-0 top-0 w-48 h-full opacity-10 bg-[linear-gradient(135deg,transparent_25%,#F5B800_25%,#F5B800_28%,transparent_28%,transparent_55%,#F5B800_55%,#F5B800_58%,transparent_58%)]" />
-                        <div className="relative flex flex-col lg:flex-row lg:items-end justify-between gap-5">
-                            <div>
-                                <span className="text-[#F5B800] text-[10px] font-bold uppercase tracking-[0.18em]">Hasil Pencarian</span>
-                                <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight mt-2">Unit di {displayCity}</h1>
-                                <p className="text-stone-400 text-xs mt-2">{search.tanggal || 'Tanggal fleksibel'} <span className="mx-1.5 text-stone-600">/</span> {search.durasi || '1 Hari'} <span className="mx-1.5 text-stone-600">/</span> {search.layanan === 'supir' ? 'Dengan supir' : 'Lepas kunci'}</p>
-                            </div>
-                            <div className="flex items-center gap-2 text-xs">
-                                <button type="button" onClick={() => setType('mobil')} className={`px-3 py-2 rounded-sm border ${type === 'mobil' ? 'bg-[#F5B800] text-[#111111] border-[#F5B800]' : 'border-stone-700 text-stone-300'}`}>Mobil</button>
-                                <button type="button" onClick={() => setType('motor')} className={`px-3 py-2 rounded-sm border ${type === 'motor' ? 'bg-[#F5B800] text-[#111111] border-[#F5B800]' : 'border-stone-700 text-stone-300'}`}>Motor</button>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section>
+                    <section id="armada-mobil" className="scroll-mt-24">
                         <div>
                             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-4 pb-4 border-b border-stone-200">
                                 <div>
@@ -88,13 +192,49 @@ export default function MappingUnit({ auth = {}, search = {} }) {
                             </div>
 
                             {filteredUnits.length === 0 ? (
-                                <div className="bg-white border border-stone-200 rounded-sm p-10 text-center"><p className="text-sm font-semibold">Belum ada unit di kota ini</p><Link href="/pencarian" className="inline-block mt-3 text-xs font-semibold bg-[#F5B800] px-4 py-2 rounded-sm">Lihat semua unit</Link></div>
+                                <div className="bg-white border border-stone-200 rounded-sm p-10 text-center"><p className="text-sm font-semibold">Belum ada unit terdaftar di kota ini</p><p className="text-xs text-stone-500 mt-1">Coba ubah kata kunci atau pilih &quot;Semua Kota&quot; untuk melihat seluruh unit yang tersedia dari mitra.</p><button type="button" onClick={() => { setType('all'); }} className="inline-block mt-3 text-xs font-semibold bg-[#F5B800] px-4 py-2 rounded-sm text-[#111]">Lihat semua unit</button></div>
                             ) : (
                                 <div className="grid sm:grid-cols-2 gap-5">
                                     {filteredUnits.map((unit) => (
-                                        <article key={unit.id} className="bg-white border border-stone-200 rounded-sm overflow-hidden hover:border-stone-400 hover:shadow-sm transition-all flex flex-col">
-                                            <div className="h-44 bg-stone-100 relative overflow-hidden"><img src={unit.img} alt={unit.nama} onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = FALLBACK_UNIT_IMAGE; }} className="w-full h-full object-cover" /><span className="absolute top-3 left-3 bg-[#111111] text-[#F5B800] text-[10px] font-bold px-2 py-1 rounded-sm">{unit.status}</span></div>
-                                            <div className="p-4 flex flex-col flex-1"><div className="flex justify-between gap-3 min-h-11"><div><p className="text-[10px] text-stone-400 font-mono">{unit.id} / {unit.kota}</p><h3 className="text-sm font-semibold mt-1 leading-tight">{unit.nama}</h3></div><span className="text-[10px] font-semibold text-stone-500 text-right shrink-0">{unit.kategori}</span></div><div className="flex gap-2 mt-3 text-[10px] text-stone-500"><span>{unit.transmisi}</span><span>·</span><span>{unit.kursi}</span></div><div className="flex items-end justify-between border-t border-stone-100 mt-auto pt-3"><div><p className="text-[10px] text-stone-400 line-clamp-1">{unit.lokasi}</p><p className="text-sm font-bold mt-0.5">{formatRupiah(unit.harga)}<span className="text-[10px] font-normal text-stone-400"> / hari</span></p></div><button type="button" className="bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] text-[10px] font-bold px-3 py-2 rounded-sm shrink-0">Pilih Unit</button></div></div>
+                                        <article key={unit.id} className="bg-white border border-stone-200 rounded-sm overflow-hidden hover:border-[#111111] hover:shadow-md transition-all flex flex-col">
+                                            <div className="h-44 bg-stone-100 relative overflow-hidden">
+                                                {unit.img ? (
+                                                    <img
+                                                        src={unit.img}
+                                                        alt={unit.nama}
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => {
+                                                            e.currentTarget.onerror = null;
+                                                            e.currentTarget.src = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80';
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <span className="w-full h-full flex items-center justify-center text-[11px] font-medium text-stone-400">Foto unit belum tersedia</span>
+                                                )}
+                                                <span className="absolute top-3 left-3 bg-[#111111] text-[#F5B800] text-[10px] font-bold px-2 py-1 rounded-sm shadow-xs">{unit.status}</span>
+                                                <span className="absolute top-3 right-3 bg-white/90 text-[#111] text-[10px] font-semibold px-2 py-1 rounded-sm border border-stone-200 shadow-xs">{unit.kategori}</span>
+                                            </div>
+                                            <div className="p-4 flex flex-col flex-1">
+                                                <div className="flex justify-between gap-3 min-h-11">
+                                                    <div>
+                                                        <p className="text-[10px] text-stone-400 font-mono">{unit.kode} &bull; {unit.kota}</p>
+                                                        <h3 className="text-sm font-bold mt-0.5 leading-tight text-[#111]">{unit.nama}</h3>
+                                                        <p className="text-[11px] text-stone-500 mt-1">Mitra: <strong className="font-semibold text-stone-700">{unit.mitra}</strong></p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2 mt-3 text-[10px] text-stone-600 pt-2 border-t border-stone-100">
+                                                    <span className="bg-stone-50 border border-stone-200 px-2 py-0.5 rounded-xs">{unit.transmisi}</span>
+                                                    <span className="bg-stone-50 border border-stone-200 px-2 py-0.5 rounded-xs">{unit.kursi}</span>
+                                                    <span className="bg-stone-50 border border-stone-200 px-2 py-0.5 rounded-xs">{unit.bahanBakar}</span>
+                                                </div>
+                                                <div className="flex items-end justify-between border-t border-stone-100 mt-auto pt-3">
+                                                    <div>
+                                                        <p className="text-[10px] text-stone-400 line-clamp-1">{unit.lokasi}</p>
+                                                        <p className="text-sm font-black mt-0.5 text-[#111]">{formatRupiah(unit.harga)}<span className="text-[10px] font-normal text-stone-400"> / hari</span></p>
+                                                    </div>
+                                                    <Link href={`/vehicles/${unit.dbId || unit.id}`} className="bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] text-[11px] font-bold px-3 py-2 rounded-sm shrink-0 inline-block text-center shadow-xs transition-colors">Pilih Unit &rarr;</Link>
+                                                </div>
+                                            </div>
                                         </article>
                                     ))}
                                 </div>
@@ -102,11 +242,9 @@ export default function MappingUnit({ auth = {}, search = {} }) {
                         </div>
 
                         <div className="mt-10 pt-8 border-t border-stone-200">
-                            <NearbyRentalMap selectedCity={mapCity} />
+                            <NearbyRentalMap selectedCity={mapCity} units={activeUnits} />
                         </div>
                     </section>
-                </main>
-            </div>
-        </>
+        </CustomerLayout>
     );
 }

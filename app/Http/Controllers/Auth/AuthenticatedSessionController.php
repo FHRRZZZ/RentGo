@@ -34,8 +34,23 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(RouteServiceProvider::HOME)
-            ->with('success', 'Selamat datang kembali, ' . $request->user()->name . '!');
+        $user = $request->user();
+
+        if ($user && method_exists($user, 'hasRole')) {
+            if ($user->hasRole('admin')) {
+                return redirect()->intended('/admin')
+                    ->with('success', 'Selamat datang Administrator, ' . $user->name . '.');
+            }
+
+            if ($user->hasRole('mitra')) {
+                return redirect()->intended('/mitra')
+                    ->with('success', 'Selamat datang Mitra, ' . $user->name . '.');
+            }
+        }
+
+        $request->session()->forget('url.intended');
+        return redirect(RouteServiceProvider::HOME)
+            ->with('success', 'Selamat datang kembali, ' . $user->name . '.');
     }
 
     /**
@@ -43,12 +58,22 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        if ($request->boolean('relogin') && $request->user()) {
+            $request->user()
+                ->notifications()
+                ->where('type', 'agent_verification_approved')
+                ->whereNull('read_at')
+                ->update(['read_at' => now()]);
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return $request->boolean('relogin')
+            ? redirect()->route('login')
+            : redirect('/');
     }
 }

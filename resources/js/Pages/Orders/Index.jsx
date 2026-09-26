@@ -1,398 +1,388 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import ApplicationLogo from '@/Components/ApplicationLogo';
+import CustomerLayout from '@/Layouts/CustomerLayout';
 
-const MOCK_ORDERS = [
-    {
-        id: 'RG-2026-0914',
-        status: 'aktif',
-        statusLabel: 'Sedang Berjalan',
-        statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-        kendaraanNama: 'Toyota Avanza 1.3 G',
-        kendaraanTipe: 'Mobil MPV',
-        transmisi: 'Matic',
-        platNomor: 'B 1928 KZA',
-        layanan: 'Lepas Kunci',
-        tglMulai: '14 Sep 2026, 09:00 WIB',
-        tglSelesai: '16 Sep 2026, 09:00 WIB',
-        durasi: '2 Hari (48 Jam)',
-        lokasiAmbil: 'Bandara Soekarno-Hatta (CGK) Terminal 3',
-        lokasiKembali: 'Bandara Soekarno-Hatta (CGK) Terminal 3',
-        totalHarga: 800000,
-        biayaDetail: {
-            sewaPerHari: 400000,
-            hari: 2,
-            asuransi: 50000,
-            diskon: 50000,
-        },
-        img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80',
-        metodeBayar: 'QRIS / BCA Virtual Account',
-        driverName: 'Serah Terima Mandiri (Mitra Rental CGK)',
-        driverPhone: '081299887766',
-    },
-    {
-        id: 'RG-2026-0918',
-        status: 'menunggu',
-        statusLabel: 'Menunggu Pembayaran',
-        statusColor: 'bg-amber-100 text-amber-900 border-amber-300',
-        kendaraanNama: 'Honda PCX 160',
-        kendaraanTipe: 'Motor Maxi',
-        transmisi: 'Matic',
-        platNomor: 'AB 3841 YZ',
-        layanan: 'Lepas Kunci',
-        tglMulai: '18 Sep 2026, 10:00 WIB',
-        tglSelesai: '21 Sep 2026, 10:00 WIB',
-        durasi: '3 Hari',
-        lokasiAmbil: 'Stasiun Tugu Yogyakarta',
-        lokasiKembali: 'Stasiun Tugu Yogyakarta',
-        totalHarga: 360000,
-        biayaDetail: {
-            sewaPerHari: 120000,
-            hari: 3,
-            asuransi: 30000,
-            diskon: 30000,
-        },
-        img: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80',
-        metodeBayar: 'Menunggu Transfer Bank',
-        driverName: 'Mitra RentGo Tugu',
-        driverPhone: '081388776655',
-    },
-    {
-        id: 'RG-2026-0820',
-        status: 'selesai',
-        statusLabel: 'Selesai',
-        statusColor: 'bg-stone-100 text-stone-700 border-stone-300',
-        kendaraanNama: 'Honda HR-V 1.5 E',
-        kendaraanTipe: 'Mobil SUV',
-        transmisi: 'Matic',
-        platNomor: 'DK 1420 AB',
-        layanan: 'Lepas Kunci',
-        tglMulai: '20 Agu 2026, 12:00 WITA',
-        tglSelesai: '23 Agu 2026, 12:00 WITA',
-        durasi: '3 Hari',
-        lokasiAmbil: 'Bandara I Gusti Ngurah Rai (DPS) Bali',
-        lokasiKembali: 'Area Kuta & Seminyak',
-        totalHarga: 1800000,
-        biayaDetail: {
-            sewaPerHari: 600000,
-            hari: 3,
-            asuransi: 75000,
-            diskon: 75000,
-        },
-        img: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=800&q=80',
-        metodeBayar: 'Lunas (Kartu Kredit)',
-        driverName: 'Mitra Armada Bali Jaya',
-        driverPhone: '081234567890',
-    },
+const STATUS_MAP = {
+    pending_payment: { status: 'menunggu', label: 'Menunggu Bayar', color: 'bg-amber-100 text-amber-900 border-amber-300' },
+    waiting_agent_confirmation: { status: 'menunggu', label: 'Menunggu Konfirmasi', color: 'bg-amber-100 text-amber-900 border-amber-300' },
+    confirmed: { status: 'aktif', label: 'Dikonfirmasi', color: 'bg-blue-100 text-blue-800 border-blue-300' },
+    ready_for_pickup: { status: 'aktif', label: 'Siap Diambil', color: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+    ongoing: { status: 'aktif', label: 'Sedang Berjalan', color: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+    returned: { status: 'selesai', label: 'Dikembalikan', color: 'bg-stone-100 text-stone-700 border-stone-300' },
+    completed: { status: 'selesai', label: 'Selesai', color: 'bg-stone-100 text-stone-700 border-stone-300' },
+    cancelled: { status: 'batal', label: 'Dibatalkan', color: 'bg-red-100 text-red-700 border-red-300' },
+    rejected: { status: 'batal', label: 'Ditolak Mitra', color: 'bg-red-100 text-red-700 border-red-300' },
+};
+
+// Label metode pembayaran (untuk kartu pesanan).
+const METHOD_LABELS = {
+    cash: 'COD (Bayar di Tempat)',
+    qris: 'QRIS',
+    bank_transfer: 'Transfer Bank (VA)',
+};
+
+// Label status pembayaran (bukti bayar sedang diperiksa mitra, dsb.).
+const PAYMENT_STATUS_LABELS = {
+    pending: 'Belum Dibayar',
+    awaiting_verification: 'Menunggu Verifikasi Mitra',
+    paid: 'Lunas',
+    failed: 'Pembayaran Gagal',
+    expired: 'Pembayaran Kedaluwarsa',
+    cancelled: 'Pembayaran Dibatalkan',
+};
+
+// Ambil path foto asli pertama (file_path dari vehicle_photos).
+const primaryPhotoPath = (photos = []) => {
+    const photo = (photos || []).find((p) => p?.file_path || p?.photo_path);
+    const path = photo?.file_path || photo?.photo_path;
+    return path ? `/storage/${path}` : null;
+};
+
+const TABS = [
+    { id: 'semua', label: 'Semua' },
+    { id: 'aktif', label: 'Berjalan' },
+    { id: 'menunggu', label: 'Menunggu Bayar' },
+    { id: 'selesai', label: 'Selesai' },
+    { id: 'batal', label: 'Dibatalkan' },
 ];
 
-export default function OrdersIndex({ auth = {} }) {
+export default function OrdersIndex({ auth = {}, bookings = [], availableUnits = [] }) {
     const [statusFilter, setStatusFilter] = useState('semua');
     const [selectedOrder, setSelectedOrder] = useState(null);
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const dropdownRef = useRef(null);
-    const user = auth.user;
+    const [reviewModal, setReviewModal] = useState(null); // order being reviewed
+    const [reviewRating, setReviewRating] = useState(5);
+    const [reviewHover, setReviewHover] = useState(0);
+    const [reviewText, setReviewText] = useState('');
+    const [reviewSubmitting, setReviewSubmitting] = useState(false);
+    const [reviewedOrders, setReviewedOrders] = useState({});
 
-    useEffect(() => {
-        const handler = (e) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-                setDropdownOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handler);
-        return () => document.removeEventListener('mousedown', handler);
-    }, []);
-
-    const handleLogout = (e) => {
-        e.preventDefault();
-        router.post(typeof route === 'function' ? route('logout') : '/logout');
+    const openReview = (order) => {
+        setReviewModal(order);
+        setReviewRating(5);
+        setReviewHover(0);
+        setReviewText('');
     };
 
-    const filteredOrders = MOCK_ORDERS.filter((order) => {
-        if (statusFilter === 'semua') return true;
-        return order.status === statusFilter;
-    });
+    const submitReview = (e) => {
+        e.preventDefault();
+        if (!reviewText.trim() || !reviewModal) return;
+        setReviewSubmitting(true);
+        router.post('/reviews', {
+            booking_id: reviewModal.dbId,
+            rating: reviewRating,
+            comment: reviewText.trim(),
+        }, {
+            onSuccess: () => {
+                setReviewedOrders(prev => ({ ...prev, [reviewModal.dbId]: true }));
+                setReviewModal(null);
+                setReviewSubmitting(false);
+            },
+            onError: () => setReviewSubmitting(false),
+            preserveScroll: true,
+        });
+    };
+    // Buka / mulai percakapan dengan mitra penyedia untuk pesanan ini.
+    const handleChatMitra = (order) => {
+        router.post(`/message/booking/${order.dbId}`, {}, { preserveScroll: true });
+    };
+
+    // unit data asli dari server (dipakai saat belum ada pesanan)
+
+    const activeOrders = useMemo(() => {
+        if (!bookings || bookings.length === 0) return [];
+        return bookings.map((b) => {
+            const vehicle = b.items?.[0]?.vehicle;
+            const s = STATUS_MAP[b.status] || { status: 'aktif', label: b.status, color: 'bg-stone-100 text-stone-700 border-stone-300' };
+            return {
+                id: b.booking_number || `RG-${b.id}`,
+                dbId: b.id,
+                status: s.status,
+                statusLabel: s.label,
+                statusColor: s.color,
+                rawStatus: b.status,
+                kendaraanNama: vehicle?.name || [vehicle?.brand, vehicle?.model].filter(Boolean).join(' ') || b.vehicle_name || 'Kendaraan',
+                kendaraanTipe: vehicle?.vehicle_type === 'motorcycle' ? 'Motor' : 'Mobil',
+                transmisi: vehicle?.transmission === 'manual' ? 'Manual' : 'Matic',
+                kursi: vehicle?.seat_capacity
+                    ? `${vehicle.seat_capacity} ${vehicle.vehicle_type === 'motorcycle' ? 'Orang' : 'Kursi'}`
+                    : '-',
+                platNomor: vehicle?.license_plate || '-',
+                layanan: b.delivery_type === 'delivery' ? 'Antar-Jemput' : 'Lepas Kunci',
+                tglMulai: b.rental_start,
+                tglSelesai: b.rental_end,
+                durasi: `${b.total_days || 1} Hari`,
+                lokasiAmbil: b.pickup_location || b.items?.[0]?.vehicle?.pickup_location || 'Belum ditentukan',
+                lokasiKembali: b.return_location || b.pickup_location || 'Belum ditentukan',
+                totalHarga: Number(b.total_amount) || 0,
+                biayaDetail: {
+                    sewaPerHari: Number(b.rental_amount) / (b.total_days || 1),
+                    hari: b.total_days || 1,
+                    asuransi: Number(b.service_fee) || 0,
+                    diskon: 0,
+                },
+                // Hanya pakai foto asli dari vehicle_photos (file_path),
+                // tanpa gambar contoh bila mitra belum mengunggah.
+                img: primaryPhotoPath(vehicle?.photos),
+                unitKode: vehicle?.license_plate || (vehicle?.id ? `UNIT-${vehicle.id}` : '-'),
+                metodeBayar:
+                    METHOD_LABELS[b.payments?.[0]?.payment_method] || '-',
+                paymentStatusLabel:
+                    PAYMENT_STATUS_LABELS[b.payments?.[0]?.status] || null,
+                paymentId: b.payments?.[0]?.id || null,
+                paymentStatus: b.payments?.[0]?.status || null,
+                needsPayment: ['pending_payment', 'waiting_payment'].includes(b.status),
+                driverName: b.agent_profile?.agency_name || b.agent_profile?.user?.name || '-',
+                driverPhone: b.agent_profile?.user?.phone || b.agent_profile?.phone || '-',
+            };
+        });
+    }, [bookings]);
+
+    const filteredOrders = activeOrders.filter((o) =>
+        statusFilter === 'semua' ? true : o.status === statusFilter,
+    );
+
+    const countOf = (id) =>
+        id === 'semua' ? activeOrders.length : activeOrders.filter((o) => o.status === id).length;
 
     return (
-        <div className="min-h-screen bg-[#F8F9FA] text-[#111111] font-sans antialiased page-enter">
-            <Head title="Riwayat Pesanan Saya - RentGo" />
+        <CustomerLayout auth={auth} activeNav="pesanan" backHref="/" backLabel="Beranda">
+            <Head title="Pesanan Saya - RentGo" />
 
-            {/* Header Navbar — Identik dengan Welcome.jsx */}
-            <header className="border-b border-stone-200 bg-white sticky top-0 z-30 morph-navbar">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-8">
-                        <Link href="/">
-                            <ApplicationLogo theme="light" />
-                        </Link>
-                        <nav className="hidden md:flex items-center gap-6 text-sm text-stone-600 font-medium">
-                            <Link href="/#sekitar-kita" className="hover:text-black">Sekitar Kita</Link>
-                            <Link href="/#armada-mobil" className="hover:text-black">Sewa Mobil</Link>
-                            <Link href="/#armada-motor" className="hover:text-black">Sewa Motor</Link>
-                            <Link href="/pesanan" className="text-black font-semibold flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#F5B800]"></span>
-                                <span>Pesanan Saya</span>
-                            </Link>
-                        </nav>
+            {/* Page Header */}
+            <div className="mb-6">
+                <div className="mb-1 flex items-center gap-2">
+                    <span className="h-2 w-2 bg-[#F5B800]" />
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b38600]">
+                        Aktivitas Penyewaan
+                    </span>
+                </div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <h1 className="text-xl font-semibold tracking-tight text-[#111111]">
+                            Riwayat &amp; Pesanan Saya
+                        </h1>
+                        <p className="mt-1 text-xs text-stone-500">
+                            Pantau status penjemputan unit, rincian biaya, dan kontak mitra serah terima kendaraan.
+                        </p>
                     </div>
+                    <Link
+                        href="/#armada-mobil"
+                        className="inline-flex w-fit items-center rounded-sm bg-[#F5B800] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#111111] transition-colors hover:bg-[#e0a800]"
+                    >
+                        Sewa Kendaraan Baru
+                    </Link>
+                </div>
+            </div>
 
-                    <div className="flex items-center gap-3">
-                        <Link
-                            href="/"
-                            className="text-xs font-medium text-stone-600 hover:text-black px-3 py-2 border border-stone-200 rounded-sm hover:border-stone-400 transition-colors"
+            {/* Filter Tabs */}
+            <div className="mb-6 rounded-sm border border-stone-200 bg-white p-2 shadow-sm">
+                <div className="flex flex-wrap items-center gap-1 rounded-sm bg-stone-100 p-1">
+                    {TABS.map((tab) => (
+                        <button
+                            key={tab.id}
+                            type="button"
+                            onClick={() => setStatusFilter(tab.id)}
+                            className={`rounded-sm px-3.5 py-2 text-xs font-medium transition-colors whitespace-nowrap ${
+                                statusFilter === tab.id
+                                    ? 'bg-[#111111] text-[#F5B800]'
+                                    : 'text-stone-600 hover:text-[#111111]'
+                            }`}
                         >
-                            &larr; Beranda
-                        </Link>
-
-                        {user && (
-                            <div className="relative" ref={dropdownRef}>
-                                <button
-                                    type="button"
-                                    onClick={() => setDropdownOpen((v) => !v)}
-                                    className="flex items-center gap-2 py-1.5 pl-2 pr-3 rounded-full border border-stone-200 bg-white hover:border-[#F5B800] transition-colors"
-                                >
-                                    <div className="w-6 h-6 rounded-full bg-[#111111] text-[#F5B800] font-semibold flex items-center justify-center text-xs">
-                                        {user.name?.charAt(0)?.toUpperCase()}
-                                    </div>
-                                    <span className="text-xs font-medium text-[#111111]">
-                                        {user.name?.split(' ')[0]}
-                                    </span>
-                                </button>
-
-                                {dropdownOpen && (
-                                    <div className="absolute right-0 top-full mt-2 w-52 bg-white border border-stone-200 rounded-sm shadow-xl z-50 py-1">
-                                        <Link
-                                            href="/profile"
-                                            className="block px-4 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-50"
-                                            onClick={() => setDropdownOpen(false)}
-                                        >
-                                            Profil &amp; Dokumen Sewa
-                                        </Link>
-                                        <button
-                                            type="button"
-                                            onClick={handleLogout}
-                                            className="w-full text-left px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50"
-                                        >
-                                            Keluar
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </header>
-
-            <div className="morph-page-container">
-                {/* Hero Section — RentGo Industrial Dark Theme */}
-                <section className="bg-[#111111] text-white py-8 sm:py-12 border-b border-stone-800 morph-hero">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6">
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className="w-2 h-2 bg-[#F5B800]"></span>
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#F5B800]">
-                            AKTIVITAS &bull; STATUS PENYEWAAN
-                        </span>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
-                        <div>
-                            <h1 className="text-xl sm:text-2xl font-semibold text-white tracking-tight">
-                                Riwayat &amp; Pesanan Saya
-                            </h1>
-                            <p className="text-xs text-stone-400 mt-0.5">
-                                Pantau status penjemputan unit, rincian biaya sewa, dan kontak mitra serah terima kendaraan.
-                            </p>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium bg-stone-900 text-stone-300 px-3 py-1.5 rounded-sm border border-stone-700">
-                                Total: {MOCK_ORDERS.length} Transaksi
-                            </span>
-                            <Link
-                                href="/#armada-mobil"
-                                className="text-xs font-medium bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] px-4 py-1.5 rounded-sm uppercase tracking-wider transition-colors"
-                            >
-                                Sewa Kendaraan Baru
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Main Stage */}
-            <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-                {/* Filter Tabs Sesuai Style Welcome.jsx */}
-                <div className="bg-white p-2 rounded-sm border border-stone-200 shadow-sm mb-6">
-                    <div className="flex flex-wrap items-center gap-1 bg-stone-100 p-1 rounded-sm">
-                        {[
-                            { id: 'semua', label: 'Semua Pesanan', count: MOCK_ORDERS.length },
-                            { id: 'aktif', label: 'Sedang Berjalan', count: 1 },
-                            { id: 'menunggu', label: 'Menunggu Pembayaran', count: 1 },
-                            { id: 'selesai', label: 'Selesai', count: 1 },
-                            { id: 'batal', label: 'Dibatalkan', count: 0 },
-                        ].map((tab) => (
-                            <button
-                                key={tab.id}
-                                type="button"
-                                onClick={() => setStatusFilter(tab.id)}
-                                className={`text-xs font-medium px-3.5 py-2 rounded-sm transition-colors whitespace-nowrap ${
+                            {tab.label}
+                            <span
+                                className={`ml-1.5 rounded-sm px-1.5 py-0.5 text-[10px] ${
                                     statusFilter === tab.id
-                                        ? 'bg-[#111111] text-[#F5B800]'
-                                        : 'text-stone-600 hover:text-black'
+                                        ? 'bg-[#F5B800] text-[#111111]'
+                                        : 'bg-stone-200 text-stone-600'
                                 }`}
                             >
-                                <span>{tab.label}</span>
-                                <span className={`ml-1.5 text-[10px] px-1.5 py-0.2 rounded-xs ${
-                                    statusFilter === tab.id ? 'bg-[#F5B800] text-[#111111]' : 'bg-stone-200 text-stone-700'
-                                }`}>
-                                    {tab.count}
-                                </span>
-                            </button>
-                        ))}
-                    </div>
+                                {countOf(tab.id)}
+                            </span>
+                        </button>
+                    ))}
                 </div>
+            </div>
 
-                {/* List Kartu Pesanan */}
-                <div className="space-y-4">
-                    {filteredOrders.length === 0 ? (
-                        <div className="bg-white p-12 text-center border border-stone-200 rounded-sm">
-                            <p className="text-sm font-semibold text-stone-800">Tidak ada pesanan di kategori ini</p>
-                            <p className="text-xs text-stone-400 mt-1">Silakan cek status pesanan lainnya atau buat pemesanan unit baru.</p>
-                            <Link
-                                href="/#armada-mobil"
-                                className="inline-block mt-4 text-xs font-medium bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] px-5 py-2 rounded-sm uppercase tracking-wider"
-                            >
-                                Jelajahi Armada
-                            </Link>
-                        </div>
-                    ) : (
-                        filteredOrders.map((order) => (
-                            <div
-                                key={order.id}
-                                className="bg-white border border-stone-200 rounded-sm shadow-sm overflow-hidden hover:border-stone-400 transition-all"
-                            >
-                                {/* Order Card Header */}
-                                <div className="px-5 py-3.5 bg-stone-50/70 border-b border-stone-200 flex flex-wrap items-center justify-between gap-3 text-xs">
-                                    <div className="flex items-center gap-3">
-                                        <span className="font-mono font-semibold text-[#111111] bg-stone-200/80 px-2 py-0.5 rounded-xs">
-                                            {order.id}
-                                        </span>
-                                        <span className="text-stone-400">&bull;</span>
-                                        <span className="text-stone-600 font-medium">
-                                            Jadwal: {order.tglMulai} s/d {order.tglSelesai}
-                                        </span>
-                                    </div>
-
-                                    <div className="flex items-center gap-2">
-                                        <span className={`px-2.5 py-0.5 rounded-xs text-[11px] font-semibold border ${order.statusColor}`}>
-                                            {order.statusLabel}
-                                        </span>
-                                    </div>
+            {/* Daftar Pesanan */}
+            <div className="space-y-4">
+                {filteredOrders.length === 0 ? (
+                    <div className="rounded-sm border border-stone-200 bg-white p-12 text-center shadow-sm">
+                        <p className="text-sm font-semibold text-stone-800">Tidak ada pesanan di kategori ini</p>
+                        <p className="mt-1 text-xs text-stone-400">
+                            Silakan cek status pesanan lainnya atau buat pemesanan unit baru.
+                        </p>
+                        <Link
+                            href="/#armada-mobil"
+                            className="mt-4 inline-block rounded-sm bg-[#F5B800] px-5 py-2 text-xs font-semibold uppercase tracking-wider text-[#111111] transition-colors hover:bg-[#e0a800]"
+                        >
+                            Jelajahi Armada
+                        </Link>
+                    </div>
+                ) : (
+                    filteredOrders.map((order) => (
+                        <div
+                            key={order.id}
+                            className="overflow-hidden rounded-sm border border-stone-200 bg-white shadow-sm transition-all hover:border-stone-300 hover:shadow-md"
+                        >
+                            {/* Card Header */}
+                            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 bg-stone-50 px-5 py-3 text-xs">
+                                <div className="flex items-center gap-3">
+                                    <span className="rounded-sm bg-stone-200/80 px-2 py-0.5 font-mono font-semibold text-[#111111]">
+                                        {order.id}
+                                    </span>
+                                    <span className="text-stone-400">&bull;</span>
+                                    <span className="font-medium text-stone-600">
+                                        {order.tglMulai} s/d {order.tglSelesai}
+                                    </span>
                                 </div>
+                                <span
+                                    className={`rounded-sm border px-2.5 py-0.5 text-[11px] font-semibold ${order.statusColor}`}
+                                >
+                                    {order.statusLabel}
+                                </span>
+                            </div>
 
-                                {/* Order Card Body */}
-                                <div className="p-5 grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
-                                    {/* Thumbnail Armada */}
-                                    <div className="md:col-span-3">
-                                        <div className="h-32 rounded-sm overflow-hidden bg-stone-100 border border-stone-200">
+                            {/* Card Body */}
+                            <div className="grid grid-cols-1 items-center gap-5 p-5 md:grid-cols-12">
+                                {/* Thumbnail */}
+                                <div className="md:col-span-3">
+                                    <div className="h-32 overflow-hidden rounded-sm border border-stone-200 bg-stone-100">
+                                        {order.img ? (
                                             <img
                                                 src={order.img}
                                                 alt={order.kendaraanNama}
-                                                className="w-full h-full object-cover"
+                                                className="h-full w-full object-cover"
                                             />
-                                        </div>
+                                        ) : (
+                                            <span className="px-2 text-center text-[10px] font-medium text-stone-400">
+                                                Foto unit belum tersedia
+                                            </span>
+                                        )}
                                     </div>
+                                </div>
 
-                                    {/* Spesifikasi & Rincian Sewa */}
-                                    <div className="md:col-span-5 space-y-1.5 text-xs">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[10px] font-medium text-[#F5B800] bg-[#111111] px-1.5 py-0.2 rounded-xs">
-                                                {order.kendaraanTipe}
-                                            </span>
-                                            <span className="text-stone-500 font-mono font-medium">{order.platNomor}</span>
-                                        </div>
-
-                                        <h3 className="text-base font-semibold text-[#111111]">
-                                            {order.kendaraanNama}
-                                        </h3>
-
-                                        <div className="text-stone-600 space-y-1 pt-1">
-                                            <p className="flex items-center gap-1.5">
-                                                <span className="font-semibold text-stone-700">Layanan:</span>
-                                                <span>{order.layanan} ({order.transmisi}) &bull; {order.durasi}</span>
-                                            </p>
-                                            <p className="flex items-center gap-1.5">
-                                                <span className="font-semibold text-stone-700">Titik Serah Terima:</span>
-                                                <span className="truncate">{order.lokasiAmbil}</span>
-                                            </p>
-                                        </div>
+                                {/* Spesifikasi */}
+                                <div className="space-y-1.5 text-xs md:col-span-5">
+                                    <div className="flex items-center gap-2">
+                                        <span className="rounded-sm bg-[#111111] px-1.5 py-0.5 text-[10px] font-medium text-[#F5B800]">
+                                            {order.kendaraanTipe}
+                                        </span>
+                                        <span className="font-mono font-medium text-stone-500">
+                                            {order.unitKode}
+                                        </span>
                                     </div>
+                                    <h3 className="text-base font-semibold text-[#111111]">
+                                        {order.kendaraanNama}
+                                    </h3>
+                                    <div className="space-y-1 pt-1 text-stone-600">
+                                        <p>
+                                            <span className="font-semibold text-stone-700">Layanan: </span>
+                                            {order.layanan} ({order.transmisi}) &bull; {order.kursi} &bull; {order.durasi}
+                                        </p>
+                                        <p>
+                                            <span className="font-semibold text-stone-700">Titik Serah Terima: </span>
+                                            <span className="truncate">{order.lokasiAmbil}</span>
+                                        </p>
+                                    </div>
+                                </div>
 
-                                    {/* Kolom Harga & Aksi */}
-                                    <div className="md:col-span-4 border-t md:border-t-0 md:border-l border-stone-200 md:pl-5 pt-4 md:pt-0 flex flex-col justify-between h-full text-xs">
-                                        <div>
-                                            <span className="text-stone-500 block">Total Biaya Sewa:</span>
-                                            <span className="text-lg font-semibold text-[#111111]">
-                                                Rp {order.totalHarga.toLocaleString('id-ID')}
+                                {/* Harga & Aksi */}
+                                <div className="flex h-full flex-col justify-between border-t pt-4 text-xs md:col-span-4 md:border-l md:border-t-0 md:pl-5 md:pt-0 border-stone-200">
+                                    <div>
+                                        <span className="block text-stone-500">Total Biaya Sewa</span>
+                                        <span className="text-lg font-semibold text-[#111111]">
+                                            Rp {order.totalHarga.toLocaleString('id-ID')}
+                                        </span>
+                                        <span className="mt-0.5 block font-medium text-[11px] text-stone-400">
+                                            Metode: {order.metodeBayar}
+                                        </span>
+                                        {order.paymentStatusLabel && (
+                                            <span className="mt-1 block text-[11px] text-stone-500">
+                                                Status pembayaran:{" "}
+                                                <b className="text-[#111]">{order.paymentStatusLabel}</b>
                                             </span>
-                                            <span className="text-[11px] text-stone-400 block mt-0.5 font-medium">
-                                                Metode: {order.metodeBayar}
-                                            </span>
-                                        </div>
-
-                                        <div className="flex items-center gap-2 mt-4">
+                                        )}
+                                    </div>
+                                    <div className="mt-4 flex flex-wrap items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setSelectedOrder(order)}
+                                            className="flex-1 rounded-sm border border-stone-300 bg-white py-2 text-center font-medium text-stone-800 transition-colors hover:bg-stone-50"
+                                        >
+                                            Rincian Sewa
+                                        </button>
+                                        {order.needsPayment ? (
+                                            <Link
+                                                href={`/payments/create/${order.dbId}`}
+                                                className="flex-1 rounded-sm bg-[#F5B800] py-2 text-center font-bold text-[#111] transition-colors hover:bg-[#e0a800]"
+                                            >
+                                                Bayar Sekarang
+                                            </Link>
+                                        ) : order.paymentId ? (
+                                            <Link
+                                                href={`/payments/${order.paymentId}/receipt`}
+                                                className="flex-1 rounded-sm bg-[#F5B800] py-2 text-center font-medium text-[#111] transition-colors hover:bg-[#e0a800]"
+                                            >
+                                                Lihat Struk
+                                            </Link>
+                                        ) : (
                                             <button
                                                 type="button"
-                                                onClick={() => setSelectedOrder(order)}
-                                                className="flex-1 bg-white hover:bg-stone-100 text-stone-800 font-medium border border-stone-300 py-2 rounded-sm transition-colors text-center"
+                                                onClick={() => handleChatMitra(order)}
+                                                className="flex-1 rounded-sm bg-[#F5B800] py-2 text-center font-medium text-[#111111] transition-colors hover:bg-[#e0a800]"
                                             >
-                                                Rincian Sewa
+                                                Chat Mitra
                                             </button>
-
-                                            <a
-                                                href={`https://wa.me/6281234567890?text=Halo%20RentGo,%20saya%20ingin%20konfirmasi%20pesanan%20${order.id}`}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="flex-1 bg-[#F5B800] hover:bg-[#e0a800] text-[#111111] font-medium py-2 rounded-sm transition-colors text-center"
-                                            >
-                                                Kontak Mitra
-                                            </a>
-                                        </div>
+                                        )}
+                                        {(order.rawStatus === 'completed' || order.rawStatus === 'returned') && (
+                                            reviewedOrders[order.dbId] ? (
+                                                <span className="w-full flex items-center justify-center gap-1.5 rounded-sm border border-emerald-200 bg-emerald-50 py-2 text-[11px] font-semibold text-emerald-700">
+                                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                                                    Ulasan Terkirim
+                                                </span>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => openReview(order)}
+                                                    className="w-full flex items-center justify-center gap-1.5 rounded-sm border border-[#F5B800] bg-[#FFFBEA] py-2 text-[11px] font-semibold text-[#b38600] transition-colors hover:bg-[#F5B800] hover:text-[#111]"
+                                                >
+                                                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                                    Beri Ulasan
+                                                </button>
+                                            )
+                                        )}
                                     </div>
                                 </div>
                             </div>
-                        ))
-                    )}
-                </div>
-            </main>
-        </div>
+                        </div>
+                    ))
+                )}
+            </div>
 
-            {/* Modal Rincian Pesanan Sewa */}
+            {/* Modal Rincian */}
             {selectedOrder && (
-                <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 overflow-y-auto">
-                    <div className="bg-white rounded-sm border border-stone-300 w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in">
+                <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-4">
+                    <div className="w-full max-w-lg overflow-hidden rounded-sm border border-stone-200 bg-white shadow-2xl">
                         {/* Modal Header */}
-                        <div className="p-4 bg-[#111111] text-white flex items-center justify-between border-b border-stone-800">
+                        <div className="flex items-center justify-between border-b border-stone-800 bg-[#111111] p-4 text-white">
                             <div>
-                                <span className="text-[10px] font-mono text-[#F5B800] uppercase font-medium">
-                                    INVOICE PENYEWAAN &bull; {selectedOrder.id}
+                                <span className="font-mono text-[10px] font-medium uppercase text-[#F5B800]">
+                                    Invoice Penyewaan &bull; {selectedOrder.id}
                                 </span>
-                                <h3 className="text-sm font-semibold text-white mt-0.5">
-                                    {selectedOrder.kendaraanNama}
-                                </h3>
+                                <h3 className="mt-0.5 text-sm font-semibold">{selectedOrder.kendaraanNama}</h3>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setSelectedOrder(null)}
-                                className="text-stone-400 hover:text-white text-lg font-medium px-2 py-1"
+                                className="px-2 py-1 text-lg font-medium text-stone-400 hover:text-white"
                             >
                                 &times;
                             </button>
                         </div>
 
-                        {/* Modal Content */}
-                        <div className="p-5 space-y-4 text-xs text-[#111111]">
-                            {/* Jadwal Penjemputan */}
-                            <div className="p-3 bg-stone-50 border border-stone-200 rounded-sm space-y-1.5">
+                        {/* Modal Body */}
+                        <div className="space-y-4 p-5 text-xs text-[#111111]">
+                            <div className="space-y-1.5 rounded-sm border border-stone-200 bg-stone-50 p-3">
                                 <div className="flex justify-between">
                                     <span className="text-stone-500">Waktu Mulai:</span>
                                     <span className="font-medium">{selectedOrder.tglMulai}</span>
@@ -403,52 +393,65 @@ export default function OrdersIndex({ auth = {} }) {
                                 </div>
                                 <div className="flex justify-between border-t border-stone-200 pt-1.5">
                                     <span className="text-stone-500">Titik Serah Terima:</span>
-                                    <span className="font-medium text-right max-w-xs">{selectedOrder.lokasiAmbil}</span>
+                                    <span className="max-w-xs text-right font-medium">{selectedOrder.lokasiAmbil}</span>
                                 </div>
                             </div>
 
-                            {/* Rincian Tarif */}
                             <div className="space-y-1.5 pt-2">
-                                <p className="font-semibold text-stone-700 uppercase tracking-wider text-[11px]">Rincian Tarif</p>
+                                <p className="text-[11px] font-semibold uppercase tracking-wider text-stone-700">
+                                    Rincian Tarif
+                                </p>
                                 <div className="flex justify-between text-stone-600">
-                                    <span>Tarif Unit ({selectedOrder.biayaDetail.hari} Hari x Rp {selectedOrder.biayaDetail.sewaPerHari.toLocaleString('id-ID')}):</span>
-                                    <span>Rp {(selectedOrder.biayaDetail.hari * selectedOrder.biayaDetail.sewaPerHari).toLocaleString('id-ID')}</span>
+                                    <span>
+                                        Tarif Unit ({selectedOrder.biayaDetail.hari} Hari &times; Rp{' '}
+                                        {selectedOrder.biayaDetail.sewaPerHari.toLocaleString('id-ID')}):
+                                    </span>
+                                    <span>
+                                        Rp{' '}
+                                        {(
+                                            selectedOrder.biayaDetail.hari *
+                                            selectedOrder.biayaDetail.sewaPerHari
+                                        ).toLocaleString('id-ID')}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between text-stone-600">
                                     <span>Proteksi Asuransi Armada:</span>
                                     <span>Rp {selectedOrder.biayaDetail.asuransi.toLocaleString('id-ID')}</span>
                                 </div>
-                                <div className="flex justify-between text-emerald-600 font-semibold">
+                                <div className="flex justify-between font-semibold text-emerald-600">
                                     <span>Promo Diskon Member:</span>
                                     <span>- Rp {selectedOrder.biayaDetail.diskon.toLocaleString('id-ID')}</span>
                                 </div>
-                                <div className="flex justify-between font-semibold text-sm pt-2 border-t border-stone-200 text-[#111111]">
+                                <div className="flex justify-between border-t border-stone-200 pt-2 text-sm font-semibold text-[#111111]">
                                     <span>Total Pembayaran:</span>
                                     <span>Rp {selectedOrder.totalHarga.toLocaleString('id-ID')}</span>
                                 </div>
                             </div>
 
-                            {/* Mitra Info */}
-                            <div className="p-3 border border-stone-200 rounded-sm bg-stone-50 text-[11px] space-y-1">
-                                <span className="font-medium text-stone-700 block">Petugas Penyerahan Armada:</span>
-                                <p className="text-stone-600">{selectedOrder.driverName} (Telp: {selectedOrder.driverPhone})</p>
-                                <p className="text-stone-400">Harap tunjukkan KTP &amp; SIM asli saat serah terima unit di lokasi.</p>
+                            <div className="space-y-1 rounded-sm border border-stone-200 bg-stone-50 p-3 text-[11px]">
+                                <span className="block font-medium text-stone-700">Petugas Penyerahan Armada:</span>
+                                <p className="text-stone-600">
+                                    {selectedOrder.driverName} (Telp: {selectedOrder.driverPhone})
+                                </p>
+                                <p className="text-stone-400">
+                                    Harap tunjukkan KTP &amp; SIM asli saat serah terima unit di lokasi.
+                                </p>
                             </div>
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="p-4 border-t border-stone-200 bg-stone-50 flex justify-end gap-2 text-xs">
+                        <div className="flex justify-end gap-2 border-t border-stone-200 bg-stone-50 p-4 text-xs">
                             <button
                                 type="button"
                                 onClick={() => setSelectedOrder(null)}
-                                className="px-4 py-2 border border-stone-300 rounded-sm font-medium text-stone-700 hover:bg-stone-100"
+                                className="rounded-sm border border-stone-300 px-4 py-2 font-medium text-stone-700 hover:bg-stone-100"
                             >
                                 Tutup
                             </button>
                             <button
                                 type="button"
                                 onClick={() => window.print()}
-                                className="px-4 py-2 bg-[#111111] hover:bg-black text-[#F5B800] font-medium rounded-sm uppercase tracking-wider"
+                                className="rounded-sm bg-[#111111] px-4 py-2 font-medium uppercase tracking-wider text-[#F5B800] hover:bg-black"
                             >
                                 Cetak Tanda Bukti
                             </button>
@@ -456,6 +459,80 @@ export default function OrdersIndex({ auth = {} }) {
                     </div>
                 </div>
             )}
-        </div>
+
+            {/* Modal Review */}
+            {reviewModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+                    <div className="w-full max-w-md overflow-hidden rounded-xl bg-white shadow-2xl">
+                        {/* Header */}
+                        <div className="bg-gradient-to-br from-[#111] to-[#2a2a2a] px-6 py-5">
+                            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#F5B800]">Beri Ulasan Penyewaan</span>
+                            <h3 className="mt-0.5 text-base font-bold text-white">{reviewModal.kendaraanNama}</h3>
+                            <p className="mt-0.5 text-[11px] text-stone-400">ID Pesanan: {reviewModal.id}</p>
+                        </div>
+
+                        <form onSubmit={submitReview} className="p-5 space-y-5">
+                            {/* Star Rating */}
+                            <div>
+                                <p className="text-[11px] font-bold uppercase tracking-wider text-stone-500 mb-3">Rating Pengalaman Sewa</p>
+                                <div className="flex items-center justify-center gap-2">
+                                    {[1,2,3,4,5].map((star) => (
+                                        <button
+                                            key={star}
+                                            type="button"
+                                            onClick={() => setReviewRating(star)}
+                                            onMouseEnter={() => setReviewHover(star)}
+                                            onMouseLeave={() => setReviewHover(0)}
+                                            className="text-4xl transition-transform hover:scale-110 focus:outline-none"
+                                        >
+                                            <span className={(reviewHover || reviewRating) >= star ? 'text-[#F5B800]' : 'text-stone-200'}>
+                                                ★
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                                <p className="text-center text-xs font-semibold text-stone-500 mt-2">
+                                    {['', 'Sangat Buruk', 'Buruk', 'Cukup', 'Bagus', 'Sangat Bagus'][(reviewHover || reviewRating)]}
+                                </p>
+                            </div>
+
+                            {/* Komentar */}
+                            <div>
+                                <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-500 mb-2">
+                                    Ceritakan Pengalaman Anda
+                                </label>
+                                <textarea
+                                    value={reviewText}
+                                    onChange={(e) => setReviewText(e.target.value)}
+                                    rows={4}
+                                    placeholder="Bagaimana kondisi kendaraan, pelayanan mitra, dan pengalaman sewa secara keseluruhan?"
+                                    className="w-full resize-none rounded-lg border border-stone-200 bg-stone-50 px-4 py-3 text-xs outline-none transition focus:border-[#F5B800] focus:bg-white focus:ring-2 focus:ring-[#F5B800]/20"
+                                    required
+                                />
+                                <p className="mt-1 text-right text-[10px] text-stone-400">{reviewText.length}/500</p>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex gap-3 pt-1">
+                                <button
+                                    type="button"
+                                    onClick={() => setReviewModal(null)}
+                                    className="flex-1 rounded-lg border border-stone-200 py-2.5 text-xs font-semibold text-stone-600 transition hover:bg-stone-50"
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={reviewSubmitting || !reviewText.trim()}
+                                    className="flex-1 rounded-lg bg-[#F5B800] py-2.5 text-xs font-bold text-[#111] transition hover:bg-[#e0a800] disabled:opacity-50"
+                                >
+                                    {reviewSubmitting ? 'Mengirim...' : 'Kirim Ulasan'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </CustomerLayout>
     );
 }

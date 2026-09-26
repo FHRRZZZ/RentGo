@@ -39,6 +39,24 @@ class RolePermissionSeeder extends Seeder
             ]);
         }
 
+        // Default customer role untuk pengguna tanpa role (registrasi mandiri).
+        $customer = Role::firstOrCreate([
+            'name' => 'customer',
+            'guard_name' => 'web',
+        ]);
+
+        // Bersihkan role lama bernama "user" jika ada: pindahkan pemiliknya
+        // ke role "customer" lalu hapus role tersebut.
+        $legacyUserRole = Role::where('name', 'user')->where('guard_name', 'web')->first();
+        if ($legacyUserRole) {
+            foreach ($legacyUserRole->users()->get() as $legacyUser) {
+                if (! $legacyUser->hasRole('customer')) {
+                    $legacyUser->assignRole('customer');
+                }
+            }
+            $legacyUserRole->delete();
+        }
+
         $admin = Role::firstOrCreate([
             'name' => 'admin',
             'guard_name' => 'web',
@@ -46,11 +64,6 @@ class RolePermissionSeeder extends Seeder
 
         $mitra = Role::firstOrCreate([
             'name' => 'mitra',
-            'guard_name' => 'web',
-        ]);
-
-        $customer = Role::firstOrCreate([
-            'name' => 'customer',
             'guard_name' => 'web',
         ]);
 

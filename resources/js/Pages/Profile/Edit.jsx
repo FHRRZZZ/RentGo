@@ -5,12 +5,13 @@ import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
 import RentalVerificationForm from './Partials/RentalVerificationForm';
+import UserAvatar from '@/Components/UserAvatar';
 
 export default function Edit({ auth, mustVerifyEmail, status }) {
     const [activeTab, setActiveTab] = useState('verification'); // 'verification' | 'info' | 'security' | 'danger'
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
-    const user = auth.user;
+    const user = auth?.user || {};
 
     useEffect(() => {
         const handler = (e) => {
@@ -42,6 +43,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                             <Link href="/#armada-mobil" className="hover:text-black">Sewa Mobil</Link>
                             <Link href="/#armada-motor" className="hover:text-black">Sewa Motor</Link>
                             <Link href="/#keunggulan" className="hover:text-black">Cara Pesan</Link>
+                            <Link href="/message" className="hover:text-black">Pesan</Link>
                         </nav>
                     </div>
 
@@ -77,9 +79,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
 
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pt-2">
                         <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-[#F5B800] text-[#111111] font-semibold flex items-center justify-center text-xl rounded-sm shadow-sm shrink-0">
-                                {user.name?.charAt(0)?.toUpperCase()}
-                            </div>
+                            <UserAvatar user={user} className="w-14 h-14" textClassName="text-xl" rounded="rounded-sm" />
                             <div>
                                 <h1 className="text-xl sm:text-2xl font-semibold text-white tracking-tight">
                                     {user.name}

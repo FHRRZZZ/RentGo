@@ -29,10 +29,32 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $mitraApprovalNotice = null;
+
+        if ($request->user()) {
+            $mitraApprovalNotice = $request->user()
+                ->notifications()
+                ->where('type', 'agent_verification_approved')
+                ->whereNull('read_at')
+                ->latest()
+                ->first(['id', 'title', 'message', 'data']);
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
+                // Dipakai frontend (mis. tombol Simpan Dokumen Sewa) untuk
+                // membedakan customer dan mitra tanpa request tambahan.
+                'role' => fn () => $request->user()
+                    ? ($request->user()->roles->first()?->name ?? 'customer')
+                    : null,
+            ],
+            'mitraApprovalNotice' => $mitraApprovalNotice,
+            'flash' => [
+                'message' => fn () => $request->session()->get('message'),
+                'success' => fn () => $request->session()->get('success'),
+                'error'   => fn () => $request->session()->get('error'),
             ],
         ];
     }
