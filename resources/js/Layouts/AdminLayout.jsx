@@ -4,9 +4,11 @@ import ApplicationLogo from "@/Components/ApplicationLogo";
 
 /**
  * Layout Khusus Role Admin RentGo dengan Navigasi Sidebar.
- * Mengusung tema khas RentGo:
- *  - Sidebar gelap (#111111) dengan aksen emas (#F5B800)
- *  - Topbar putih bersih dengan search, notifikasi & quick actions
+ * Tema gelap premium selaras dengan halaman Login & Register:
+ *  - Background: #0D0D0D (near-black) dengan aksen emas #F5B800
+ *  - Sidebar: #111111 dengan border stone-800
+ *  - Topbar: #111111 / stone-900 dengan glassmorphism subtle
+ *  - Cards: bg-stone-900 border-stone-800
  *  - Responsif: Sidebar drawer di perangkat mobile & tablet
  */
 
@@ -125,12 +127,12 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
     const activeItem = ADMIN_NAV.find((item) => isCurrent(item)) || ADMIN_NAV[0];
 
     return (
-        <div className="min-h-screen bg-[#F9F9F8] text-[#111111] font-sans antialiased flex">
+        <div className="min-h-screen bg-white text-[#111111] font-sans antialiased flex">
             {/* ======================================================== */}
             {/* SIDEBAR (Desktop Fixed & Mobile Drawer)                   */}
             {/* ======================================================== */}
             <aside
-                className={`fixed inset-y-0 left-0 z-50 w-64 lg:w-72 bg-[#111111] text-stone-200 flex flex-col transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${
+                className={`fixed inset-y-0 left-0 z-50 w-64 lg:w-72 bg-[#111111] text-stone-200 flex flex-col transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 border-r border-stone-800/80 ${
                     mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
                 }`}
             >
@@ -162,13 +164,13 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
                             Admin Control Center
                         </span>
                     </div>
-                    <p className="text-xs text-stone-400 mt-1">RentGo Platform Central</p>
+                    <p className="text-xs text-stone-500 mt-1">RentGo Platform Central</p>
                 </div>
 
                 {/* Navigasi Utama Sidebar */}
                 <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
                     <div>
-                        <p className="px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-stone-500 mb-2">
+                        <p className="px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-stone-600 mb-2">
                             Menu Navigasi
                         </p>
                         <nav className="space-y-1">
@@ -182,17 +184,17 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
                                         className={`flex items-center justify-between px-3.5 py-2.5 rounded-sm text-xs font-semibold transition-all group ${
                                             active
                                                 ? "bg-stone-800 text-[#F5B800] shadow-sm border-l-2 border-[#F5B800]"
-                                                : "text-stone-300 hover:bg-stone-900/80 hover:text-white border-l-2 border-transparent"
+                                                : "text-stone-400 hover:bg-stone-800/60 hover:text-stone-200 border-l-2 border-transparent"
                                         }`}
                                     >
                                         <div className="flex items-center gap-3 min-w-0">
-                                            <span className={active ? "text-[#F5B800]" : "text-stone-400 group-hover:text-stone-200"}>
+                                            <span className={active ? "text-[#F5B800]" : "text-stone-500 group-hover:text-stone-300"}>
                                                 {item.icon}
                                             </span>
                                             <span className="truncate">{item.label}</span>
                                         </div>
                                         {item.badge && (
-                                            <span className={`px-2 py-0.5 rounded-sm text-[10px] font-bold border ${item.badgeColor || "bg-stone-800 text-stone-300 border-stone-700"}`}>
+                                            <span className={`px-2 py-0.5 rounded-sm text-[10px] font-bold border ${item.badgeColor || "bg-stone-800 text-stone-400 border-stone-700"}`}>
                                                 {item.badge}
                                             </span>
                                         )}
@@ -204,24 +206,24 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
 
                     {/* Pintasan Eksternal */}
                     <div>
-                        <p className="px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-stone-500 mb-2">
+                        <p className="px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-stone-600 mb-2">
                             Akses Cepat
                         </p>
                         <div className="space-y-1">
                             <Link
                                 href="/"
-                                className="flex items-center gap-3 px-3.5 py-2 rounded-sm text-xs font-medium text-stone-400 hover:text-white hover:bg-stone-900/60 transition-colors"
+                                className="flex items-center gap-3 px-3.5 py-2 rounded-sm text-xs font-medium text-stone-500 hover:text-stone-200 hover:bg-stone-800/60 transition-colors"
                             >
-                                <svg className="w-4 h-4 shrink-0 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <svg className="w-4 h-4 shrink-0 text-stone-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                 </svg>
                                 <span>Kunjungi Website Utama</span>
                             </Link>
                             <Link
                                 href="/message"
-                                className="flex items-center gap-3 px-3.5 py-2 rounded-sm text-xs font-medium text-stone-400 hover:text-white hover:bg-stone-900/60 transition-colors"
+                                className="flex items-center gap-3 px-3.5 py-2 rounded-sm text-xs font-medium text-stone-500 hover:text-stone-200 hover:bg-stone-800/60 transition-colors"
                             >
-                                <svg className="w-4 h-4 shrink-0 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <svg className="w-4 h-4 shrink-0 text-stone-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                 </svg>
                                 <span>Pusat Pesan</span>
@@ -231,7 +233,7 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
                 </div>
 
                 {/* Footer Sidebar: Profil Admin & Logout */}
-                <div className="p-4 border-t border-stone-800 bg-stone-950/50 shrink-0">
+                <div className="p-4 border-t border-stone-800 bg-stone-950/60 shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-sm bg-[#F5B800] text-[#111111] font-bold text-xs flex items-center justify-center shrink-0 shadow-sm">
                             {user.name?.charAt(0)?.toUpperCase() || "A"}
@@ -240,10 +242,10 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
                             <p className="text-xs font-semibold text-white truncate leading-tight">
                                 {user.name}
                             </p>
-                            <p className="text-[10px] text-stone-400 truncate mt-0.5">
+                            <p className="text-[10px] text-stone-500 truncate mt-0.5">
                                 {user.email}
                             </p>
-                            <span className="inline-block mt-1 px-1.5 py-0.5 bg-stone-800 text-[#F5B800] text-[9px] font-bold tracking-wider uppercase rounded-xs border border-stone-700">
+                            <span className="inline-block mt-1 px-1.5 py-0.5 bg-[#F5B800]/10 text-[#F5B800] text-[9px] font-bold tracking-wider uppercase rounded-sm border border-[#F5B800]/20">
                                 Super Admin
                             </span>
                         </div>
@@ -252,7 +254,7 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
                     <button
                         type="button"
                         onClick={handleLogout}
-                        className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-stone-400 hover:text-red-400 hover:bg-stone-900 rounded-sm border border-stone-800 transition-colors"
+                        className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-stone-500 hover:text-red-400 hover:bg-stone-800/60 rounded-sm border border-stone-800 transition-colors"
                     >
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -265,7 +267,7 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
             {/* Mobile Backdrop Overlay */}
             {mobileOpen && (
                 <div
-                    className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 lg:hidden"
+                    className="fixed inset-0 bg-black/70 backdrop-blur-xs z-40 lg:hidden"
                     onClick={() => setMobileOpen(false)}
                 />
             )}
@@ -275,13 +277,13 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
             {/* ======================================================== */}
             <div className="flex-1 min-w-0 flex flex-col min-h-screen">
                 {/* Topbar */}
-                <header className="bg-white border-b border-stone-200 sticky top-0 z-30 h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8">
+                <header className="bg-white border-b border-stone-200 sticky top-0 z-30 h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8 shadow-xs">
                     {/* Kiri: Hamburger Toggle (Mobile) + Breadcrumb Context */}
                     <div className="flex items-center gap-3">
                         <button
                             type="button"
                             onClick={() => setMobileOpen(true)}
-                            className="lg:hidden p-2 rounded-sm text-stone-600 hover:text-black hover:bg-stone-100 border border-stone-200"
+                            className="lg:hidden p-2 rounded-sm text-stone-500 hover:text-black hover:bg-stone-100 border border-stone-200 transition-colors"
                             aria-label="Buka navigasi sidebar"
                         >
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -311,7 +313,7 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
                             <input
                                 type="text"
                                 placeholder="Cari data pengguna, armada, pesanan..."
-                                className="w-full text-xs bg-stone-50 border border-stone-300 rounded-sm pl-9 pr-3 py-2 focus:bg-white focus:outline-none focus:border-[#111111] transition-colors"
+                                className="w-full text-xs bg-stone-50 border border-stone-200 rounded-sm pl-9 pr-3 py-2 text-stone-800 placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#F5B800] transition-colors"
                             />
                         </div>
                     </div>
@@ -320,7 +322,7 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
                     <div className="flex items-center gap-2.5">
                         <Link
                             href="/"
-                            className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 hover:text-black px-3 py-1.5 border border-stone-200 hover:border-stone-400 rounded-sm transition-colors"
+                            className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 hover:text-black px-3 py-1.5 border border-stone-200 hover:border-stone-300 bg-white hover:bg-stone-50 rounded-sm transition-colors shadow-xs"
                         >
                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -333,7 +335,7 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
                             <button
                                 type="button"
                                 onClick={() => setNotifOpen(!notifOpen)}
-                                className="relative p-2 rounded-sm text-stone-600 hover:text-black hover:bg-stone-100 border border-stone-200 transition-colors"
+                                className="relative p-2 rounded-sm text-stone-500 hover:text-black hover:bg-stone-100 border border-stone-200 transition-colors"
                                 title="Notifikasi Sistem"
                             >
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -343,9 +345,9 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
                             </button>
 
                             {notifOpen && (
-                                <div className="absolute right-0 mt-2 w-80 bg-white border border-stone-200 rounded-sm shadow-xl p-3 z-50 animate-in fade-in zoom-in-95">
+                                <div className="absolute right-0 mt-2 w-80 bg-white border border-stone-200 rounded-sm shadow-xl p-3 z-50">
                                     <div className="flex items-center justify-between pb-2 mb-2 border-b border-stone-100">
-                                        <span className="text-xs font-bold uppercase tracking-wider text-[#111111]">Pemberitahuan Admin</span>
+                                        <span className="text-xs font-bold uppercase tracking-wider text-amber-800">Pemberitahuan Admin</span>
                                         <span className="text-[10px] text-stone-400">3 Menunggu Tindakan</span>
                                     </div>
                                     <div className="space-y-2 text-xs">
@@ -354,12 +356,12 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
                                             <p className="text-[11px] text-amber-800 mt-0.5">Surya Trans Surabaya mengunggah SIUP & NPWP.</p>
                                         </div>
                                         <div className="p-2 bg-stone-50 border border-stone-200 rounded-sm">
-                                            <p className="font-semibold text-[#111111]">Pencairan Dana (Payout) Diajukan</p>
-                                            <p className="text-[11px] text-stone-600 mt-0.5">PT Rental CGK meminta payout Rp 720.000 ke Mandiri.</p>
+                                            <p className="font-semibold text-stone-800">Pencairan Dana (Payout) Diajukan</p>
+                                            <p className="text-[11px] text-stone-500 mt-0.5">PT Rental CGK meminta payout Rp 720.000 ke Mandiri.</p>
                                         </div>
                                         <div className="p-2 bg-red-50 border border-red-200 rounded-sm">
                                             <p className="font-semibold text-red-900">Sengketa Deposit Baru</p>
-                                            <p className="text-[11px] text-red-800 mt-0.5">Customer RG-2026-0712 mengajukan arbitrase potongan sewa.</p>
+                                            <p className="text-[11px] text-red-700 mt-0.5">Customer RG-2026-0712 mengajukan arbitrase potongan sewa.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -371,14 +373,14 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
                             <button
                                 type="button"
                                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                                className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-sm border border-stone-200 hover:border-stone-400 bg-white transition-colors"
+                                className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-sm border border-stone-200 hover:border-stone-300 bg-white hover:bg-stone-50 transition-colors shadow-xs"
                             >
-                                <div className="w-7 h-7 rounded-sm bg-[#111111] text-[#F5B800] text-xs font-bold flex items-center justify-center">
+                                <div className="w-7 h-7 rounded-sm bg-[#F5B800] text-[#111111] text-xs font-bold flex items-center justify-center">
                                     {user.name?.charAt(0)?.toUpperCase() || "A"}
                                 </div>
                                 <div className="hidden sm:flex flex-col text-left">
                                     <span className="text-xs font-semibold text-[#111111] leading-none">{user.name}</span>
-                                    <span className="text-[10px] text-stone-400 mt-0.5 leading-none">Super Administrator</span>
+                                    <span className="text-[10px] text-stone-500 mt-0.5 leading-none">Super Administrator</span>
                                 </div>
                                 <svg className="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -386,25 +388,25 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
                             </button>
 
                             {userMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-56 bg-white border border-stone-200 rounded-sm shadow-xl p-2 z-50 animate-in fade-in zoom-in-95">
+                                <div className="absolute right-0 mt-2 w-56 bg-white border border-stone-200 rounded-sm shadow-xl p-2 z-50">
                                     <div className="px-3 py-2 border-b border-stone-100">
                                         <p className="text-xs font-semibold text-[#111111]">{user.name}</p>
                                         <p className="text-[11px] text-stone-500 truncate">{user.email}</p>
-                                        <span className="inline-block mt-1 px-1.5 py-0.5 bg-[#F5B800] text-[#111111] text-[9px] font-bold uppercase rounded-sm">
+                                        <span className="inline-block mt-1 px-1.5 py-0.5 bg-[#F5B800]/20 text-[#111111] text-[9px] font-bold uppercase rounded-sm border border-[#F5B800]/40">
                                             Role: Super Admin
                                         </span>
                                     </div>
                                     <div className="py-1">
                                         <Link
                                             href="/admin"
-                                            className="block px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 rounded-sm font-medium"
+                                            className="block px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-100 hover:text-black rounded-sm font-medium transition-colors"
                                             onClick={() => setUserMenuOpen(false)}
                                         >
                                             Dashboard Admin
                                         </Link>
                                         <Link
                                             href="/"
-                                            className="block px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 rounded-sm"
+                                            className="block px-3 py-1.5 text-xs text-stone-500 hover:bg-stone-100 hover:text-black rounded-sm transition-colors"
                                             onClick={() => setUserMenuOpen(false)}
                                         >
                                             Kembali ke Beranda
@@ -412,7 +414,7 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
                                         <button
                                             type="button"
                                             onClick={handleLogout}
-                                            className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded-sm font-medium"
+                                            className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded-sm font-medium transition-colors"
                                         >
                                             Keluar (Sign Out)
                                         </button>
@@ -435,7 +437,7 @@ export default function AdminLayout({ children, activeTab = null, onTabChange = 
                         <p className="flex items-center gap-3">
                             <span>Role: Super Admin</span>
                             <span>·</span>
-                            <span className="text-[#111111] font-medium">Sistem Terhubung (3 Role Model: Admin, Mitra, Customer)</span>
+                            <span className="text-stone-400 font-medium">Sistem Terhubung (3 Role Model: Admin, Mitra, Customer)</span>
                         </p>
                     </div>
                 </footer>

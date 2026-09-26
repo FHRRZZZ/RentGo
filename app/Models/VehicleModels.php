@@ -132,6 +132,65 @@ class Vehicle extends Model
     {
         return $this->hasMany(Review::class);
     }
+
+    /**
+     * Seluruh rentang tanggal booking aktif & pemblokiran jadwal yang memblokir unit ini.
+     */
+    public function getActiveBookedRangesAttribute(): array
+    {
+        $ranges = [];
+        $now = now();
+
+        $items = $this->bookingItems()
+            ->with('booking')
+            ->whereHas('booking', function ($q) {
+                $q->whereNotIn('status', ['rejected', 'cancelled', 'completed']);
+            })
+            ->where('rental_end', '>=', $now->copy()->startOfDay())
+            ->get();
+
+        foreach ($items as $item) {
+            $ranges[] = [
+                'type' => 'booking',
+                'start' => $item->rental_start ? $item->rental_start->format('Y-m-d') : null,
+                'end' => $item->rental_end ? $item->rental_end->format('Y-m-d') : null,
+                'status' => $item->booking?->status ?? 'booked',
+            ];
+        }
+
+        $availabilities = $this->availabilities()
+            ->whereIn('status', ['unavailable', 'maintenance'])
+            ->where('end_date', '>=', $now->copy()->startOfDay())
+            ->get();
+
+        foreach ($availabilities as $av) {
+            $ranges[] = [
+                'type' => 'maintenance',
+                'start' => $av->start_date ? $av->start_date->format('Y-m-d') : null,
+                'end' => $av->end_date ? $av->end_date->format('Y-m-d') : null,
+                'status' => $av->status,
+                'notes' => $av->notes,
+            ];
+        }
+
+        return $ranges;
+    }
+
+    /**
+     * Cek apakah kendaraan saat ini (hari ini) sedang aktif disewa / berjalan.
+     */
+    public function getCurrentActiveBookingAttribute()
+    {
+        $today = now()->toDateString();
+        return $this->bookingItems()
+            ->with('booking')
+            ->whereHas('booking', function ($q) {
+                $q->whereNotIn('status', ['rejected', 'cancelled', 'completed']);
+            })
+            ->whereDate('rental_start', '<=', $today)
+            ->whereDate('rental_end', '>=', $today)
+            ->first();
+    }
 }
 
 class VehiclePhoto extends Model

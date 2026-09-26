@@ -61,7 +61,21 @@ export default function VehicleDetail({
     reviews: serverReviews = null,
     availabilities: serverAvailabilities = null,
     compliance = null,
+    bookedRanges = [],
+    currentlyRented = null,
 }) {
+    const statusMap = useMemo(() => ({
+        ...VEHICLE_STATUS,
+        rented: {
+            label: currentlyRented?.until ? `Sedang Disewa (s/d ${currentlyRented.until})` : "Sedang Disewa",
+            color: "bg-blue-100 text-blue-900 border-blue-300 font-semibold"
+        },
+        booked: {
+            label: currentlyRented?.until ? `Dipesan (s/d ${currentlyRented.until})` : "Sudah Dipesan",
+            color: "bg-amber-100 text-amber-900 border-amber-300 font-semibold"
+        },
+    }), [currentlyRented]);
+
     const vehicle = useMemo(() => {
         const raw = serverVehicle || {};
         // Tanpa harga dari mitra → tampilkan tanpa harga (tidak dikarang).
@@ -81,7 +95,9 @@ export default function VehicleDetail({
             seat_capacity: raw.seat_capacity ?? null,
             price_per_day: Number(price),
             deposit_amount: Number(raw.deposit_amount || 0),
-            status: raw.status || "available",
+            status: currentlyRented
+                ? (currentlyRented.status === 'ongoing' ? 'rented' : 'booked')
+                : (raw.status || "available"),
             description: raw.description || "Deskripsi unit belum diisi mitra.",
             rental_requirements:
                 raw.rental_requirements || "Syarat sewa belum diisi mitra.",
@@ -99,13 +115,25 @@ export default function VehicleDetail({
             license_plate: raw.license_plate || "-",
             color: raw.color || "-",
         };
-    }, [serverVehicle, vehicleId]);
+    }, [serverVehicle, vehicleId, currentlyRented]);
 
     // Mitra penyedia: hanya pakai data asli dari database.
     const agent = useMemo(() => {
         const ag =
             serverAgent || serverVehicle?.agent_profile || serverVehicle?.agentProfile;
         if (!ag) return null;
+        const rawLogo = ag.logo || null;
+        const logoUrl = rawLogo
+            ? (rawLogo.startsWith('http') || rawLogo.startsWith('/storage/')
+                ? rawLogo
+                : `/storage/${rawLogo}`)
+            : null;
+        const rawBanner = ag.banner || null;
+        const bannerUrl = rawBanner
+            ? (rawBanner.startsWith('http') || rawBanner.startsWith('/storage/')
+                ? rawBanner
+                : `/storage/${rawBanner}`)
+            : null;
         return {
             id: ag.id,
             agency_name: ag.agency_name || ag.user?.name || "Mitra RentGo",
@@ -116,6 +144,8 @@ export default function VehicleDetail({
             owner_name: ag.user?.name || "-",
             description: ag.description || "Deskripsi mitra belum diisi.",
             onboarding_status: ag.onboarding_status || "pending_verification",
+            logo: logoUrl,
+            banner: bannerUrl,
         };
     }, [serverAgent, serverVehicle]);
 
@@ -182,12 +212,55 @@ export default function VehicleDetail({
         return Math.max(0, Math.round(ms / 86400000));
     }, [startDate, endDate]);
 
+    const isMotor = ['motor', 'motorcycle', 'scooter'].includes((vehicle.vehicle_type || '').toLowerCase());
+    const perKmRate = isMotor ? 3500 : 5000;
+
+    // Hitung jarak pengantaran garis lurus + estimasi faktor jalan (rumus Haversine)
+    const deliveryDistance = useMemo(() => {
+        if (fulfillmentType !== 'delivery') return null;
+        if (!hasPoint || referenceCoord?.lat == null || referenceCoord?.lng == null) return null;
+        const lat1 = Number(referenceCoord.lat);
+        const lon1 = Number(referenceCoord.lng);
+        const lat2 = Number(point.latitude);
+        const lon2 = Number(point.longitude);
+
+        const R = 6371; // km
+        const dLat = (lat2 - lat1) * (Math.PI / 180);
+        const dLon = (lon2 - lon1) * (Math.PI / 180);
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * (Math.PI / 180)) *
+            Math.cos(lat2 * (Math.PI / 180)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const straightDist = R * c;
+
+        // Faktor rute jalanan riil (~1.25x dari garis lurus)
+        return Math.round(straightDist * 1.25 * 10) / 10;
+    }, [fulfillmentType, hasPoint, referenceCoord, point]);
+
+    // Logika tarif mirip Gojek/GoSend:
+    // Tarif dasar (0–3 km): Rp 20.000
+    // Tiap km berikutnya (>3 km): Rp 5.000/km (mobil) atau Rp 3.500/km (motor)
+    // deliveryFee: null = belum ada titik (tampilkan "Estimasi"),
+    // 0 = bukan delivery, angka = tarif berdasarkan jarak.
+    const deliveryFee = useMemo(() => {
+        if (fulfillmentType !== 'delivery') return 0;
+        if (deliveryDistance == null) return null; // belum pilih titik
+        const baseDistance = 3.0;
+        const baseFare = 20000;
+        if (deliveryDistance <= baseDistance) return baseFare;
+        const extraKm = deliveryDistance - baseDistance;
+        const totalFee = baseFare + (extraKm * perKmRate);
+        return Math.ceil(totalFee / 1000) * 1000;
+    }, [fulfillmentType, deliveryDistance, perKmRate]);
+
     // Sesuaikan dengan BookingService::create()
     const rentalAmount = rentalDays * vehicle.price_per_day;
-    const deliveryFee = fulfillmentType === 'delivery' ? 50000 : 0;
     const serviceFee = rentalAmount > 0 ? 10000 : 0;
     const depositAmount = rentalAmount > 0 ? 200000 : 0;
-    const total = rentalAmount + deliveryFee + serviceFee + depositAmount;
+    // deliveryFee null berarti belum ada titik — total pakai 0 sementara
+    const total = rentalAmount + (deliveryFee ?? 0) + serviceFee + depositAmount;
 
     // Customer wajib melengkapi data & dokumen (KTP, SIM) sebelum memesan.
     const complianceBlocked =
@@ -197,11 +270,22 @@ export default function VehicleDetail({
     const agentNotVerified =
         !!agent && agent.onboarding_status !== "approved";
 
+    // Cek apakah tanggal yang dipilih bertabrakan dengan jadwal booking/maintenance yang sudah terisi
+    const conflictBooking = useMemo(() => {
+        if (!startDate || !endDate || !bookedRanges || bookedRanges.length === 0) return null;
+        return bookedRanges.find((r) => {
+            if (!r.start || !r.end) return false;
+            // Overlap jika tanggal mulai user <= akhir booking DAN tanggal selesai user >= awal booking
+            return startDate <= r.end && endDate >= r.start;
+        }) || null;
+    }, [startDate, endDate, bookedRanges]);
+
     const canSubmitBooking =
         rentalDays > 0 &&
         !isSubmitting &&
         !agentNotVerified &&
         !complianceBlocked &&
+        !conflictBooking &&
         (fulfillmentType !== 'delivery' ||
             hasPoint);
 
@@ -212,6 +296,10 @@ export default function VehicleDetail({
         }
         if (complianceBlocked) {
             window.location.href = "/profile";
+            return;
+        }
+        if (conflictBooking) {
+            alert(`Unit tidak tersedia pada tanggal ini karena sudah ${conflictBooking.type === 'maintenance' ? 'masuk jadwal servis' : 'dipesan'} (${conflictBooking.start} s/d ${conflictBooking.end}). Silakan pilih tanggal lain.`);
             return;
         }
         if (rentalDays <= 0) return;
@@ -328,7 +416,7 @@ export default function VehicleDetail({
                                     <span className="absolute top-4 left-4">
                                         <StatusBadge
                                             status={vehicle.status}
-                                            map={VEHICLE_STATUS}
+                                            map={statusMap}
                                         />
                                     </span>
                                     <span className="absolute top-4 right-4 bg-[#111] text-[#F5B800] text-[10px] font-bold px-2.5 py-1 rounded-sm">
@@ -509,6 +597,19 @@ export default function VehicleDetail({
                                         )}
                                     </div>
 
+                                    {/* Alert Sedang Disewa Hari Ini */}
+                                    {currentlyRented && (
+                                        <div className="mt-3 rounded-sm border border-blue-200 bg-blue-50/80 p-3 text-[11px] leading-relaxed text-blue-950">
+                                            <div className="flex items-center gap-1.5 font-bold text-blue-900 mb-0.5">
+                                                <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                                                <span>Unit Sedang Digunakan Penyewa Lain</span>
+                                            </div>
+                                            <p className="text-blue-900/80 text-[11px]">
+                                                Saat ini unit sedang dalam masa sewa hingga tanggal <strong className="text-blue-950">{currentlyRented.until}</strong>. Anda tetap dapat memesan untuk jadwal setelah tanggal tersebut.
+                                            </p>
+                                        </div>
+                                    )}
+
                                     <div className="mt-4 space-y-3">
                                         <label className="block">
                                             <span className="text-[11px] font-semibold text-stone-600">
@@ -521,7 +622,9 @@ export default function VehicleDetail({
                                                 onChange={(e) =>
                                                     setStartDate(e.target.value)
                                                 }
-                                                className="mt-1 w-full text-xs border border-stone-300 rounded-sm px-3 py-2 focus:border-black outline-none bg-white"
+                                                className={`mt-1 w-full text-xs border rounded-sm px-3 py-2 outline-none bg-white ${
+                                                    conflictBooking ? 'border-red-400 focus:border-red-500' : 'border-stone-300 focus:border-black'
+                                                }`}
                                             />
                                         </label>
                                         <label className="block">
@@ -535,9 +638,58 @@ export default function VehicleDetail({
                                                 onChange={(e) =>
                                                     setEndDate(e.target.value)
                                                 }
-                                                className="mt-1 w-full text-xs border border-stone-300 rounded-sm px-3 py-2 focus:border-black outline-none bg-white"
+                                                className={`mt-1 w-full text-xs border rounded-sm px-3 py-2 outline-none bg-white ${
+                                                    conflictBooking ? 'border-red-400 focus:border-red-500' : 'border-stone-300 focus:border-black'
+                                                }`}
                                             />
                                         </label>
+
+                                        {/* Peringatan Bentrok Jadwal */}
+                                        {conflictBooking && (
+                                            <div className="rounded-sm border border-red-300 bg-red-50 p-3 text-[11px] leading-relaxed text-red-900 animate-fadeIn">
+                                                <div className="flex items-center gap-1.5 font-bold mb-1 text-red-800">
+                                                    <svg className="w-4 h-4 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                    </svg>
+                                                    <span>Jadwal Tidak Tersedia</span>
+                                                </div>
+                                                <p className="text-stone-700">
+                                                    Unit ini {conflictBooking.type === 'maintenance' ? 'sedang servis' : 'sudah dipesan'} pada periode{" "}
+                                                    <strong className="text-red-900 font-mono">
+                                                        {conflictBooking.start} s/d {conflictBooking.end}
+                                                    </strong>.
+                                                    Silakan pilih tanggal lain yang masih kosong.
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {/* Daftar Jadwal Terisi / Booked */}
+                                        {bookedRanges && bookedRanges.length > 0 && (
+                                            <div className="p-2.5 bg-stone-50 border border-stone-200 rounded-sm">
+                                                <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1.5">
+                                                    Jadwal Unit Terisi ({bookedRanges.length})
+                                                </span>
+                                                <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                                                    {bookedRanges.map((item, idx) => (
+                                                        <span
+                                                            key={idx}
+                                                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-xs text-[10px] font-mono border ${
+                                                                item.type === 'maintenance'
+                                                                    ? 'bg-amber-50 text-amber-900 border-amber-300'
+                                                                    : 'bg-white text-stone-700 border-stone-300 shadow-2xs'
+                                                            }`}
+                                                        >
+                                                            <span className={`w-1.5 h-1.5 rounded-full ${item.type === 'maintenance' ? 'bg-amber-500' : 'bg-blue-500'}`}></span>
+                                                            {item.start} s/d {item.end}
+                                                            {item.type === 'maintenance' ? ' (Servis)' : ''}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                                <p className="text-[9px] text-stone-400 mt-1">
+                                                    Tanggal di atas sudah tidak dapat dipesan.
+                                                </p>
+                                            </div>
+                                        )}
 
                                         {/* Metode Pengambilan */}
                                         <div>
@@ -565,7 +717,11 @@ export default function VehicleDetail({
                                                             : 'bg-white text-stone-700 border-stone-300 hover:border-stone-500'
                                                     }`}
                                                 >
-                                                    Diantarkan (+Rp 50.000)
+                                                    Diantarkan
+                                                    {deliveryFee != null
+                                                        ? ` (+${formatRupiah(deliveryFee)})`
+                                                        : ` (+ Estimasi)`
+                                                    }
                                                 </button>
                                             </div>
                                         </div>
@@ -655,6 +811,39 @@ export default function VehicleDetail({
                                                         placeholder="Patokan (mis. depan lobby, sebelah Indomaret)"
                                                         className="mt-2 w-full text-[11px] border-stone-300 rounded-sm px-2.5 py-1.5 focus:border-black outline-none bg-white"
                                                     />
+
+                                                    {/* Rincian Jarak & Ongkir ala Gojek */}
+                                                    {deliveryDistance != null && (
+                                                        <div className="mt-2.5 pt-2.5 border-t border-emerald-200/80 text-[11px]">
+                                                            <div className="flex items-center justify-between font-semibold text-emerald-900 mb-1">
+                                                                <span className="flex items-center gap-1.5">
+                                                                    <svg className="w-3.5 h-3.5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                                                    </svg>
+                                                                    Jarak Pengantaran
+                                                                </span>
+                                                                <span className="font-extrabold text-xs text-emerald-800">
+                                                                    {deliveryDistance} km
+                                                                </span>
+                                                            </div>
+                                                            <div className="text-[10px] text-stone-600 space-y-0.5">
+                                                                <div className="flex justify-between">
+                                                                    <span>Tarif dasar (0 – 3 km)</span>
+                                                                    <span>Rp 20.000</span>
+                                                                </div>
+                                                                {deliveryDistance > 3 && (
+                                                                    <div className="flex justify-between">
+                                                                        <span>Jarak tambahan ({(deliveryDistance - 3).toFixed(1)} km × {formatRupiah(perKmRate)})</span>
+                                                                        <span>{formatRupiah(deliveryFee - 20000)}</span>
+                                                                    </div>
+                                                                )}
+                                                                <div className="flex justify-between font-bold text-emerald-900 pt-1 border-t border-emerald-200/60">
+                                                                    <span>Total Ongkir</span>
+                                                                    <span>{formatRupiah(deliveryFee)}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
 
@@ -738,8 +927,16 @@ export default function VehicleDetail({
                                         />
                                         {fulfillmentType === 'delivery' && (
                                             <DataRow
-                                                label="Biaya pengantaran"
-                                                value={formatRupiah(deliveryFee)}
+                                                label={
+                                                    deliveryDistance != null
+                                                        ? `Biaya pengantaran (${deliveryDistance} km)`
+                                                        : "Biaya pengantaran"
+                                                }
+                                                value={
+                                                    deliveryFee != null
+                                                        ? formatRupiah(deliveryFee)
+                                                        : <span className="text-stone-400 italic text-[10px]">Tandai titik di peta</span>
+                                                }
                                             />
                                         )}
                                         <DataRow
@@ -797,7 +994,9 @@ export default function VehicleDetail({
                                         onClick={handleBookingSubmit}
                                         className={`mt-4 w-full py-3 text-xs font-bold uppercase tracking-wider rounded-sm transition-colors ${
                                             !canSubmitBooking
-                                                ? "bg-stone-200 text-stone-400 cursor-not-allowed"
+                                                ? conflictBooking
+                                                    ? "bg-red-100 text-red-700 border border-red-300 cursor-not-allowed"
+                                                    : "bg-stone-200 text-stone-400 cursor-not-allowed"
                                                 : "bg-[#F5B800] hover:bg-[#e0a800] text-[#111]"
                                         }`}
                                     >
@@ -805,14 +1004,16 @@ export default function VehicleDetail({
                                             ? "Memproses..."
                                             : agentNotVerified
                                               ? "Mitra Belum Terverifikasi"
-                                              : rentalDays === 0
-                                                ? "Pilih Tanggal Sewa"
-                                                : fulfillmentType === 'delivery' &&
-                                                    !hasPoint
-                                                  ? "Tandai Titik Lokasi Dulu"
-                                                  : complianceBlocked
-                                                    ? "Lengkapi Dokumen Dulu"
-                                                    : "Pesan & Bayar"}
+                                              : conflictBooking
+                                                ? "Jadwal Bentrok (Sudah Terisi)"
+                                                : rentalDays === 0
+                                                  ? "Pilih Tanggal Sewa"
+                                                  : fulfillmentType === 'delivery' &&
+                                                      !hasPoint
+                                                    ? "Tandai Titik Lokasi Dulu"
+                                                    : complianceBlocked
+                                                      ? "Lengkapi Dokumen Dulu"
+                                                      : "Pesan & Bayar"}
                                     </button>
                                     <p className="text-[10px] text-stone-400 mt-2 text-center">
                                         Anda tidak akan dikenakan biaya sebelum
@@ -827,8 +1028,26 @@ export default function VehicleDetail({
                                     {agent ? (
                                         <>
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-[#111] text-[#F5B800] font-bold flex items-center justify-center text-xs">
-                                                    {agent.owner_name?.charAt(0) || "M"}
+                                                {/* Logo / Avatar mitra */}
+                                                <div className="w-12 h-12 rounded-sm overflow-hidden border border-stone-200 bg-white shrink-0 flex items-center justify-center p-0.5">
+                                                    {agent.logo ? (
+                                                        <img
+                                                            src={agent.logo}
+                                                            alt={agent.agency_name}
+                                                            className="w-full h-full object-contain"
+                                                            onError={(e) => {
+                                                                e.currentTarget.onerror = null;
+                                                                e.currentTarget.style.display = 'none';
+                                                                e.currentTarget.parentNode.querySelector('.agent-initials').style.display = 'flex';
+                                                            }}
+                                                        />
+                                                    ) : null}
+                                                    <span
+                                                        className="agent-initials w-full h-full text-[#F5B800] font-bold text-sm items-center justify-center"
+                                                        style={{ display: agent.logo ? 'none' : 'flex' }}
+                                                    >
+                                                        {agent.agency_name?.charAt(0) || "M"}
+                                                    </span>
                                                 </div>
                                                 <div>
                                                     <p className="text-xs font-semibold">

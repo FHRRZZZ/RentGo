@@ -21,6 +21,8 @@ class AgentProfile extends Model
         'phone',
         'agency_name',
         'owner_name',
+        'logo',
+        'banner',
         'business_type',
         'address',
         'city',

@@ -56,6 +56,14 @@ export default function MappingUnit({ auth = {}, search = {}, units = [] }) {
             const agentUser = agent.user || {};
             const agentName = agent.agency_name || agentUser.name || 'Mitra RentGo';
 
+            // Logo mitra — pakai storage path jika ada, null jika belum diupload.
+            const rawLogo = agent.logo || null;
+            const mitraLogo = rawLogo
+                ? (rawLogo.startsWith('http') || rawLogo.startsWith('/storage/')
+                    ? rawLogo
+                    : `/storage/${rawLogo}`)
+                : null;
+
             // Alamat & kota unit mengikuti PROFIL MITRA penyedianya (bukan teks
             // bebas per-unit), sesuai model: 1 mitra → 1 alamat titik serah terima.
             const alamatMitra = agent.address || u.pickup_location || 'Alamat mitra belum diisi';
@@ -76,6 +84,7 @@ export default function MappingUnit({ auth = {}, search = {}, units = [] }) {
                 // Data mitra penyedia — dipakai untuk mapping unit per mitra.
                 mitraId: agent.id || null,
                 mitra: agentName,
+                mitraLogo,
                 mitraAlamat: alamatMitra,
                 mitraKota: kotaMitra,
                 // Koordinat presisi lokasi usaha mitra (dipilih di peta saat
@@ -87,6 +96,7 @@ export default function MappingUnit({ auth = {}, search = {}, units = [] }) {
                 kota: kotaMitra,
                 lokasi: alamatMitra,
                 status: VEHICLE_STATUS[u.status] || u.status || '-',
+                rentedUntil: u.rented_until || null,
                 img: imgUrl,
             };
         });
@@ -211,18 +221,49 @@ export default function MappingUnit({ auth = {}, search = {}, units = [] }) {
                                                 ) : (
                                                     <span className="w-full h-full flex items-center justify-center text-[11px] font-medium text-stone-400">Foto unit belum tersedia</span>
                                                 )}
-                                                <span className="absolute top-3 left-3 bg-[#111111] text-[#F5B800] text-[10px] font-bold px-2 py-1 rounded-sm shadow-xs">{unit.status}</span>
+                                                {unit.rentedUntil ? (
+                                                    <span className="absolute top-3 left-3 bg-blue-900/90 text-white text-[10px] font-bold px-2 py-1 rounded-sm shadow-xs flex items-center gap-1.5">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+                                                        Disewa s/d {unit.rentedUntil}
+                                                    </span>
+                                                ) : (
+                                                    <span className="absolute top-3 left-3 bg-[#111111] text-[#F5B800] text-[10px] font-bold px-2 py-1 rounded-sm shadow-xs">{unit.status}</span>
+                                                )}
                                                 <span className="absolute top-3 right-3 bg-white/90 text-[#111] text-[10px] font-semibold px-2 py-1 rounded-sm border border-stone-200 shadow-xs">{unit.kategori}</span>
                                             </div>
                                             <div className="p-4 flex flex-col flex-1">
-                                                <div className="flex justify-between gap-3 min-h-11">
-                                                    <div>
+                                                <div className="flex justify-between gap-3">
+                                                    <div className="min-w-0 flex-1">
                                                         <p className="text-[10px] text-stone-400 font-mono">{unit.kode} &bull; {unit.kota}</p>
                                                         <h3 className="text-sm font-bold mt-0.5 leading-tight text-[#111]">{unit.nama}</h3>
-                                                        <p className="text-[11px] text-stone-500 mt-1">Mitra: <strong className="font-semibold text-stone-700">{unit.mitra}</strong></p>
                                                     </div>
                                                 </div>
-                                                <div className="flex gap-2 mt-3 text-[10px] text-stone-600 pt-2 border-t border-stone-100">
+                                                {/* Badge mitra dengan logo/avatar */}
+                                                <div className="flex items-center gap-2 mt-2.5 p-2 bg-stone-50 rounded-xs border border-stone-100">
+                                                    {unit.mitraLogo ? (
+                                                        <img
+                                                            src={unit.mitraLogo}
+                                                            alt={unit.mitra}
+                                                            className="w-7 h-7 rounded-xs object-contain bg-white border border-stone-200 shrink-0 p-0.5"
+                                                            onError={(e) => {
+                                                                e.currentTarget.onerror = null;
+                                                                e.currentTarget.style.display = 'none';
+                                                                e.currentTarget.nextSibling.style.display = 'flex';
+                                                            }}
+                                                        />
+                                                    ) : null}
+                                                    <div
+                                                        className="w-7 h-7 rounded-xs bg-[#111] text-[#F5B800] font-bold text-[10px] items-center justify-center shrink-0"
+                                                        style={{ display: unit.mitraLogo ? 'none' : 'flex' }}
+                                                    >
+                                                        {(unit.mitra || 'M').charAt(0).toUpperCase()}
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <p className="text-[9px] text-stone-400 uppercase tracking-wider font-semibold leading-none">Mitra Resmi</p>
+                                                        <p className="text-[11px] font-semibold text-stone-700 truncate leading-tight mt-0.5">{unit.mitra}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2 mt-2.5 text-[10px] text-stone-600 pt-2 border-t border-stone-100">
                                                     <span className="bg-stone-50 border border-stone-200 px-2 py-0.5 rounded-xs">{unit.transmisi}</span>
                                                     <span className="bg-stone-50 border border-stone-200 px-2 py-0.5 rounded-xs">{unit.kursi}</span>
                                                     <span className="bg-stone-50 border border-stone-200 px-2 py-0.5 rounded-xs">{unit.bahanBakar}</span>

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /*
 |--------------------------------------------------------------------------
@@ -524,7 +524,7 @@ Route::middleware(['auth', 'role:mitra'])->prefix('mitra')->name('mitra.')->grou
         ]);
     })->name('profile');
 
-    Route::patch('/profil', function (Request $request) {
+    Route::match(['patch', 'post'], '/profil', function (Request $request) {
         $validated = $request->validate([
             'agency_name' => 'required|string|max:255',
             'owner_name' => ['nullable', 'string', 'max:255'],
@@ -537,10 +537,35 @@ Route::middleware(['auth', 'role:mitra'])->prefix('mitra')->name('mitra.')->grou
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'description' => 'nullable|string|max:1000',
+            'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:3072'],
+            'banner' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:5120'],
+            'remove_banner' => ['nullable', 'boolean'],
         ]);
 
         $agent = $request->user()->agentProfile;
         abort_unless($agent, 403, 'Profil mitra tidak ditemukan.');
+
+        if ($request->hasFile('logo')) {
+            if ($agent->logo && \Illuminate\Support\Facades\Storage::disk('public')->exists($agent->logo)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($agent->logo);
+            }
+            $path = $request->file('logo')->store('agent-logos', 'public');
+            $validated['logo'] = $path;
+        }
+
+        if ($request->hasFile('banner')) {
+            if ($agent->banner && \Illuminate\Support\Facades\Storage::disk('public')->exists($agent->banner)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($agent->banner);
+            }
+            $path = $request->file('banner')->store('agent-banners', 'public');
+            $validated['banner'] = $path;
+        } elseif ($request->boolean('remove_banner')) {
+            if ($agent->banner && \Illuminate\Support\Facades\Storage::disk('public')->exists($agent->banner)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($agent->banner);
+            }
+            $validated['banner'] = null;
+        }
+        unset($validated['remove_banner']);
 
         $agent->update($validated);
 

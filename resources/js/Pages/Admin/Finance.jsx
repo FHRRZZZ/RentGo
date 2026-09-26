@@ -25,29 +25,29 @@ const formatTanggal = (dateStr) => {
 
 // Label mengikuti enum kolom `payments.status`.
 const PAYMENT_STATUS = {
-    pending: { label: "Menunggu", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    awaiting_verification: { label: "Perlu Verifikasi", color: "bg-sky-100 text-sky-900 border-sky-300" },
-    paid: { label: "Lunas", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-    completed: { label: "Berhasil", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-    failed: { label: "Gagal", color: "bg-red-100 text-red-800 border-red-300" },
-    expired: { label: "Kedaluwarsa", color: "bg-stone-100 text-stone-600 border-stone-300" },
-    cancelled: { label: "Dibatalkan", color: "bg-red-100 text-red-800 border-red-300" },
+    pending: { label: "Menunggu", color: "bg-amber-50 text-amber-900 border-amber-200" },
+    awaiting_verification: { label: "Perlu Verifikasi", color: "bg-sky-50 text-sky-800 border-sky-200" },
+    paid: { label: "Lunas", color: "bg-emerald-50 text-emerald-800 border-emerald-200" },
+    completed: { label: "Berhasil", color: "bg-emerald-50 text-emerald-800 border-emerald-200" },
+    failed: { label: "Gagal", color: "bg-red-50 text-red-800 border-red-200" },
+    expired: { label: "Kedaluwarsa", color: "bg-stone-100 text-stone-600 border-stone-200" },
+    cancelled: { label: "Dibatalkan", color: "bg-red-50 text-red-800 border-red-200" },
 };
 
 const PAYOUT_STATUS = {
-    pending: { label: "Menunggu", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    processing: { label: "Diproses", color: "bg-blue-100 text-blue-800 border-blue-300" },
-    paid: { label: "Sudah Ditransfer", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-    failed: { label: "Gagal", color: "bg-red-100 text-red-800 border-red-300" },
-    cancelled: { label: "Dibatalkan", color: "bg-stone-100 text-stone-600 border-stone-300" },
+    pending: { label: "Menunggu", color: "bg-amber-50 text-amber-900 border-amber-200" },
+    processing: { label: "Diproses", color: "bg-blue-50 text-blue-800 border-blue-200" },
+    paid: { label: "Sudah Ditransfer", color: "bg-emerald-50 text-emerald-800 border-emerald-200" },
+    failed: { label: "Gagal", color: "bg-red-50 text-red-800 border-red-200" },
+    cancelled: { label: "Dibatalkan", color: "bg-stone-100 text-stone-600 border-stone-200" },
 };
 
 const REFUND_STATUS = {
-    pending: { label: "Menunggu", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    processing: { label: "Diproses", color: "bg-blue-100 text-blue-800 border-blue-300" },
-    completed: { label: "Selesai", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-    failed: { label: "Gagal", color: "bg-red-100 text-red-800 border-red-300" },
-    cancelled: { label: "Dibatalkan", color: "bg-stone-100 text-stone-600 border-stone-300" },
+    pending: { label: "Menunggu", color: "bg-amber-50 text-amber-900 border-amber-200" },
+    processing: { label: "Diproses", color: "bg-blue-50 text-blue-800 border-blue-200" },
+    completed: { label: "Selesai", color: "bg-emerald-50 text-emerald-800 border-emerald-200" },
+    failed: { label: "Gagal", color: "bg-red-50 text-red-800 border-red-200" },
+    cancelled: { label: "Dibatalkan", color: "bg-stone-100 text-stone-600 border-stone-200" },
 };
 
 const PAYOUT_METHODS = {
@@ -224,7 +224,7 @@ export default function AdminFinancePage({
                                             {po.account_name || "-"}
                                         </p>
                                         <p className="text-[11px] text-stone-400">
-                                            {po.bank_name || "-"} \u00b7 {po.account_number || "-"}
+                                            {po.bank_name || "-"} · {po.account_number || "-"}
                                         </p>
                                     </td>
                                     <td className="p-3 font-bold text-[#111]">{formatRupiah(po.amount)}</td>
@@ -242,7 +242,7 @@ export default function AdminFinancePage({
                                                         type="button"
                                                         disabled={busy}
                                                         onClick={() => handlePayout(po, "paid")}
-                                                        className="px-3 py-1.5 bg-[#F5B800] hover:bg-[#e0a800] disabled:opacity-60 text-[#111] font-semibold text-xs rounded-sm transition-colors"
+                                                        className="px-3 py-1.5 bg-[#F5B800] hover:bg-[#e0a800] disabled:opacity-60 text-[#111] font-bold text-xs rounded-sm transition-colors shadow-xs"
                                                     >
                                                         Konfirmasi Transfer
                                                     </button>
@@ -251,14 +251,14 @@ export default function AdminFinancePage({
                                                         type="button"
                                                         disabled={busy}
                                                         onClick={() => handlePayout(po, "processing")}
-                                                        className="px-3 py-1.5 bg-[#111] text-[#F5B800] hover:bg-stone-800 disabled:opacity-60 font-semibold text-xs rounded-sm transition-colors"
+                                                        className="px-3 py-1.5 bg-stone-100 text-stone-800 hover:bg-stone-200 disabled:opacity-60 font-semibold text-xs rounded-sm transition-colors border border-stone-200"
                                                     >
                                                         Tandai Diproses
                                                     </button>
                                                 )}
                                             </div>
                                         ) : (
-                                            <span className="text-[11px] text-stone-400 italic">
+                                            <span className="text-[11px] text-stone-500 italic">
                                                 {po.status === "paid"
                                                     ? `Lunas (${formatTanggal(po.paid_at)})`
                                                     : PAYOUT_STATUS[po.status]?.label}
@@ -281,7 +281,7 @@ export default function AdminFinancePage({
                 />
 
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
+                    <table className="w-full text-left text-xs text-stone-700">
                         <thead className="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold uppercase text-[10px] tracking-wider">
                             <tr>
                                 <th className="p-3">No. Pembayaran</th>
@@ -292,7 +292,7 @@ export default function AdminFinancePage({
                                 <th className="p-3">Status</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-stone-100 text-stone-700">
+                        <tbody className="divide-y divide-stone-100">
                             {payments.length === 0 && (
                                 <tr>
                                     <td colSpan={6} className="p-4 text-center text-stone-400">
@@ -312,7 +312,9 @@ export default function AdminFinancePage({
                                             "-"}
                                     </td>
                                     <td className="p-3">
-                                        {METHOD_LABELS[trx.payment_method] || trx.payment_method || "-"}
+                                        <span className="uppercase text-[10px] font-semibold text-stone-600 bg-stone-100 border border-stone-200 px-1.5 py-0.5 rounded-sm">
+                                            {METHOD_LABELS[trx.payment_method] || trx.payment_method || "-"}
+                                        </span>
                                     </td>
                                     <td className="p-3 font-bold text-[#111]">
                                         {formatRupiah(trx.amount)}
@@ -328,7 +330,7 @@ export default function AdminFinancePage({
             </div>
 
             {/* Refund ke Customer */}
-            <div className="bg-white border-stone-200 rounded-sm p-5 shadow-sm mt-6">
+            <div className="bg-white border border-stone-200 rounded-sm p-5 shadow-sm mt-6">
                 <SectionTitle
                     kicker="Pengembalian Dana"
                     title="Daftar Refund (Refunds)"
@@ -336,7 +338,7 @@ export default function AdminFinancePage({
                 />
 
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
+                    <table className="w-full text-left text-xs text-stone-700">
                         <thead className="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold uppercase text-[10px] tracking-wider">
                             <tr>
                                 <th className="p-3">No. Refund</th>
@@ -347,7 +349,7 @@ export default function AdminFinancePage({
                                 <th className="p-3 text-right">Tindakan</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-stone-100 text-stone-700">
+                        <tbody className="divide-y divide-stone-100">
                             {refunds.length === 0 && (
                                 <tr>
                                     <td colSpan={6} className="p-4 text-center text-stone-400">
@@ -364,10 +366,10 @@ export default function AdminFinancePage({
                                         </p>
                                     </td>
                                     <td className="p-3">{rf.customer_name || "-"}</td>
-                                    <td className="p-3 max-w-[220px] text-stone-600">
+                                    <td className="p-3 max-w-[220px] text-stone-500">
                                         {rf.reason || "-"}
                                     </td>
-                                    <td className="p-3 font-bold text-red-700">
+                                    <td className="p-3 font-bold text-red-600">
                                         {formatRupiah(rf.amount)}
                                     </td>
                                     <td className="p-3">
@@ -380,7 +382,7 @@ export default function AdminFinancePage({
                                                     type="button"
                                                     disabled={busy}
                                                     onClick={() => handleRefund(rf, "completed")}
-                                                    className="px-3 py-1.5 bg-[#F5B800] hover:bg-[#e0a800] disabled:opacity-60 text-[#111] font-semibold text-xs rounded-sm transition-colors"
+                                                    className="px-3 py-1.5 bg-[#F5B800] hover:bg-[#e0a800] disabled:opacity-60 text-[#111] font-bold text-xs rounded-sm transition-colors shadow-xs"
                                                 >
                                                     Tandai Selesai
                                                 </button>
@@ -388,13 +390,13 @@ export default function AdminFinancePage({
                                                     type="button"
                                                     disabled={busy}
                                                     onClick={() => handleRefund(rf, "failed")}
-                                                    className="px-2 py-1 text-[11px] font-semibold border-red-200 text-red-600 rounded-sm hover:bg-red-50 disabled:opacity-60 transition-colors"
+                                                    className="px-2 py-1 text-[11px] font-semibold text-red-600 rounded-sm hover:bg-red-50 disabled:opacity-60 transition-colors"
                                                 >
                                                     Gagal
                                                 </button>
                                             </div>
                                         ) : (
-                                            <span className="text-[11px] text-stone-400 italic">
+                                            <span className="text-[11px] text-stone-500 italic">
                                                 {rf.status === "completed"
                                                     ? `Selesai (${formatTanggal(rf.refunded_at)})`
                                                     : REFUND_STATUS[rf.status]?.label}

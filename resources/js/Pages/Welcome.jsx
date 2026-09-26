@@ -99,111 +99,112 @@ export default function Welcome({
 
             <header className="border-b border-stone-200 bg-white sticky top-0 z-30 morph-navbar">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 lg:h-[72px] flex items-center justify-between gap-4">
-                    {/* Brand Logo & Navigasi Terpisah */}
-                    <div className="flex items-center gap-8 lg:gap-10 min-w-0">
+                    {/* Brand Logo & Nav Section (kiri) */}
+                    <div className="flex items-center gap-6 lg:gap-8 min-w-0">
                         <Link href="/" className="shrink-0">
                             <ApplicationLogo theme="light" />
                         </Link>
 
-                        <nav className="hidden md:flex items-center text-[13px] lg:text-sm font-medium text-stone-600">
-                            {/* Kelompok 1: Link Section (Navigasi Beranda) */}
-                            <div className="flex items-center gap-1">
-                                <a href="#sekitar-kita" className="text-black font-semibold flex items-center gap-1.5 px-3 py-2 rounded-sm hover:bg-stone-100 transition-colors">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-[#F5B800]"></span>
-                                    <span>Sekitar Kita</span>
-                                </a>
-                                <a href="#armada-mobil" className="px-3 py-2 rounded-sm hover:text-black hover:bg-stone-100 transition-colors">
-                                    Sewa Mobil
-                                </a>
-                                <a href="#armada-motor" className="px-3 py-2 rounded-sm hover:text-black hover:bg-stone-100 transition-colors">
-                                    Sewa Motor
-                                </a>
-                                <a href="#keunggulan" className="px-3 py-2 rounded-sm hover:text-black hover:bg-stone-100 transition-colors">
-                                    Cara Pesan
-                                </a>
-                                <a href="#mitra" className="px-3 py-2 rounded-sm hover:text-black hover:bg-stone-100 transition-colors">
-                                    Jadi Mitra
-                                </a>
-                            </div>
-
-                            {/* Garis Pemisah (Divider) antara Section & Halaman Aplikasi */}
-                            {auth?.user && <div className="h-5 w-px bg-stone-200 mx-3 lg:mx-4 shrink-0"></div>}
-
-                            {/* Kelompok 2: Link Halaman Aplikasi (hanya untuk pengguna yang login) */}
-                            {auth?.user && (
-                                <div className="flex items-center gap-1">
-                                    <Link
-                                        href="/pesanan"
-                                        className="flex items-center gap-1.5 px-3 py-2 rounded-sm text-stone-700 hover:text-black hover:bg-stone-100 transition-colors"
-                                    >
-                                        <svg className="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                                        </svg>
-                                        <span>Pesanan</span>
-                                    </Link>
-
-                                    <Link
-                                        href="/message"
-                                        className="flex items-center gap-1.5 px-3 py-2 rounded-sm text-stone-700 hover:text-black hover:bg-stone-100 transition-colors"
-                                    >
-                                        <svg className="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3h6m-9.75 8.25 2.25-3h8.25A3.75 3.75 0 0018 12.75v-3A3.75 3.75 0 0014.25 6h-4.5A3.75 3.75 0 006 9.75v6.75z" />
-                                        </svg>
-                                        <span>Pesan</span>
-                                    </Link>
-                                </div>
-                            )}
+                        {/* Link navigasi section — hanya tampil di lg+ agar tidak tumpuk */}
+                        <nav className="hidden lg:flex items-center gap-0.5 text-[13px] font-medium text-stone-600">
+                            <a href="#sekitar-kita" className="text-black font-semibold flex items-center gap-1.5 px-2.5 py-2 rounded-sm hover:bg-stone-100 transition-colors whitespace-nowrap">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#F5B800]"></span>
+                                <span>Sekitar Kita</span>
+                            </a>
+                            <a href="#armada-mobil" className="px-2.5 py-2 rounded-sm hover:text-black hover:bg-stone-100 transition-colors whitespace-nowrap">
+                                Sewa Mobil
+                            </a>
+                            <a href="#armada-motor" className="px-2.5 py-2 rounded-sm hover:text-black hover:bg-stone-100 transition-colors whitespace-nowrap">
+                                Sewa Motor
+                            </a>
+                            <a href="#keunggulan" className="px-2.5 py-2 rounded-sm hover:text-black hover:bg-stone-100 transition-colors whitespace-nowrap">
+                                Cara Pesan
+                            </a>
+                            <a href="#mitra" className="px-2.5 py-2 rounded-sm hover:text-black hover:bg-stone-100 transition-colors whitespace-nowrap">
+                                Jadi Mitra
+                            </a>
                         </nav>
                     </div>
 
-                    {/* Sisi Kanan: Area Profile Pengguna & Auth */}
-                    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                    {/* Sisi Kanan: Pesanan, Pesan, Admin Panel, Profil, Keluar */}
+                    <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
                         {auth?.user ? (
-                            <div className="flex items-center gap-3 lg:gap-4">
+                            <>
+                                {/* Pesanan — ikon selalu, teks hanya lg+ */}
+                                <Link
+                                    href="/pesanan"
+                                    className="flex items-center gap-1.5 px-2 py-2 rounded-sm text-stone-600 hover:text-black hover:bg-stone-100 transition-colors"
+                                    title="Pesanan Saya"
+                                >
+                                    <svg className="w-4 h-4 text-stone-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                    </svg>
+                                    <span className="hidden lg:inline text-xs font-medium whitespace-nowrap">Pesanan</span>
+                                </Link>
+
+                                {/* Pesan — ikon selalu, teks hanya lg+ */}
+                                <Link
+                                    href="/message"
+                                    className="flex items-center gap-1.5 px-2 py-2 rounded-sm text-stone-600 hover:text-black hover:bg-stone-100 transition-colors"
+                                    title="Pesan"
+                                >
+                                    <svg className="w-4 h-4 text-stone-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3h6m-9.75 8.25 2.25-3h8.25A3.75 3.75 0 0018 12.75v-3A3.75 3.75 0 0014.25 6h-4.5A3.75 3.75 0 006 9.75v6.75z" />
+                                    </svg>
+                                    <span className="hidden lg:inline text-xs font-medium whitespace-nowrap">Pesan</span>
+                                </Link>
+
+                                {/* Divider */}
+                                <div className="h-5 w-px bg-stone-200 mx-0.5 shrink-0"></div>
+
+                                {/* Admin Panel */}
                                 {isAdmin && (
                                     <Link
                                         href="/admin"
-                                        className="hidden sm:inline-flex items-center gap-1 rounded-sm bg-[#111111] text-[#F5B800] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider hover:bg-black transition-colors"
+                                        className="hidden sm:inline-flex items-center gap-1 rounded-sm bg-[#111111] text-[#F5B800] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider hover:bg-black transition-colors whitespace-nowrap"
                                     >
                                         Admin Panel
                                     </Link>
                                 )}
+
+                                {/* Portal Mitra */}
                                 {isMitra && (
                                     <Link
                                         href="/mitra"
-                                        className="hidden sm:inline-flex items-center gap-1 rounded-sm bg-[#F5B800] text-[#111111] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider hover:bg-[#e0a800] transition-colors"
+                                        className="hidden sm:inline-flex items-center gap-1 rounded-sm bg-[#F5B800] text-[#111111] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider hover:bg-[#e0a800] transition-colors whitespace-nowrap"
                                     >
                                         Portal Mitra
                                     </Link>
                                 )}
-                                {/* Tombol Profil Pengguna: pill ringkas, avatar bulat */}
+
+                                {/* Profil Pengguna */}
                                 <Link
                                     href={typeof route === 'function' ? route('profile.edit') : '/profile'}
-                                    className="flex items-center gap-2 pl-1 pr-3 py-1.5 rounded-full hover:bg-stone-100 transition-colors group"
+                                    className="flex items-center gap-1.5 pl-1 pr-2.5 py-1.5 rounded-full hover:bg-stone-100 transition-colors group"
                                     title="Buka Profil & Dokumen Anda"
                                 >
-                                    <UserAvatar user={auth.user} className="w-7 h-7" />
-                                    <span className="text-xs font-semibold text-[#111] leading-tight max-w-[110px] truncate">
+                                    <UserAvatar user={auth.user} className="w-7 h-7 shrink-0" />
+                                    <span className="hidden sm:inline text-xs font-semibold text-[#111] leading-tight max-w-[72px] truncate">
                                         {auth.user.name?.split(' ')[0]}
                                     </span>
-                                    <svg className="w-3 h-3 text-stone-400 group-hover:text-stone-600 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                    <svg className="hidden sm:block w-3 h-3 text-stone-400 group-hover:text-stone-600 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                                     </svg>
                                 </Link>
 
-                                {/* Tombol Keluar (Logout) Langsung */}
+                                {/* Keluar */}
                                 <button
                                     type="button"
                                     onClick={handleLogout}
-                                    className="flex items-center gap-1.5 px-2.5 py-2 rounded-sm border border-stone-200 bg-white hover:bg-red-50 hover:border-red-200 text-xs font-medium text-stone-600 hover:text-red-600 transition-colors"
+                                    className="flex items-center gap-1.5 px-2 py-2 rounded-sm border border-stone-200 bg-white hover:bg-red-50 hover:border-red-200 text-stone-500 hover:text-red-600 transition-colors"
                                     title="Keluar dari Akun"
                                 >
-                                    <svg className="w-3.5 h-3.5 text-stone-400 group-hover:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
                                     </svg>
-                                    <span className="hidden sm:inline">Keluar</span>
+                                    <span className="hidden lg:inline text-xs font-medium whitespace-nowrap">Keluar</span>
                                 </button>
-                            </div>
+                            </>
                         ) : (
                             <>
                                 {canLogin && (
@@ -217,7 +218,7 @@ export default function Welcome({
                                 {canRegister && (
                                     <Link
                                         href={registerUrl}
-                                        className="text-xs font-semibold bg-[#F5B800] text-[#111111] hover:bg-[#e0a800] px-3.5 py-2 rounded-sm transition-colors shadow-xs"
+                                        className="text-xs font-semibold bg-[#F5B800] text-[#111111] hover:bg-[#e0a800] px-3.5 py-2 rounded-sm transition-colors shadow-xs whitespace-nowrap"
                                     >
                                         Daftar Gratis
                                     </Link>

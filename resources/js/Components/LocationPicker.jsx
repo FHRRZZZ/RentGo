@@ -204,7 +204,12 @@ export default function LocationPicker({
     };
 
     const handleSearch = (e) => {
-        e.preventDefault();
+        if (e && typeof e.preventDefault === "function") {
+            e.preventDefault();
+        }
+        if (e && typeof e.stopPropagation === "function") {
+            e.stopPropagation();
+        }
         const q = searchQuery.trim();
         if (!q) return;
         setSearching(true);
@@ -239,22 +244,30 @@ export default function LocationPicker({
         <div className="rounded-sm border-stone-300 bg-white overflow-hidden">
             {/* Toolbar pencarian & GPS */}
             <div className="flex flex-col sm:flex-row gap-2 p-2.5 border-b border-stone-200 bg-stone-50">
-                <form onSubmit={handleSearch} className="flex-1 flex gap-2">
+                <div className="flex-1 flex gap-2">
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleSearch(e);
+                            }
+                        }}
                         placeholder="Cari alamat / nama tempat (mis. Jl. Dago, Bandung)"
                         className="flex-1 text-xs bg-white border-stone-300 rounded-sm px-3 py-2 focus:border-[#111] outline-none"
                     />
                     <button
-                        type="submit"
+                        type="button"
+                        onClick={handleSearch}
                         disabled={searching}
                         className="text-xs font-semibold bg-[#111] text-[#F5B800] px-3 py-2 rounded-sm hover:bg-black transition-colors disabled:opacity-50 shrink-0"
                     >
                         {searching ? "Mencari..." : "Cari"}
                     </button>
-                </form>
+                </div>
                 <button
                     type="button"
                     onClick={handleGetLocation}

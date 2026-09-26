@@ -17,9 +17,9 @@ const formatTanggal = (dateStr) => {
 };
 
 const DOC_STATUS = {
-    pending: { label: "Menunggu", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    approved: { label: "Disetujui", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-    rejected: { label: "Ditolak", color: "bg-red-100 text-red-800 border-red-300" },
+    pending: { label: "Menunggu", color: "bg-amber-400/10 text-amber-300 border-amber-500/30" },
+    approved: { label: "Disetujui", color: "bg-emerald-400/10 text-emerald-300 border-emerald-500/30" },
+    rejected: { label: "Ditolak", color: "bg-red-400/10 text-red-300 border-red-500/30" },
 };
 
 export default function AdminUsersPage({
@@ -209,10 +209,10 @@ export default function AdminUsersPage({
                                 onClick={() => setRoleFilter(tab.key)}
                                 className={`px-3 py-1.5 text-xs font-semibold rounded-sm transition-colors whitespace-nowrap ${
                                     roleFilter === tab.key
-                                        ? "bg-[#111] text-[#F5B800]"
+                                        ? "bg-[#111111] text-[#F5B800] border border-[#111111]"
                                         : tab.highlight
-                                        ? "bg-amber-100 text-amber-900 hover:bg-amber-200 border border-amber-300"
-                                        : "bg-stone-50 text-stone-600 hover:bg-stone-100 border border-stone-200"
+                                        ? "bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200"
+                                        : "bg-stone-50 text-stone-600 hover:bg-stone-100 hover:text-stone-900 border border-stone-200"
                                 }`}
                             >
                                 {tab.label}
@@ -226,7 +226,7 @@ export default function AdminUsersPage({
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Cari nama, email, agency..."
-                            className="w-full text-xs bg-stone-50 border border-stone-300 rounded-sm px-3 py-1.5 focus:bg-white focus:outline-none focus:border-[#111111]"
+                            className="w-full text-xs bg-stone-50 border border-stone-200 rounded-sm px-3 py-1.5 text-stone-900 placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#F5B800] transition-colors"
                         />
                     </div>
                 </div>
@@ -248,7 +248,7 @@ export default function AdminUsersPage({
                         <tbody className="divide-y divide-stone-100 text-stone-700">
                             {filteredUsers.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="p-8 text-center text-stone-400">
+                                    <td colSpan="6" className="p-8 text-center text-stone-500">
                                         Tidak ada pengguna yang cocok dengan filter.
                                     </td>
                                 </tr>
@@ -259,17 +259,17 @@ export default function AdminUsersPage({
                                     const isPendingMitra = user.agent_profile?.onboarding_status === "pending_verification";
 
                                     return (
-                                        <tr key={user.id} className={`hover:bg-stone-50/70 transition-colors ${isPendingMitra ? "bg-amber-50/30" : ""}`}>
+                                        <tr key={user.id} className={`hover:bg-stone-50/70 transition-colors ${isPendingMitra ? "bg-amber-50/50" : ""}`}>
                                             <td className="p-3.5">
                                                 <div className="flex items-center gap-2.5">
-                                                    <div className="w-8 h-8 rounded-sm bg-[#111] text-[#F5B800] font-bold flex items-center justify-center text-xs shrink-0 uppercase">
+                                                    <div className="w-8 h-8 rounded-sm bg-[#F5B800] text-[#111] font-bold flex items-center justify-center text-xs shrink-0 uppercase shadow-xs">
                                                         {user.name?.charAt(0) || "U"}
                                                     </div>
                                                     <div>
-                                                        <p className="font-semibold text-[#111]">{user.name}</p>
-                                                        <p className="text-[11px] text-stone-400">{user.email}</p>
+                                                        <p className="font-semibold text-[#111111]">{user.name}</p>
+                                                        <p className="text-[11px] text-stone-500">{user.email}</p>
                                                         {user.agent_profile?.agency_name && (
-                                                            <p className="text-[10px] text-stone-500 font-medium">
+                                                            <p className="text-[10px] text-stone-600 font-medium">
                                                                 Mitra: {user.agent_profile.agency_name}
                                                             </p>
                                                         )}
@@ -282,31 +282,31 @@ export default function AdminUsersPage({
                                                         ? 'bg-purple-50 text-purple-800 border-purple-200'
                                                         : user.role === 'mitra'
                                                         ? 'bg-amber-50 text-amber-900 border-amber-200'
-                                                        : 'bg-stone-100 text-stone-800 border-stone-200'
+                                                        : 'bg-stone-100 text-stone-700 border-stone-200'
                                                 }`}>
                                                     {user.role}
                                                 </span>
                                             </td>
                                             <td className="p-3.5">
-                                                <p>{user.agent_profile?.phone || user.customer_profile?.phone || "-"}</p>
-                                                <p className="text-[11px] text-stone-400">{user.agent_profile?.city || "Indonesia"}</p>
+                                                <p className="text-stone-800">{user.agent_profile?.phone || user.customer_profile?.phone || "-"}</p>
+                                                <p className="text-[11px] text-stone-500">{user.agent_profile?.city || "Indonesia"}</p>
                                             </td>
                                             <td className="p-3.5">
                                                 {hasMitraApplication ? (
                                                     user.verified && user.onboarding_status === "approved" ? (
                                                         <span className="inline-flex items-center gap-1.5 text-emerald-700 font-semibold text-[11px]">
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
                                                             Disetujui (CRUD Aktif)
                                                         </span>
                                                     ) : (
-                                                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 rounded-sm font-semibold text-[10px]">
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-amber-50 text-amber-900 border border-amber-200 rounded-sm font-semibold text-[10px]">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-amber-600 animate-pulse"></span>
                                                             {user.onboarding_status === "rejected" ? "Ditolak" : "Menunggu Persetujuan"}
                                                         </span>
                                                     )
                                                 ) : (
                                                     <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold text-[11px]">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
                                                         Aktif
                                                     </span>
                                                 )}
@@ -319,7 +319,7 @@ export default function AdminUsersPage({
                                                             type="button"
                                                             disabled={processing}
                                                             onClick={() => handleApproveMitra(user.agent_profile.id)}
-                                                            className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-sm shadow-xs transition-colors"
+                                                            className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-sm transition-colors shadow-xs"
                                                             title="Setujui mitra agar bisa CRUD unit"
                                                         >
                                                             Setujui
@@ -337,7 +337,7 @@ export default function AdminUsersPage({
                                                     <button
                                                         type="button"
                                                         onClick={() => handleEditUserClick(user)}
-                                                        className="px-2 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-sm border border-stone-200"
+                                                        className="px-2 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-sm border border-stone-200 transition-colors"
                                                     >
                                                         Edit
                                                     </button>
@@ -347,7 +347,7 @@ export default function AdminUsersPage({
                                                             setSelectedUser(user);
                                                             setDeleteUserModalOpen(true);
                                                         }}
-                                                        className="px-2 py-1 text-red-600 hover:bg-red-50 text-xs font-semibold rounded-sm"
+                                                        className="px-2 py-1 text-red-600 hover:bg-red-50 text-xs font-semibold rounded-sm transition-colors"
                                                         title="Hapus Akun"
                                                     >
                                                         Hapus
@@ -366,16 +366,16 @@ export default function AdminUsersPage({
             {/* Modal Tambah Pengguna Baru */}
             {addUserModalOpen && (
                 <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-                    <div className="bg-white border border-stone-200 rounded-sm shadow-2xl max-w-md w-full p-6 space-y-4 animate-in fade-in">
-                        <div className="flex items-center justify-between border-b border-stone-100 pb-2.5">
+                    <div className="bg-white border border-stone-200 rounded-sm shadow-xl max-w-md w-full p-6 space-y-4">
+                        <div className="flex items-center justify-between border-b border-stone-100 pb-3">
                             <div>
-                                <h3 className="text-sm font-bold text-[#111]">+ Tambah Pengguna Baru</h3>
+                                <h3 className="text-sm font-bold text-[#111111]">+ Tambah Pengguna Baru</h3>
                                 <p className="text-xs text-stone-500">Buat akun untuk admin, mitra, atau customer</p>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setAddUserModalOpen(false)}
-                                className="text-stone-400 hover:text-black"
+                                className="text-stone-400 hover:text-stone-800 transition-colors"
                             >
                                 ✕
                             </button>
@@ -383,47 +383,47 @@ export default function AdminUsersPage({
 
                         <form onSubmit={handleAddUserSubmit} className="space-y-3 text-xs">
                             <div>
-                                <label className="block font-semibold mb-1">Nama Lengkap *</label>
+                                <label className="block font-semibold mb-1 text-stone-700">Nama Lengkap *</label>
                                 <input
                                     type="text"
                                     required
                                     placeholder="Contoh: Budi Santoso"
                                     value={newUserForm.name}
                                     onChange={(e) => setNewUserForm({ ...newUserForm, name: e.target.value })}
-                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 focus:bg-white focus:border-[#111] outline-none"
+                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 text-stone-900 placeholder-stone-400 focus:bg-white focus:border-[#F5B800] outline-none transition-colors"
                                 />
                             </div>
 
                             <div>
-                                <label className="block font-semibold mb-1">Email *</label>
+                                <label className="block font-semibold mb-1 text-stone-700">Email *</label>
                                 <input
                                     type="email"
                                     required
                                     placeholder="email@example.com"
                                     value={newUserForm.email}
                                     onChange={(e) => setNewUserForm({ ...newUserForm, email: e.target.value })}
-                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 focus:bg-white focus:border-[#111] outline-none"
+                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 text-stone-900 placeholder-stone-400 focus:bg-white focus:border-[#F5B800] outline-none transition-colors"
                                 />
                             </div>
 
                             <div>
-                                <label className="block font-semibold mb-1">Password (Min. 8 Karakter) *</label>
+                                <label className="block font-semibold mb-1 text-stone-700">Password (Min. 8 Karakter) *</label>
                                 <input
                                     type="password"
                                     required
                                     placeholder="••••••••"
                                     value={newUserForm.password}
                                     onChange={(e) => setNewUserForm({ ...newUserForm, password: e.target.value })}
-                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 focus:bg-white focus:border-[#111] outline-none"
+                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 text-stone-900 placeholder-stone-400 focus:bg-white focus:border-[#F5B800] outline-none transition-colors"
                                 />
                             </div>
 
                             <div>
-                                <label className="block font-semibold mb-1">Peran / Role *</label>
+                                <label className="block font-semibold mb-1 text-stone-700">Peran / Role *</label>
                                 <select
                                     value={newUserForm.role}
                                     onChange={(e) => setNewUserForm({ ...newUserForm, role: e.target.value })}
-                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 focus:bg-white focus:border-[#111] outline-none"
+                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 text-stone-900 focus:bg-white focus:border-[#F5B800] outline-none transition-colors"
                                 >
                                     <option value="customer">Customer (Penyewa)</option>
                                     <option value="mitra">Mitra (Rental Agent)</option>
@@ -432,53 +432,53 @@ export default function AdminUsersPage({
                             </div>
 
                             {newUserForm.role === "mitra" && (
-                                <div className="p-3 bg-amber-50 border border-amber-200 rounded-sm space-y-2">
+                                <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-sm space-y-2">
                                     <div>
-                                        <label className="block font-semibold mb-1">Nama Usaha Rental</label>
+                                        <label className="block font-semibold mb-1 text-amber-900">Nama Usaha Rental</label>
                                         <input
                                             type="text"
                                             placeholder="Contoh: RentGo Bali Express"
                                             value={newUserForm.agency_name}
                                             onChange={(e) => setNewUserForm({ ...newUserForm, agency_name: e.target.value })}
-                                            className="w-full bg-white border border-stone-300 rounded-sm p-1.5 focus:border-[#111] outline-none"
+                                            className="w-full bg-white border border-stone-300 rounded-sm p-1.5 text-stone-900 placeholder-stone-400 focus:border-[#F5B800] outline-none"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block font-semibold mb-1">Kota Operasional</label>
+                                        <label className="block font-semibold mb-1 text-amber-900">Kota Operasional</label>
                                         <input
                                             type="text"
                                             placeholder="Jakarta / Bali / Bandung"
                                             value={newUserForm.city}
                                             onChange={(e) => setNewUserForm({ ...newUserForm, city: e.target.value })}
-                                            className="w-full bg-white border border-stone-300 rounded-sm p-1.5 focus:border-[#111] outline-none"
+                                            className="w-full bg-white border border-stone-300 rounded-sm p-1.5 text-stone-900 placeholder-stone-400 focus:border-[#F5B800] outline-none"
                                         />
                                     </div>
                                 </div>
                             )}
 
                             <div>
-                                <label className="block font-semibold mb-1">Nomor Telepon / WhatsApp</label>
+                                <label className="block font-semibold mb-1 text-stone-700">Nomor Telepon / WhatsApp</label>
                                 <input
                                     type="text"
                                     placeholder="081234567890"
                                     value={newUserForm.phone}
                                     onChange={(e) => setNewUserForm({ ...newUserForm, phone: e.target.value })}
-                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 focus:bg-white focus:border-[#111] outline-none"
+                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 text-stone-900 placeholder-stone-400 focus:bg-white focus:border-[#F5B800] outline-none transition-colors"
                                 />
                             </div>
 
-                            <div className="pt-2 flex items-center justify-end gap-2 border-t border-stone-100">
+                            <div className="pt-3 flex items-center justify-end gap-2 border-t border-stone-100">
                                 <button
                                     type="button"
                                     onClick={() => setAddUserModalOpen(false)}
-                                    className="px-3.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-sm font-semibold"
+                                    className="px-3.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-sm font-semibold border border-stone-200 transition-colors"
                                 >
                                     Batal
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="px-4 py-1.5 bg-[#F5B800] hover:bg-[#e0a800] text-[#111] rounded-sm font-semibold disabled:opacity-50"
+                                    className="px-4 py-1.5 bg-[#F5B800] hover:bg-[#e0a800] text-[#111] rounded-sm font-bold shadow-xs disabled:opacity-50 transition-colors"
                                 >
                                     {processing ? "Menyimpan..." : "Buat Akun"}
                                 </button>
@@ -491,16 +491,16 @@ export default function AdminUsersPage({
             {/* Modal Edit Pengguna */}
             {editUserModalOpen && selectedUser && (
                 <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-                    <div className="bg-white border border-stone-200 rounded-sm shadow-2xl max-w-md w-full p-6 space-y-4 animate-in fade-in">
-                        <div className="flex items-center justify-between border-b border-stone-100 pb-2.5">
+                    <div className="bg-white border border-stone-200 rounded-sm shadow-xl max-w-md w-full p-6 space-y-4">
+                        <div className="flex items-center justify-between border-b border-stone-100 pb-3">
                             <div>
-                                <h3 className="text-sm font-bold text-[#111]">Edit Pengguna: {selectedUser.name}</h3>
+                                <h3 className="text-sm font-bold text-[#111111]">Edit Pengguna: {selectedUser.name}</h3>
                                 <p className="text-xs text-stone-500">{selectedUser.email}</p>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setEditUserModalOpen(false)}
-                                className="text-stone-400 hover:text-black"
+                                className="text-stone-400 hover:text-stone-800 transition-colors"
                             >
                                 ✕
                             </button>
@@ -508,33 +508,33 @@ export default function AdminUsersPage({
 
                         <form onSubmit={handleEditUserSubmit} className="space-y-3 text-xs">
                             <div>
-                                <label className="block font-semibold mb-1">Nama Lengkap</label>
+                                <label className="block font-semibold mb-1 text-stone-700">Nama Lengkap</label>
                                 <input
                                     type="text"
                                     required
                                     value={editUserForm.name}
                                     onChange={(e) => setEditUserForm({ ...editUserForm, name: e.target.value })}
-                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 focus:bg-white focus:border-[#111] outline-none"
+                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 text-stone-900 focus:bg-white focus:border-[#F5B800] outline-none transition-colors"
                                 />
                             </div>
 
                             <div>
-                                <label className="block font-semibold mb-1">Email</label>
+                                <label className="block font-semibold mb-1 text-stone-700">Email</label>
                                 <input
                                     type="email"
                                     required
                                     value={editUserForm.email}
                                     onChange={(e) => setEditUserForm({ ...editUserForm, email: e.target.value })}
-                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 focus:bg-white focus:border-[#111] outline-none"
+                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 text-stone-900 focus:bg-white focus:border-[#F5B800] outline-none transition-colors"
                                 />
                             </div>
 
                             <div>
-                                <label className="block font-semibold mb-1">Peran / Role</label>
+                                <label className="block font-semibold mb-1 text-stone-700">Peran / Role</label>
                                 <select
                                     value={editUserForm.role}
                                     onChange={(e) => setEditUserForm({ ...editUserForm, role: e.target.value })}
-                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 focus:bg-white focus:border-[#111] outline-none"
+                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 text-stone-900 focus:bg-white focus:border-[#F5B800] outline-none transition-colors"
                                 >
                                     <option value="customer">Customer</option>
                                     <option value="mitra">Mitra Rental</option>
@@ -543,11 +543,11 @@ export default function AdminUsersPage({
                             </div>
 
                             <div>
-                                <label className="block font-semibold mb-1">Status Akun</label>
+                                <label className="block font-semibold mb-1 text-stone-700">Status Akun</label>
                                 <select
                                     value={editUserForm.status}
                                     onChange={(e) => setEditUserForm({ ...editUserForm, status: e.target.value })}
-                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 focus:bg-white focus:border-[#111] outline-none"
+                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2 text-stone-900 focus:bg-white focus:border-[#F5B800] outline-none transition-colors"
                                 >
                                     <option value="active">Aktif</option>
                                     <option value="inactive">Nonaktifkan</option>
@@ -555,18 +555,18 @@ export default function AdminUsersPage({
                                 </select>
                             </div>
 
-                            <div className="pt-2 flex items-center justify-end gap-2 border-t border-stone-100">
+                            <div className="pt-3 flex items-center justify-end gap-2 border-t border-stone-100">
                                 <button
                                     type="button"
                                     onClick={() => setEditUserModalOpen(false)}
-                                    className="px-3.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-sm font-semibold"
+                                    className="px-3.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-sm font-semibold border border-stone-200 transition-colors"
                                 >
                                     Batal
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="px-4 py-1.5 bg-[#F5B800] hover:bg-[#e0a800] text-[#111] rounded-sm font-semibold disabled:opacity-50"
+                                    className="px-4 py-1.5 bg-[#F5B800] hover:bg-[#e0a800] text-[#111] rounded-sm font-bold shadow-xs disabled:opacity-50 transition-colors"
                                 >
                                     {processing ? "Menyimpan..." : "Simpan Perubahan"}
                                 </button>
@@ -579,20 +579,20 @@ export default function AdminUsersPage({
             {/* Modal Konfirmasi Hapus Pengguna */}
             {deleteUserModalOpen && selectedUser && (
                 <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-                    <div className="bg-white border border-stone-200 rounded-sm shadow-xl max-w-md w-full p-6 text-center animate-in fade-in">
-                        <div className="w-12 h-12 rounded-full bg-red-100 text-red-700 mx-auto flex items-center justify-center text-xl font-bold mb-3">
+                    <div className="bg-white border border-stone-200 rounded-sm shadow-xl max-w-md w-full p-6 text-center">
+                        <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 mx-auto flex items-center justify-center text-xl font-bold mb-3 border border-red-200">
                             !
                         </div>
-                        <h3 className="text-base font-bold text-[#111]">Hapus Akun Pengguna?</h3>
+                        <h3 className="text-base font-bold text-[#111111]">Hapus Akun Pengguna?</h3>
                         <p className="text-xs text-stone-600 mt-1.5 leading-relaxed">
-                            Apakah Anda yakin ingin menghapus akun <strong>{selectedUser.name}</strong> ({selectedUser.email})? Pengguna yang memiliki riwayat pesanan aktif tidak dapat dihapus demi keamanan transaksi.
+                            Apakah Anda yakin ingin menghapus akun <strong className="text-stone-900">{selectedUser.name}</strong> ({selectedUser.email})? Pengguna yang memiliki riwayat pesanan aktif tidak dapat dihapus demi keamanan transaksi.
                         </p>
 
                         <div className="mt-6 flex items-center justify-center gap-3">
                             <button
                                 type="button"
                                 onClick={() => setDeleteUserModalOpen(false)}
-                                className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-sm"
+                                className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-sm border border-stone-200 transition-colors"
                             >
                                 Batal
                             </button>
@@ -600,7 +600,7 @@ export default function AdminUsersPage({
                                 type="button"
                                 disabled={processing}
                                 onClick={handleDeleteUserConfirm}
-                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-sm disabled:opacity-50"
+                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-sm disabled:opacity-50 transition-colors shadow-xs"
                             >
                                 {processing ? "Menghapus..." : "Ya, Hapus Akun"}
                             </button>
@@ -612,10 +612,10 @@ export default function AdminUsersPage({
             {/* Modal Tinjau & Persetujuan Dokumen Kemitraan */}
             {inspectUser && (
                 <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-                    <div className="bg-white border border-stone-200 rounded-sm shadow-2xl max-w-lg w-full p-6 space-y-4 animate-in fade-in">
+                    <div className="bg-white border border-stone-200 rounded-sm shadow-xl max-w-lg w-full p-6 space-y-4">
                         <div className="flex items-start justify-between border-b border-stone-100 pb-3">
                             <div>
-                                <h3 className="text-sm font-bold text-[#111]">
+                                <h3 className="text-sm font-bold text-[#111111]">
                                     Pengajuan Kemitraan: {inspectUser.name}
                                 </h3>
                                 <p className="text-xs text-stone-500">
@@ -626,7 +626,7 @@ export default function AdminUsersPage({
                             <button
                                 type="button"
                                 onClick={() => setInspectUser(null)}
-                                className="text-stone-400 hover:text-black font-bold p-1"
+                                className="text-stone-400 hover:text-stone-800 font-bold p-1 transition-colors"
                             >
                                 ✕
                             </button>
@@ -634,17 +634,17 @@ export default function AdminUsersPage({
 
                         {inspectUser.agent_profile && (
                             <div className="p-3.5 bg-stone-50 border border-stone-200 rounded-sm space-y-2 text-xs">
-                                <div className="grid grid-cols-2 gap-2">
-                                    <p><strong>Nama Usaha:</strong> {inspectUser.agent_profile.agency_name}</p>
-                                    <p><strong>Kota:</strong> {inspectUser.agent_profile.city || "-"}</p>
-                                    <p><strong>Telepon:</strong> {inspectUser.agent_profile.phone || "-"}</p>
-                                    <p><strong>Jenis Usaha:</strong> {inspectUser.agent_profile.business_type || "Perorangan / Rental"}</p>
+                                <div className="grid grid-cols-2 gap-2 text-stone-600">
+                                    <p><span className="text-stone-400">Nama Usaha:</span> <span className="text-stone-900 font-medium">{inspectUser.agent_profile.agency_name}</span></p>
+                                    <p><span className="text-stone-400">Kota:</span> <span className="text-stone-900 font-medium">{inspectUser.agent_profile.city || "-"}</span></p>
+                                    <p><span className="text-stone-400">Telepon:</span> <span className="text-stone-900 font-medium">{inspectUser.agent_profile.phone || "-"}</span></p>
+                                    <p><span className="text-stone-400">Jenis Usaha:</span> <span className="text-stone-900 font-medium">{inspectUser.agent_profile.business_type || "Perorangan / Rental"}</span></p>
                                 </div>
                                 {inspectUser.agent_profile.address && (
-                                    <p><strong>Alamat:</strong> {inspectUser.agent_profile.address}</p>
+                                    <p className="text-stone-600"><span className="text-stone-400">Alamat:</span> <span className="text-stone-900">{inspectUser.agent_profile.address}</span></p>
                                 )}
                                 {inspectUser.agent_profile.description && (
-                                    <p><strong>Keterangan:</strong> {inspectUser.agent_profile.description}</p>
+                                    <p className="text-stone-600"><span className="text-stone-400">Keterangan:</span> <span className="text-stone-900">{inspectUser.agent_profile.description}</span></p>
                                 )}
                             </div>
                         )}
@@ -653,7 +653,7 @@ export default function AdminUsersPage({
                             <button
                                 type="button"
                                 onClick={() => setInspectUser(null)}
-                                className="px-4 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-sm"
+                                className="px-4 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-sm border border-stone-200 transition-colors"
                             >
                                 Tutup
                             </button>
@@ -664,7 +664,7 @@ export default function AdminUsersPage({
                                         type="button"
                                         disabled={processing}
                                         onClick={() => handleRejectMitra(inspectUser.agent_profile.id)}
-                                        className="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 font-semibold text-xs rounded-sm transition-colors"
+                                        className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-xs rounded-sm transition-colors border border-red-200"
                                     >
                                         Tolak
                                     </button>
@@ -672,7 +672,7 @@ export default function AdminUsersPage({
                                         type="button"
                                         disabled={processing}
                                         onClick={() => handleApproveMitra(inspectUser.agent_profile.id)}
-                                        className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-sm shadow-xs transition-colors"
+                                        className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-sm transition-colors shadow-xs"
                                     >
                                         Setujui Kemitraan
                                     </button>

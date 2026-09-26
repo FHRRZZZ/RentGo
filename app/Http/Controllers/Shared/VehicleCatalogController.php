@@ -48,6 +48,9 @@ class VehicleCatalogController extends Controller
             ? $this->complianceService->customerStatus($authUser)
             : null;
 
+        $bookedRanges = $vehicle->active_booked_ranges;
+        $currentBooking = $vehicle->current_active_booking;
+
         return \Inertia\Inertia::render('Vehicle/Show', [
             'vehicle' => $vehicle,
             'agent' => $vehicle->agentProfile,
@@ -55,6 +58,12 @@ class VehicleCatalogController extends Controller
             'reviews' => $vehicle->reviews ?? [],
             'availabilities' => $vehicle->availabilities ?? [],
             'compliance' => $compliance,
+            'bookedRanges' => $bookedRanges,
+            'currentlyRented' => $currentBooking ? [
+                'status' => $currentBooking->booking?->status,
+                'start' => $currentBooking->rental_start ? $currentBooking->rental_start->format('d M Y') : null,
+                'until' => $currentBooking->rental_end ? $currentBooking->rental_end->format('d M Y') : null,
+            ] : null,
         ]);
     }
 }

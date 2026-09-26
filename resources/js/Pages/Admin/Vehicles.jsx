@@ -11,12 +11,12 @@ const formatRupiah = (val) =>
     }).format(val || 0);
 
 const VEHICLE_STATUS = {
-    available: { label: "Tersedia", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-    rented: { label: "Disewa", color: "bg-blue-100 text-blue-800 border-blue-300" },
-    maintenance: { label: "Servis", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    inactive: { label: "Nonaktif", color: "bg-stone-100 text-stone-600 border-stone-300" },
-    pending_review: { label: "Menunggu Review", color: "bg-purple-100 text-purple-800 border-purple-300" },
-    rejected: { label: "Ditolak", color: "bg-red-100 text-red-800 border-red-300" },
+    available: { label: "Tersedia", color: "bg-emerald-50 text-emerald-800 border-emerald-200" },
+    rented: { label: "Disewa", color: "bg-blue-50 text-blue-800 border-blue-200" },
+    maintenance: { label: "Servis", color: "bg-amber-50 text-amber-900 border-amber-200" },
+    inactive: { label: "Nonaktif", color: "bg-stone-100 text-stone-600 border-stone-200" },
+    pending_review: { label: "Menunggu Review", color: "bg-purple-50 text-purple-800 border-purple-200" },
+    rejected: { label: "Ditolak", color: "bg-red-50 text-red-800 border-red-200" },
 };
 
 export default function AdminVehiclesPage({
@@ -55,10 +55,6 @@ export default function AdminVehiclesPage({
 
     const handleApprove = (vehicleId) => {
         setProcessing(true);
-        // Server melakukan redirect back() sehingga Inertia otomatis memuat
-        // ulang props Halaman (vehicles) setelah data tersimpan. Jangan
-        // memanggil router.reload() di sini — dua request yang bertabrakan
-        // membuat daftar terisi data sebelum perubahan di-commit.
         router.post(`/admin/vehicles/${vehicleId}/verify`, {
             decision: "approved",
         }, {
@@ -103,9 +99,6 @@ export default function AdminVehiclesPage({
         });
     };
 
-    // Ubah status operasional unit (Tersedia / Servis / Nonaktif).
-    // Endpoint update memakai UpdateVehicleRequest yang mewajibkan field inti,
-    // sehingga payload dikirim lengkap dari data unit agar lolos validasi.
     const handleUpdateStatus = (vehicle, newStatus) => {
         if (!vehicle) return;
         setProcessing(true);
@@ -129,14 +122,14 @@ export default function AdminVehiclesPage({
         <AdminLayout activeTab="vehicles">
             <Head title="Katalog & Verifikasi Armada — Admin RentGo" />
 
-            {/* Umpan balik aksi — agar kegagalan tidak senyap */}
+            {/* Umpan balik aksi */}
             {flash?.success && (
-                <div className="mb-4 px-4 py-3 bg-emerald-50 border-emerald-200 text-emerald-800 text-xs font-medium rounded-sm">
+                <div className="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium rounded-sm">
                     ✓ {flash.success}
                 </div>
             )}
             {(flash?.error || errors?.decision || errors?.vehicle_category_id || errors?.name || errors?.license_plate) && (
-                <div className="mb-4 px-4 py-3 bg-red-50 border-red-200 text-red-800 text-xs font-medium rounded-sm">
+                <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-800 text-xs font-medium rounded-sm">
                     ✕ {flash?.error || errors?.decision || errors?.vehicle_category_id || errors?.name || errors?.license_plate}
                 </div>
             )}
@@ -150,7 +143,7 @@ export default function AdminVehiclesPage({
                     action={
                         <Link
                             href="/admin/vehicles/create"
-                            className="inline-flex items-center justify-center text-xs font-semibold px-4 py-2.5 rounded-sm bg-[#F5B800] hover:bg-[#e0a800] text-[#111] transition-colors shadow-xs"
+                            className="inline-flex items-center justify-center text-xs font-bold px-4 py-2.5 rounded-sm bg-[#F5B800] hover:bg-[#e0a800] text-[#111] transition-colors shadow-xs"
                         >
                             + Tambah Unit
                         </Link>
@@ -177,8 +170,8 @@ export default function AdminVehiclesPage({
                             onClick={() => setStatusFilter(st)}
                             className={`px-3 py-1.5 text-xs font-semibold rounded-sm capitalize transition-colors ${
                                 statusFilter === st
-                                    ? "bg-[#111] text-[#F5B800]"
-                                    : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+                                    ? "bg-[#111111] text-[#F5B800] shadow-xs"
+                                    : "bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200"
                             }`}
                         >
                             {st === "all" ? "Semua" : (VEHICLE_STATUS[st]?.label || st)}
@@ -192,7 +185,7 @@ export default function AdminVehiclesPage({
                         placeholder="Cari armada, plat, mitra..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full text-xs bg-stone-50 border border-stone-300 rounded-sm px-3 py-2 focus:bg-white focus:border-[#111] outline-none"
+                        className="w-full text-xs bg-stone-50 border border-stone-300 rounded-sm px-3 py-2 text-stone-800 placeholder-stone-400 focus:bg-white focus:border-[#111] outline-none"
                     />
                 </div>
             </div>
@@ -200,8 +193,8 @@ export default function AdminVehiclesPage({
             {/* Tabel Armada */}
             <div className="bg-white border border-stone-200 rounded-sm shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs text-stone-600">
-                        <thead className="bg-stone-50 border-b border-stone-200 text-stone-400 uppercase text-[10px] font-bold">
+                    <table className="w-full text-left text-xs text-stone-700">
+                        <thead className="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold uppercase text-[10px] tracking-wider">
                             <tr>
                                 <th className="p-3.5">Unit & Mitra</th>
                                 <th className="p-3.5">Tipe & Transmisi</th>
@@ -220,7 +213,7 @@ export default function AdminVehiclesPage({
                                 </tr>
                             ) : (
                                 filteredVehicles.map((vehicle) => (
-                                    <tr key={vehicle.id} className="hover:bg-stone-50/60 transition-colors">
+                                    <tr key={vehicle.id} className="hover:bg-stone-50/70 transition-colors">
                                         <td className="p-3.5">
                                             <div className="flex items-center gap-3">
                                                 <FailSafeImage
@@ -260,7 +253,7 @@ export default function AdminVehiclesPage({
                                             </button>
                                             <Link
                                                 href={`/admin/vehicles/${vehicle.id}/edit`}
-                                                className="px-2.5 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-sm transition-colors border-stone-200"
+                                                className="px-2.5 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-sm transition-colors border border-stone-200 inline-block"
                                             >
                                                 Edit
                                             </Link>
@@ -270,14 +263,14 @@ export default function AdminVehiclesPage({
                                                         type="button"
                                                         disabled={processing}
                                                         onClick={() => handleApprove(vehicle.id)}
-                                                        className="px-2.5 py-1 bg-[#F5B800] hover:bg-[#e0a800] text-[#111] text-xs font-semibold rounded-sm transition-colors"
+                                                        className="px-2.5 py-1 bg-[#F5B800] hover:bg-[#e0a800] text-[#111] text-xs font-bold rounded-sm transition-colors shadow-xs"
                                                     >
                                                         Setujui
                                                     </button>
                                                     <button
                                                         type="button"
                                                         onClick={() => setRejectModalVehicle(vehicle)}
-                                                        className="px-2.5 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-semibold rounded-sm transition-colors"
+                                                        className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-semibold rounded-sm transition-colors"
                                                     >
                                                         Tolak
                                                     </button>
@@ -320,17 +313,17 @@ export default function AdminVehiclesPage({
                                 alt={inspectVehicle.name}
                                 className="w-full h-44 object-cover rounded-sm border border-stone-200"
                             />
-                            <div className="grid grid-cols-2 gap-2 bg-stone-50 p-3 rounded-sm border border-stone-200">
+                            <div className="grid grid-cols-2 gap-2 bg-stone-50 p-3 rounded-sm border border-stone-200 text-stone-700">
                                 <p><strong>Kapasitas:</strong> {inspectVehicle.seat_capacity} Kursi</p>
                                 <p><strong>BBM:</strong> {inspectVehicle.fuel_type}</p>
                                 <p><strong>Transmisi:</strong> {inspectVehicle.transmission}</p>
                                 <p><strong>Tahun:</strong> {inspectVehicle.year || "-"}</p>
-                                <p><strong>Tarif Sewa:</strong> {formatRupiah(inspectVehicle.price_per_day)}/hari</p>
+                                <p><strong>Tarif Sewa:</strong> <span className="text-[#111] font-semibold">{formatRupiah(inspectVehicle.price_per_day)}</span>/hari</p>
                                 <p><strong>Lokasi:</strong> {inspectVehicle.pickup_location || "-"}</p>
                             </div>
                             {inspectVehicle.description && (
                                 <div className="bg-stone-50 p-3 rounded-sm border border-stone-200">
-                                    <p className="font-semibold mb-0.5">Deskripsi Unit:</p>
+                                    <p className="font-semibold text-stone-800 mb-0.5">Deskripsi Unit:</p>
                                     <p className="text-stone-600 leading-relaxed">{inspectVehicle.description}</p>
                                 </div>
                             )}
@@ -343,7 +336,7 @@ export default function AdminVehiclesPage({
                                         type="button"
                                         disabled={processing}
                                         onClick={() => handleUpdateStatus(inspectVehicle, "available")}
-                                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-sm text-xs font-semibold"
+                                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-sm text-xs font-semibold transition-colors"
                                     >
                                         Aktifkan (Tersedia)
                                     </button>
@@ -353,7 +346,7 @@ export default function AdminVehiclesPage({
                                         type="button"
                                         disabled={processing}
                                         onClick={() => handleUpdateStatus(inspectVehicle, "maintenance")}
-                                        className="px-3 py-1.5 bg-orange-100 hover:bg-orange-200 text-orange-800 rounded-sm text-xs font-semibold"
+                                        className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-sm text-xs font-semibold transition-colors"
                                     >
                                         Set Servis
                                     </button>
@@ -367,7 +360,7 @@ export default function AdminVehiclesPage({
                                         onClick={() => {
                                             setRejectModalVehicle(inspectVehicle);
                                         }}
-                                        className="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-sm text-xs font-semibold"
+                                        className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-sm text-xs font-semibold transition-colors"
                                     >
                                         Tolak Unit
                                     </button>
@@ -375,7 +368,7 @@ export default function AdminVehiclesPage({
                                         type="button"
                                         disabled={processing}
                                         onClick={() => handleApprove(inspectVehicle.id)}
-                                        className="px-4 py-1.5 bg-[#F5B800] text-[#111] rounded-sm text-xs font-semibold hover:bg-[#e0a800]"
+                                        className="px-4 py-1.5 bg-[#F5B800] text-[#111] rounded-sm text-xs font-bold hover:bg-[#e0a800] transition-colors shadow-xs"
                                     >
                                         Setujui Publikasi
                                     </button>
@@ -384,7 +377,7 @@ export default function AdminVehiclesPage({
                                 <button
                                     type="button"
                                     onClick={() => setInspectVehicle(null)}
-                                    className="px-4 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-sm text-xs font-semibold"
+                                    className="px-4 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-sm text-xs font-semibold transition-colors"
                                 >
                                     Tutup
                                 </button>
@@ -410,14 +403,14 @@ export default function AdminVehiclesPage({
 
                         <form onSubmit={handleRejectSubmit} className="space-y-3 text-xs">
                             <div>
-                                <label className="block font-semibold mb-1">Alasan Penolakan *</label>
+                                <label className="block font-semibold mb-1 text-stone-700">Alasan Penolakan *</label>
                                 <textarea
                                     required
                                     rows="3"
                                     placeholder="Jelaskan alasan penolakan agar mitra dapat memperbaiki data atau foto unit..."
                                     value={rejectionReason}
                                     onChange={(e) => setRejectionReason(e.target.value)}
-                                    className="w-full bg-stone-50 border border-stone-300 rounded-sm p-2.5 focus:bg-white focus:border-[#111] outline-none"
+                                    className="w-full bg-stone-50 border border-stone-300 text-stone-800 rounded-sm p-2.5 focus:bg-white focus:border-[#111] outline-none"
                                 />
                             </div>
 
@@ -425,14 +418,14 @@ export default function AdminVehiclesPage({
                                 <button
                                     type="button"
                                     onClick={() => setRejectModalVehicle(null)}
-                                    className="px-3.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-sm font-semibold"
+                                    className="px-3.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-sm font-semibold transition-colors"
                                 >
                                     Batal
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-sm font-semibold disabled:opacity-50"
+                                    className="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-sm font-semibold disabled:opacity-50 transition-colors"
                                 >
                                     {processing ? "Memproses..." : "Kirim Penolakan"}
                                 </button>
@@ -458,7 +451,7 @@ export default function AdminVehiclesPage({
                             <button
                                 type="button"
                                 onClick={() => setDeleteModalVehicle(null)}
-                                className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-sm"
+                                className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-sm transition-colors"
                             >
                                 Batal
                             </button>
@@ -466,7 +459,7 @@ export default function AdminVehiclesPage({
                                 type="button"
                                 disabled={processing}
                                 onClick={handleDeleteConfirm}
-                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-sm disabled:opacity-50"
+                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-sm disabled:opacity-50 transition-colors"
                             >
                                 {processing ? "Menghapus..." : "Ya, Hapus Unit"}
                             </button>

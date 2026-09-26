@@ -27,29 +27,29 @@ const formatTanggalJam = (dateStr) => {
 
 // Label mengikuti enum kolom `disputes.status` di database.
 const DISPUTE_STATUS = {
-    open: { label: "Terbuka", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    investigating: { label: "Diproses", color: "bg-blue-100 text-blue-800 border-blue-300" },
-    under_review: { label: "Ditinjau", color: "bg-blue-100 text-blue-800 border-blue-300" },
-    resolved: { label: "Selesai", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-    rejected: { label: "Ditolak", color: "bg-red-100 text-red-800 border-red-300" },
-    closed: { label: "Ditutup", color: "bg-stone-100 text-stone-600 border-stone-300" },
+    open: { label: "Terbuka", color: "bg-amber-50 text-amber-900 border-amber-200" },
+    investigating: { label: "Diproses", color: "bg-blue-50 text-blue-900 border-blue-200" },
+    under_review: { label: "Ditinjau", color: "bg-blue-50 text-blue-900 border-blue-200" },
+    resolved: { label: "Selesai", color: "bg-emerald-50 text-emerald-900 border-emerald-200" },
+    rejected: { label: "Ditolak", color: "bg-red-50 text-red-900 border-red-200" },
+    closed: { label: "Ditutup", color: "bg-stone-100 text-stone-700 border-stone-200" },
 };
 
 // Label mengikuti enum kolom `complaints.status` di database.
 const COMPLAINT_STATUS = {
-    open: { label: "Terbuka", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    submitted: { label: "Terkirim", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    in_review: { label: "Diproses", color: "bg-blue-100 text-blue-800 border-blue-300" },
-    resolved: { label: "Selesai", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-    rejected: { label: "Ditolak", color: "bg-red-100 text-red-800 border-red-300" },
-    closed: { label: "Ditutup", color: "bg-stone-100 text-stone-600 border-stone-300" },
+    open: { label: "Terbuka", color: "bg-amber-50 text-amber-900 border-amber-200" },
+    submitted: { label: "Terkirim", color: "bg-amber-50 text-amber-900 border-amber-200" },
+    in_review: { label: "Diproses", color: "bg-blue-50 text-blue-900 border-blue-200" },
+    resolved: { label: "Selesai", color: "bg-emerald-50 text-emerald-900 border-emerald-200" },
+    rejected: { label: "Ditolak", color: "bg-red-50 text-red-900 border-red-200" },
+    closed: { label: "Ditutup", color: "bg-stone-100 text-stone-700 border-stone-200" },
 };
 
 const REVIEW_STATUS = {
-    pending: { label: "Menunggu Moderasi", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    published: { label: "Publik", color: "bg-emerald-50 text-emerald-800 border-emerald-200" },
-    hidden: { label: "Disembunyikan", color: "bg-stone-100 text-stone-600 border-stone-200" },
-    rejected: { label: "Ditolak", color: "bg-red-100 text-red-800 border-red-300" },
+    pending: { label: "Menunggu Moderasi", color: "bg-amber-50 text-amber-900 border-amber-200" },
+    published: { label: "Publik", color: "bg-emerald-50 text-emerald-900 border-emerald-200" },
+    hidden: { label: "Disembunyikan", color: "bg-stone-100 text-stone-700 border-stone-200" },
+    rejected: { label: "Ditolak", color: "bg-red-50 text-red-900 border-red-200" },
 };
 
 export default function AdminDisputesPage({
@@ -154,7 +154,7 @@ export default function AdminDisputesPage({
 
                 <div className="divide-y divide-stone-100">
                     {disputes.length === 0 && (
-                        <p className="py-4 text-xs text-stone-400">
+                        <p className="py-4 text-xs text-stone-500">
                             Tidak ada sengketa saat ini.
                         </p>
                     )}
@@ -162,32 +162,32 @@ export default function AdminDisputesPage({
                         <div key={dsp.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <span className="font-bold text-[#111]">{dsp.subject}</span>
+                                    <span className="font-bold text-[#111111]">{dsp.subject}</span>
                                     <StatusBadge status={dsp.status} map={DISPUTE_STATUS} />
-                                    <span className="text-stone-400">· {dsp.booking_number}</span>
+                                    <span className="text-stone-400">&middot; {dsp.booking_number}</span>
                                 </div>
-                                <p className="text-stone-500 mt-0.5">
+                                <p className="text-stone-600 mt-0.5">
                                     {dsp.initiator?.name || "-"} vs {dsp.respondent?.name || "-"}
                                     {dsp.category ? ` · ${dsp.category}` : ""}
                                 </p>
-                                <p className="text-stone-600 mt-1">{dsp.description}</p>
+                                <p className="text-stone-500 mt-1">{dsp.description}</p>
                                 {dsp.resolution && (
-                                    <div className="mt-2 p-2 bg-emerald-50 border border-emerald-200 rounded-sm text-emerald-900 text-[11px]">
+                                    <div className="mt-2 p-2.5 bg-emerald-50 border border-emerald-200 rounded-sm text-emerald-800 text-[11px]">
                                         <strong>Keputusan Arbitrase:</strong> {dsp.resolution}
                                     </div>
                                 )}
                             </div>
                             <div className="text-right shrink-0">
                                 <p className="text-xs text-stone-500">Klaim Pengembalian:</p>
-                                <p className="text-base font-bold text-red-700">{formatRupiah(dsp.refund_amount)}</p>
+                                <p className="text-base font-bold text-red-600">{formatRupiah(dsp.refund_amount)}</p>
                                 {(dsp.status === "open" || dsp.status === "investigating") && (
-                                    <>
+                                    <div className="mt-2 flex items-center justify-end gap-1.5">
                                         {dsp.status === "open" && (
                                             <button
                                                 type="button"
                                                 disabled={busy}
                                                 onClick={() => handleDisputeStart(dsp)}
-                                                className="mt-2 mr-2 px-3 py-1.5 border-stone-300 text-stone-700 text-xs font-semibold rounded-sm hover:bg-stone-50 disabled:opacity-60 transition-colors"
+                                                className="px-3 py-1.5 bg-stone-100 border border-stone-200 text-stone-700 text-xs font-semibold rounded-sm hover:bg-stone-200 disabled:opacity-60 transition-colors"
                                             >
                                                 Tandai Diproses
                                             </button>
@@ -196,11 +196,11 @@ export default function AdminDisputesPage({
                                             type="button"
                                             disabled={busy}
                                             onClick={() => setInspectDispute(dsp)}
-                                            className="mt-2 px-3 py-1.5 bg-[#111] text-[#F5B800] text-xs font-semibold rounded-sm hover:bg-stone-800 disabled:opacity-60 transition-colors"
+                                            className="px-3 py-1.5 bg-[#F5B800] hover:bg-[#e0a800] text-[#111] text-xs font-bold rounded-sm disabled:opacity-60 transition-colors shadow-xs"
                                         >
                                             Ambil Keputusan
                                         </button>
-                                    </>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -218,27 +218,27 @@ export default function AdminDisputesPage({
 
                 <div className="divide-y divide-stone-100">
                     {complaints.length === 0 && (
-                        <p className="py-4 text-xs text-stone-400">
+                        <p className="py-4 text-xs text-stone-500">
                             Tidak ada komplain saat ini.
                         </p>
                     )}
                     {complaints.map((cmp) => (
-                        <div key={cmp.id} className="py-3 flex items-start justify-between gap-3 text-xs">
+                        <div key={cmp.id} className="py-3.5 flex items-start justify-between gap-3 text-xs">
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <span className="font-semibold text-[#111]">{cmp.subject}</span>
+                                    <span className="font-semibold text-[#111111]">{cmp.subject}</span>
                                     <StatusBadge status={cmp.status} map={COMPLAINT_STATUS} />
-                                    <span className="px-1.5 py-0.2 bg-stone-100 text-stone-700 rounded-sm text-[10px] uppercase font-bold border border-stone-200">
+                                    <span className="px-1.5 py-0.5 bg-stone-100 text-stone-700 rounded-sm text-[10px] uppercase font-bold border border-stone-200">
                                         {cmp.category || "lain-lain"}
                                     </span>
                                 </div>
-                                <p className="text-stone-500 mt-0.5">
+                                <p className="text-stone-600 mt-0.5">
                                     {cmp.complainant?.name || "-"}
-                                    {cmp.booking_number ? ` \u00b7 ${cmp.booking_number}` : ""}
+                                    {cmp.booking_number ? ` · ${cmp.booking_number}` : ""}
                                 </p>
-                                <p className="text-stone-600 mt-1">{cmp.description}</p>
+                                <p className="text-stone-500 mt-1">{cmp.description}</p>
                                 {cmp.resolution && (
-                                    <div className="mt-2 p-2 bg-emerald-50 border-emerald-200 rounded-sm text-emerald-900 text-[11px]">
+                                    <div className="mt-2 p-2.5 bg-emerald-50 border border-emerald-200 rounded-sm text-emerald-800 text-[11px]">
                                         <strong>Resolusi:</strong> {cmp.resolution}
                                     </div>
                                 )}
@@ -252,7 +252,7 @@ export default function AdminDisputesPage({
                                         type="button"
                                         disabled={busy}
                                         onClick={() => setInspectComplaint(cmp)}
-                                        className="mt-2 px-3 py-1.5 bg-[#111] text-[#F5B800] text-xs font-semibold rounded-sm hover:bg-stone-800 disabled:opacity-60 transition-colors"
+                                        className="mt-2 px-3 py-1.5 bg-[#F5B800] hover:bg-[#e0a800] text-[#111] text-xs font-bold rounded-sm disabled:opacity-60 transition-colors shadow-xs"
                                     >
                                         Tangani
                                     </button>
@@ -273,19 +273,19 @@ export default function AdminDisputesPage({
 
                 <div className="divide-y divide-stone-100">
                     {reviews.length === 0 && (
-                        <p className="py-4 text-xs text-stone-400">
+                        <p className="py-4 text-xs text-stone-500">
                             Tidak ada ulasan saat ini.
                         </p>
                     )}
                     {reviews.map((rev) => (
-                        <div key={rev.id} className="py-3 flex items-center justify-between gap-3 text-xs">
+                        <div key={rev.id} className="py-3.5 flex items-center justify-between gap-3 text-xs">
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <span className="font-semibold text-[#111]">{rev.customer?.name || "Penyewa"}</span>
-                                    <span className="text-amber-700 font-bold">Skor: {rev.rating}/5</span>
-                                    <span className="text-stone-400">· {rev.vehicle_name}</span>
+                                    <span className="font-semibold text-[#111111]">{rev.customer?.name || "Penyewa"}</span>
+                                    <span className="text-amber-600 font-bold">Skor: {rev.rating}/5</span>
+                                    <span className="text-stone-400">&middot; {rev.vehicle_name}</span>
                                     <span
-                                        className={`px-1.5 py-0.2 rounded-sm text-[10px] font-bold border ${
+                                        className={`px-1.5 py-0.5 rounded-sm text-[10px] font-bold border ${
                                             rev.status === "published"
                                                 ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                                                 : "bg-stone-100 text-stone-600 border-stone-200"
@@ -296,22 +296,24 @@ export default function AdminDisputesPage({
                                 </div>
                                 <p className="text-stone-600 mt-1 italic">"{rev.review}"</p>
                             </div>
-                            <button
-                                type="button"
-                                onClick={() => handleModerateReview(rev, "hidden")}
-                                disabled={busy}
-                                className="px-2.5 py-1 text-xs font-semibold border border-stone-200 hover:border-black rounded-sm transition-colors"
-                            >
-                                Sembunyikan & Tinjau
-                            </button>{" "}
-                            <button
-                                type="button"
-                                disabled={busy}
-                                onClick={() => handleModerateReview(rev, "published")}
-                                className="px-2.5 py-1 text-xs font-semibold bg-[#111] text-[#F5B800] rounded-sm hover:bg-stone-800 disabled:opacity-60 transition-colors"
-                            >
-                                Publikasikan
-                            </button>
+                            <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                    type="button"
+                                    onClick={() => handleModerateReview(rev, "hidden")}
+                                    disabled={busy}
+                                    className="px-2.5 py-1 text-xs font-semibold bg-stone-100 border border-stone-200 text-stone-700 hover:bg-stone-200 rounded-sm transition-colors"
+                                >
+                                    Sembunyikan & Tinjau
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => handleModerateReview(rev, "published")}
+                                    disabled={busy}
+                                    className="px-2.5 py-1 text-xs font-bold bg-[#F5B800] text-[#111] rounded-sm hover:bg-[#e0a800] disabled:opacity-60 transition-colors shadow-xs"
+                                >
+                                    Publikasikan
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -319,26 +321,28 @@ export default function AdminDisputesPage({
 
             {/* Modal Keputusan Arbitrase */}
             {inspectDispute && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
                     <div className="bg-white border border-stone-200 rounded-sm shadow-xl max-w-lg w-full p-6 space-y-4">
                         <div className="flex items-start justify-between border-b border-stone-100 pb-3">
                             <div>
-                                <h3 className="text-sm font-bold text-[#111]">{inspectDispute.subject}</h3>
+                                <h3 className="text-sm font-bold text-[#111111]">{inspectDispute.subject}</h3>
                                 <p className="text-xs text-stone-500">Ref: {inspectDispute.booking_number}</p>
                             </div>
-                            <button type="button" onClick={() => setInspectDispute(null)} className="text-stone-400 hover:text-black">
+                            <button type="button" onClick={() => setInspectDispute(null)} className="text-stone-400 hover:text-stone-800 transition-colors">
                                 ✕
                             </button>
                         </div>
 
                         <div className="space-y-3 text-xs">
-                            <p className="text-stone-700">{inspectDispute.description}</p>
-                            <p className="text-sm font-bold text-red-700">
-                                Nominal Sengketa: {formatRupiah(inspectDispute.refund_amount)}
-                            </p>
+                            <p className="text-stone-700 leading-relaxed">{inspectDispute.description}</p>
+                            <div className="p-3 bg-red-50 border border-red-200 rounded-sm">
+                                <p className="text-xs font-bold text-red-700">
+                                    Nominal Sengketa: {formatRupiah(inspectDispute.refund_amount)}
+                                </p>
+                            </div>
                         </div>
 
-                        <div className="pt-3 border-t border-stone-100 flex justify-between">
+                        <div className="pt-3 border-t border-stone-100 flex justify-between gap-2">
                             <button
                                 type="button"
                                 disabled={busy}
@@ -351,7 +355,7 @@ export default function AdminDisputesPage({
                                         0,
                                     )
                                 }
-                                className="px-3 py-1.5 bg-stone-100 text-stone-700 rounded-sm text-xs font-semibold hover:bg-stone-200 disabled:opacity-60"
+                                className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-sm text-xs font-semibold border border-stone-200 disabled:opacity-60 transition-colors"
                             >
                                 Tolak Klaim
                             </button>
@@ -367,7 +371,7 @@ export default function AdminDisputesPage({
                                         Number(inspectDispute.refund_amount) || 0,
                                     )
                                 }
-                                className="px-4 py-1.5 bg-[#F5B800] text-[#111] rounded-sm text-xs font-semibold hover:bg-[#e0a800] disabled:opacity-60"
+                                className="px-4 py-1.5 bg-[#F5B800] text-[#111] rounded-sm text-xs font-bold hover:bg-[#e0a800] disabled:opacity-60 shadow-xs"
                             >
                                 Kembalikan Dana Deposit
                             </button>
@@ -378,49 +382,49 @@ export default function AdminDisputesPage({
 
             {/* Modal Tangani Komplain */}
             {inspectComplaint && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-                    <div className="bg-white border-stone-200 rounded-sm shadow-xl max-w-lg w-full p-6 space-y-4">
+                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+                    <div className="bg-white border border-stone-200 rounded-sm shadow-xl max-w-lg w-full p-6 space-y-4">
                         <div className="flex items-start justify-between border-b border-stone-100 pb-3">
                             <div>
-                                <h3 className="text-sm font-bold text-[#111]">{
+                                <h3 className="text-sm font-bold text-[#111111]">{
                                     inspectComplaint.subject
                                 }</h3>
                                 <p className="text-xs text-stone-500">
                                     {inspectComplaint.complainant?.name || "-"}
                                     {inspectComplaint.booking_number
-                                        ? ` \u00b7 ${inspectComplaint.booking_number}`
+                                        ? ` · ${inspectComplaint.booking_number}`
                                         : ""}
                                 </p>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setInspectComplaint(null)}
-                                className="text-stone-400 hover:text-black"
+                                className="text-stone-400 hover:text-stone-800 transition-colors"
                             >
-                                \u2715
+                                ✕
                             </button>
                         </div>
 
                         <div className="space-y-2 text-xs">
-                            <p className="text-stone-700">
+                            <p className="text-stone-700 leading-relaxed">
                                 {inspectComplaint.description}
                             </p>
-                            <p className="text-stone-500">
-                                Kategori: {inspectComplaint.category || "-"}
+                            <div className="p-2.5 bg-stone-50 border border-stone-200 rounded-sm text-stone-600">
+                                Kategori: <strong className="text-stone-800">{inspectComplaint.category || "-"}</strong>
                                 {inspectComplaint.priority
-                                    ? ` \u00b7 Prioritas: ${inspectComplaint.priority}`
+                                    ? ` · Prioritas: ${inspectComplaint.priority}`
                                     : ""}
-                            </p>
+                            </div>
                         </div>
 
-                        <div className="pt-3 border-t border-stone-100 flex-wrap gap-2 justify-end">
+                        <div className="pt-3 border-t border-stone-100 flex flex-wrap gap-2 justify-end">
                             <button
                                 type="button"
                                 disabled={busy}
                                 onClick={() =>
                                     handleComplaintProcess(inspectComplaint, "rejected")
                                 }
-                                className="px-3 py-1.5 bg-stone-100 text-stone-700 rounded-sm text-xs font-semibold hover:bg-stone-200 disabled:opacity-60"
+                                className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-sm text-xs font-semibold border border-stone-200 disabled:opacity-60 transition-colors"
                             >
                                 Tolak
                             </button>
@@ -430,7 +434,7 @@ export default function AdminDisputesPage({
                                 onClick={() =>
                                     handleComplaintProcess(inspectComplaint, "in_review")
                                 }
-                                className="px-3 py-1.5 border-stone-300 text-stone-700 rounded-sm text-xs font-semibold hover:bg-stone-50 disabled:opacity-60"
+                                className="px-3 py-1.5 bg-stone-100 border border-stone-200 text-stone-700 rounded-sm text-xs font-semibold hover:bg-stone-200 disabled:opacity-60 transition-colors"
                             >
                                 Tandai Diproses
                             </button>
@@ -440,7 +444,7 @@ export default function AdminDisputesPage({
                                 onClick={() =>
                                     handleComplaintProcess(inspectComplaint, "resolved")
                                 }
-                                className="px-4 py-1.5 bg-[#F5B800] text-[#111] rounded-sm text-xs font-semibold hover:bg-[#e0a800] disabled:opacity-60"
+                                className="px-4 py-1.5 bg-[#F5B800] text-[#111] rounded-sm text-xs font-bold hover:bg-[#e0a800] disabled:opacity-60 shadow-xs"
                             >
                                 Selesaikan
                             </button>

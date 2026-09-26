@@ -45,61 +45,61 @@ const formatTanggalJam = (dateStr) => {
 };
 
 const VEHICLE_STATUS = {
-    available: { label: "Tersedia", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-    rented: { label: "Disewa", color: "bg-blue-100 text-blue-800 border-blue-300" },
-    maintenance: { label: "Servis", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    inactive: { label: "Nonaktif", color: "bg-stone-100 text-stone-600 border-stone-300" },
-    pending_review: { label: "Menunggu Review", color: "bg-purple-100 text-purple-800 border-purple-300" },
+    available: { label: "Tersedia", color: "bg-emerald-400/10 text-emerald-400 border-emerald-500/30" },
+    rented: { label: "Disewa", color: "bg-blue-400/10 text-blue-400 border-blue-500/30" },
+    maintenance: { label: "Servis", color: "bg-amber-400/10 text-amber-300 border-amber-500/30" },
+    inactive: { label: "Nonaktif", color: "bg-stone-800 text-stone-400 border-stone-700" },
+    pending_review: { label: "Menunggu Review", color: "bg-purple-400/10 text-purple-300 border-purple-500/30" },
 };
 
 const BOOKING_STATUS = {
-    pending_payment: { label: "Menunggu Pembayaran", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    paid: { label: "Sudah Dibayar", color: "bg-blue-100 text-blue-900 border-blue-300" },
-    waiting_agent_confirmation: { label: "Menunggu Mitra", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    confirmed: { label: "Dikonfirmasi", color: "bg-blue-100 text-blue-800 border-blue-300" },
-    ongoing: { label: "Berjalan", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-    returned: { label: "Dikembalikan", color: "bg-purple-100 text-purple-800 border-purple-300" },
-    completed: { label: "Selesai", color: "bg-stone-100 text-stone-700 border-stone-300" },
-    cancelled: { label: "Dibatalkan", color: "bg-red-100 text-red-800 border-red-300" },
+    pending_payment: { label: "Menunggu Pembayaran", color: "bg-amber-400/10 text-amber-300 border-amber-500/30" },
+    paid: { label: "Sudah Dibayar", color: "bg-blue-400/10 text-blue-400 border-blue-500/30" },
+    waiting_agent_confirmation: { label: "Menunggu Mitra", color: "bg-amber-400/10 text-amber-300 border-amber-500/30" },
+    confirmed: { label: "Dikonfirmasi", color: "bg-blue-400/10 text-blue-400 border-blue-500/30" },
+    ongoing: { label: "Berjalan", color: "bg-emerald-400/10 text-emerald-400 border-emerald-500/30" },
+    returned: { label: "Dikembalikan", color: "bg-purple-400/10 text-purple-300 border-purple-500/30" },
+    completed: { label: "Selesai", color: "bg-stone-800 text-stone-300 border-stone-700" },
+    cancelled: { label: "Dibatalkan", color: "bg-red-400/10 text-red-400 border-red-500/30" },
 };
 
 const PAYMENT_STATUS = {
-    pending: { label: "Menunggu", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    completed: { label: "Berhasil", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-    failed: { label: "Gagal", color: "bg-red-100 text-red-800 border-red-300" },
+    pending: { label: "Menunggu", color: "bg-amber-400/10 text-amber-300 border-amber-500/30" },
+    completed: { label: "Berhasil", color: "bg-emerald-400/10 text-emerald-400 border-emerald-500/30" },
+    failed: { label: "Gagal", color: "bg-red-400/10 text-red-400 border-red-500/30" },
 };
 
 const DOC_STATUS = {
-    pending: { label: "Menunggu", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    approved: { label: "Disetujui", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-    rejected: { label: "Ditolak", color: "bg-red-100 text-red-800 border-red-300" },
+    pending: { label: "Menunggu", color: "bg-amber-400/10 text-amber-300 border-amber-500/30" },
+    approved: { label: "Disetujui", color: "bg-emerald-400/10 text-emerald-400 border-emerald-500/30" },
+    rejected: { label: "Ditolak", color: "bg-red-400/10 text-red-400 border-red-500/30" },
 };
 
 const ONBOARDING_STATUS = {
-    pending: { label: "Menunggu", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    approved: { label: "Aktif", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-    rejected: { label: "Ditolak", color: "bg-red-100 text-red-800 border-red-300" },
+    pending: { label: "Menunggu", color: "bg-amber-400/10 text-amber-300 border-amber-500/30" },
+    approved: { label: "Aktif", color: "bg-emerald-400/10 text-emerald-400 border-emerald-500/30" },
+    rejected: { label: "Ditolak", color: "bg-red-400/10 text-red-400 border-red-500/30" },
 };
 
 const COMPLAINT_STATUS = {
-    open: { label: "Terbuka", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    investigating: { label: "Diproses", color: "bg-blue-100 text-blue-800 border-blue-300" },
-    resolved: { label: "Selesai", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-    closed: { label: "Ditutup", color: "bg-stone-100 text-stone-600 border-stone-300" },
+    open: { label: "Terbuka", color: "bg-amber-400/10 text-amber-300 border-amber-500/30" },
+    investigating: { label: "Diproses", color: "bg-blue-400/10 text-blue-400 border-blue-500/30" },
+    resolved: { label: "Selesai", color: "bg-emerald-400/10 text-emerald-400 border-emerald-500/30" },
+    closed: { label: "Ditutup", color: "bg-stone-800 text-stone-400 border-stone-700" },
 };
 
 const DISPUTE_STATUS = {
-    open: { label: "Terbuka", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    mediation: { label: "Mediasi", color: "bg-purple-100 text-purple-800 border-purple-300" },
-    resolved: { label: "Selesai", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-    escalated: { label: "Eskalasi", color: "bg-red-100 text-red-800 border-red-300" },
+    open: { label: "Terbuka", color: "bg-amber-400/10 text-amber-300 border-amber-500/30" },
+    mediation: { label: "Mediasi", color: "bg-purple-400/10 text-purple-300 border-purple-500/30" },
+    resolved: { label: "Selesai", color: "bg-emerald-400/10 text-emerald-400 border-emerald-500/30" },
+    escalated: { label: "Eskalasi", color: "bg-red-400/10 text-red-400 border-red-500/30" },
 };
 
 const PRIORITY = {
-    low: { label: "Rendah", color: "bg-stone-100 text-stone-600 border-stone-300" },
-    medium: { label: "Sedang", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    high: { label: "Tinggi", color: "bg-orange-100 text-orange-800 border-orange-300" },
-    urgent: { label: "Mendesak", color: "bg-red-100 text-red-800 border-red-300" },
+    low: { label: "Rendah", color: "bg-stone-800 text-stone-400 border-stone-700" },
+    medium: { label: "Sedang", color: "bg-amber-400/10 text-amber-300 border-amber-500/30" },
+    high: { label: "Tinggi", color: "bg-orange-400/10 text-orange-300 border-orange-500/30" },
+    urgent: { label: "Mendesak", color: "bg-red-400/10 text-red-400 border-red-500/30" },
 };
 
 export default function AdminDashboard({
@@ -501,9 +501,9 @@ export default function AdminDashboard({
                             <p className="text-[9px] uppercase font-bold tracking-wider text-amber-800">Komisi RentGo (10%)</p>
                             <p className="text-xs font-bold text-amber-900">{formatRupiah(adminStats.platform_commission_revenue)}</p>
                         </div>
-                        <div className="px-3 py-2 bg-stone-900 text-white rounded-sm text-left">
-                            <p className="text-[9px] uppercase font-bold tracking-wider text-[#F5B800]">Perlu Tindakan</p>
-                            <p className="text-xs font-bold text-white">3 Pending</p>
+                        <div className="px-3 py-2 bg-red-50 border border-red-200 rounded-sm text-left">
+                            <p className="text-[9px] uppercase font-bold tracking-wider text-red-700">Perlu Tindakan</p>
+                            <p className="text-xs font-bold text-red-900">3 Pending</p>
                         </div>
                     </div>
                 </div>
@@ -786,7 +786,7 @@ export default function AdminDashboard({
                                         <tr key={user.id} className="hover:bg-stone-50/70 transition-colors">
                                             <td className="p-3.5">
                                                 <div className="flex items-center gap-2.5">
-                                                    <div className="w-8 h-8 rounded-sm bg-stone-900 text-[#F5B800] font-bold flex items-center justify-center text-xs shrink-0">
+                                                    <div className="w-8 h-8 rounded-sm bg-[#F5B800] text-[#111] font-bold flex items-center justify-center text-xs shrink-0 shadow-xs">
                                                         {user.name.charAt(0)}
                                                     </div>
                                                     <div>
@@ -1020,10 +1020,10 @@ export default function AdminDashboard({
                             <p className="text-xl font-bold text-[#111] mt-1">{formatRupiah(adminStats.total_gmv)}</p>
                             <p className="text-[11px] text-stone-500 mt-0.5">Seluruh pesanan masuk</p>
                         </div>
-                        <div className="bg-[#111] text-white border border-stone-800 rounded-sm p-4 shadow-sm">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-[#F5B800]">Komisi Bersih RentGo (10%)</p>
-                            <p className="text-xl font-bold text-white mt-1">{formatRupiah(adminStats.platform_commission_revenue)}</p>
-                            <p className="text-[11px] text-stone-400 mt-0.5">Pendapatan operasional platform</p>
+                        <div className="bg-amber-50/70 border border-amber-200 rounded-sm p-4 shadow-sm">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-amber-900">Komisi Bersih RentGo (10%)</p>
+                            <p className="text-xl font-bold text-amber-950 mt-1">{formatRupiah(adminStats.platform_commission_revenue)}</p>
+                            <p className="text-[11px] text-amber-800 mt-0.5">Pendapatan operasional platform</p>
                         </div>
                         <div className="bg-white border border-stone-200 rounded-sm p-4 shadow-sm">
                             <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Permintaan Payout Mitra</p>

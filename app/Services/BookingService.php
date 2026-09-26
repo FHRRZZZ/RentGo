@@ -776,7 +776,23 @@ class BookingService
             $rentalAmount =
                 $pricePerDay * $rentalDays;
 
-            $deliveryFee = ($data['fulfillment_type'] === 'delivery') ? 50000 : 0;
+            $deliveryFee = 0;
+            if (($data['fulfillment_type'] ?? '') === 'delivery') {
+                $agent = $vehicle->agentProfile;
+                $agentLat = $agent?->latitude;
+                $agentLng = $agent?->longitude;
+                $destLat = $data['delivery_latitude'] ?? null;
+                $destLng = $data['delivery_longitude'] ?? null;
+
+                if ($agentLat !== null && $agentLng !== null && $destLat !== null && $destLng !== null) {
+                    $distance = $this->calculateDeliveryDistance((float) $agentLat, (float) $agentLng, (float) $destLat, (float) $destLng);
+                    $deliveryFee = $this->calculateDeliveryFee($distance, $vehicle->vehicle_type ?? 'car');
+                } else {
+                    // Koordinat mitra belum diset — pakai tarif dasar minimum (0–3 km).
+                    $deliveryFee = 20000;
+                }
+            }
+
             $serviceFee = 10000;
             $additionalFee = 0;
             $depositAmount = 200000;
@@ -1156,5 +1172,49 @@ class BookingService
         );
 
         return $number;
+    }
+
+    /**
+     * Hitung estimasi jarak rute pengantaran (km) menggunakan rumus Haversine + road factor.
+     */
+    public function calculateDeliveryDistance(float $lat1, float $lon1, float $lat2, float $lon2): float
+    {
+        $earthRadius = 6371; // km
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+             sin($dLon / 2) * sin($dLon / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        $straightDist = $earthRadius * $c;
+
+        // Estimasi jarak rute jalan riil (~1.25x garis lurus)
+        return round($straightDist * 1.25, 1);
+    }
+
+    /**
+     * Hitung tarif ongkir pengantaran unit sesuai jarak (logika on-demand seperti Gojek/GoSend).
+     *
+     * - Tarif dasar 0 – 3 km pertama: Rp 20.000
+     * - Tiap km berikutnya (> 3 km):
+     *   * Mobil: Rp 5.000 / km
+     *   * Motor: Rp 3.500 / km
+     */
+    public function calculateDeliveryFee(float $distanceKm, string $vehicleType = 'car'): float
+    {
+        $baseDistance = 3.0; // km
+        $baseFare = 20000;
+        $isMotor = in_array(strtolower($vehicleType), ['motor', 'motorcycle', 'scooter']);
+        $perKmRate = $isMotor ? 3500 : 5000;
+
+        if ($distanceKm <= $baseDistance) {
+            return (float) $baseFare;
+        }
+
+        $extraKm = $distanceKm - $baseDistance;
+        $total = $baseFare + ($extraKm * $perKmRate);
+
+        // Pembulatan ke kelipatan seribu terdekat
+        return (float) (ceil($total / 1000) * 1000);
     }
 }

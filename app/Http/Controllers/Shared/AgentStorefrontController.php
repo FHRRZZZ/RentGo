@@ -34,7 +34,17 @@ class AgentStorefrontController extends Controller
             $price = $v->prices->first()?->price_per_day ?? $v->price_per_day ?? 0;
             $photo = $v->photos->first()?->file_path;
             $namaModel = trim(implode(' ', array_filter([$v->brand, $v->model])));
+
+            $activeBooking = $v->current_active_booking;
             $status = $v->status ?: 'available';
+            $rentedUntil = null;
+
+            if ($status === 'available' && $activeBooking) {
+                $status = $activeBooking->booking?->status === 'ongoing' ? 'rented' : 'booked';
+                $rentedUntil = $activeBooking->rental_end ? $activeBooking->rental_end->format('d M Y') : null;
+            }
+
+            $tersedia = $status === 'available';
 
             return [
                 'id' => $v->id,
@@ -49,7 +59,8 @@ class AgentStorefrontController extends Controller
                 'harga' => (float) $price,
                 'img' => $photo ? '/storage/' . $photo : null,
                 'status' => $status,
-                'tersedia' => $status === 'available',
+                'tersedia' => $tersedia,
+                'rented_until' => $rentedUntil,
             ];
         })->values();
 
@@ -62,9 +73,12 @@ class AgentStorefrontController extends Controller
         return Inertia::render('Mitra/Store', [
             'agent' => [
                 'id' => $agentProfile->id,
+                'userId' => $agentProfile->user_id,
                 'nama' => $agentProfile->agency_name
                     ?: ($agentProfile->user?->name ?? 'Mitra RentGo'),
                 'ownerName' => $agentProfile->owner_name,
+                'logo' => $agentProfile->logo ? (str_starts_with($agentProfile->logo, 'http') ? $agentProfile->logo : '/storage/' . $agentProfile->logo) : null,
+                'banner' => $agentProfile->banner ? (str_starts_with($agentProfile->banner, 'http') ? $agentProfile->banner : '/storage/' . $agentProfile->banner) : null,
                 'businessType' => $agentProfile->business_type,
                 'phone' => $agentProfile->phone,
                 'address' => $agentProfile->address,

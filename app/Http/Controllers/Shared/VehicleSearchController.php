@@ -78,6 +78,12 @@ class VehicleSearchController extends Controller
 
                 $vehicle->search_price = $activePrice?->price_per_day;
 
+                $activeBooking = $vehicle->current_active_booking;
+                if ($vehicle->status === 'available' && $activeBooking) {
+                    $vehicle->status = $activeBooking->booking?->status === 'ongoing' ? 'rented' : 'booked';
+                    $vehicle->rented_until = $activeBooking->rental_end ? $activeBooking->rental_end->format('d M Y') : null;
+                }
+
                 // Sertakan koordinat presisi milik mitra penyedia (bila ada)
                 // agar pin peta menampilkan lokasi usaha mitra yang sebenarnya.
                 $vehicle->agent_latitude = $vehicle->agentProfile?->latitude;
