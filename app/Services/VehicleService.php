@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AgentProfile;
 use App\Models\User;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
@@ -9,6 +10,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class VehicleService
 {
@@ -30,6 +32,16 @@ class VehicleService
         Request $request
     ): Vehicle {
         return DB::transaction(function () use ($data, $user, $request) {
+            // Guard: Mitra harus sudah disetujui (approved) dan aktif sebelum menambahkan kendaraan (BR-01)
+            if (!empty($data['agent_profile_id'])) {
+                $agent = AgentProfile::find($data['agent_profile_id']);
+                if (!$agent || $agent->onboarding_status !== 'approved' || !$agent->is_active) {
+                    throw ValidationException::withMessages([
+                        'agent_profile_id' => ['Mitra harus berstatus disetujui (approved) dan aktif untuk menambahkan kendaraan.'],
+                    ]);
+                }
+            }
+
             $vehicle = Vehicle::create([
                 'agent_profile_id'    => $data['agent_profile_id'] ?? null,
                 'vehicle_category_id' => $data['vehicle_category_id'],

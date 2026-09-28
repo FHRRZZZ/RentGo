@@ -31,7 +31,7 @@ class VehicleTest extends TestCase
         return $user;
     }
 
-    private function createMitra(): array
+    private function createMitra(string $status = 'approved', bool $isActive = true): array
     {
         $user = User::factory()->create();
         $user->assignRole('mitra');
@@ -40,8 +40,8 @@ class VehicleTest extends TestCase
             'user_id' => $user->id,
             'agency_name' => 'Mitra Test',
             'business_type' => 'Rental',
-            'is_active' => true,
-            'onboarding_status' => 'approved',
+            'is_active' => $isActive,
+            'onboarding_status' => $status,
         ]);
 
         return [$user, $agentProfile];
@@ -271,6 +271,74 @@ class VehicleTest extends TestCase
             ->post(route('vehicles.store'), $data);
 
         $response->assertForbidden();
+
+        $this->assertDatabaseMissing('vehicles', [
+            'license_plate' => 'B 1234 TEST',
+        ]);
+    }
+
+    public function test_unapproved_mitra_cannot_access_create_vehicle_form(): void
+    {
+        [$pendingMitra] = $this->createMitra(status: 'pending_verification');
+
+        $response = $this
+            ->actingAs($pendingMitra)
+            ->get(route('vehicles.create'));
+
+        $response->assertForbidden();
+    }
+
+    public function test_unapproved_mitra_cannot_create_vehicle(): void
+    {
+        [$pendingMitra, $pendingProfile] = $this->createMitra(status: 'pending_verification');
+        $category = $this->createCategory();
+
+        $data = $this->vehicleData($pendingProfile, $category);
+        unset($data['agent_profile_id']);
+
+        $response = $this
+            ->actingAs($pendingMitra)
+            ->post(route('vehicles.store'), $data);
+
+        $response->assertForbidden();
+
+        $this->assertDatabaseMissing('vehicles', [
+            'license_plate' => 'B 1234 TEST',
+        ]);
+    }
+
+    public function test_inactive_mitra_cannot_create_vehicle(): void
+    {
+        [$inactiveMitra, $inactiveProfile] = $this->createMitra(status: 'approved', isActive: false);
+        $category = $this->createCategory();
+
+        $data = $this->vehicleData($inactiveProfile, $category);
+        unset($data['agent_profile_id']);
+
+        $response = $this
+            ->actingAs($inactiveMitra)
+            ->post(route('vehicles.store'), $data);
+
+        $response->assertForbidden();
+
+        $this->assertDatabaseMissing('vehicles', [
+            'license_plate' => 'B 1234 TEST',
+        ]);
+    }
+
+    public function test_admin_cannot_assign_vehicle_to_unapproved_mitra(): void
+    {
+        $admin = $this->createAdmin();
+        [, $unapprovedProfile] = $this->createMitra(status: 'pending_verification');
+        $category = $this->createCategory();
+
+        $data = $this->vehicleData($unapprovedProfile, $category);
+
+        $response = $this
+            ->actingAs($admin)
+            ->post(route('vehicles.store'), $data);
+
+        $response->assertSessionHasErrors('agent_profile_id');
 
         $this->assertDatabaseMissing('vehicles', [
             'license_plate' => 'B 1234 TEST',

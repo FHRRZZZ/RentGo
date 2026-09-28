@@ -54,6 +54,7 @@ class VehicleController extends Controller
             ->get();
 
         $mitras = AgentProfile::where('is_active', true)
+            ->where('onboarding_status', 'approved')
             ->orderBy('agency_name')
             ->get();
 
@@ -77,7 +78,11 @@ class VehicleController extends Controller
         if ($request->user()->hasRole('mitra')) {
             $agentProfile = $request->user()->agentProfile;
 
-            abort_unless($agentProfile, 403);
+            abort_unless(
+                $agentProfile && $agentProfile->onboarding_status === 'approved' && $agentProfile->is_active,
+                403,
+                'Akun mitra Anda belum disetujui (approved) atau sedang tidak aktif.'
+            );
 
             $data['agent_profile_id'] = $agentProfile->id;
         }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Constants\BookingStatus;
 use App\Models\Booking;
 use App\Models\Payment;
 use App\Models\User;
@@ -45,7 +46,16 @@ class PaymentService
                 ]);
             }
 
-            if ($booking->status !== 'pending_payment') {
+            if (
+                !in_array(
+                    $booking->status,
+                    [
+                        BookingStatus::WAITING_PAYMENT,
+                        BookingStatus::PENDING,
+                    ],
+                    true
+                )
+            ) {
                 throw ValidationException::withMessages([
                     'booking_id' =>
                         'Booking ini tidak dapat dibayar pada status saat ini.',
@@ -246,7 +256,7 @@ class PaymentService
             )) {
                 $payment->booking()->update([
                     'status' =>
-                        'pending_payment',
+                        BookingStatus::WAITING_PAYMENT,
                 ]);
 
                 $this->notificationTriggerService

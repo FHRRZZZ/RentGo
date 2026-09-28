@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Constants\BookingStatus;
 use App\Models\Booking;
 use App\Models\User;
 
@@ -23,7 +24,7 @@ class BookingPolicy
     }
 
     return $booking->agentProfile?->user_id === $user->id
-        && $booking->status === 'waiting_agent_confirmation';
+        && $booking->status === BookingStatus::WAITING_AGENT_CONFIRMATION;
 }
 
     public function view(User $user, Booking $booking): bool
@@ -59,7 +60,7 @@ class BookingPolicy
 
         if ($user->hasRole('customer')) {
             return $booking->customer_id === $user->id
-                && $booking->status === 'pending_payment';
+                && in_array($booking->status, [BookingStatus::WAITING_PAYMENT, BookingStatus::PENDING], true);
         }
 
         return false;

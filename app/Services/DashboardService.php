@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Constants\BookingStatus;
 use App\Models\AgentProfile;
 use App\Models\Booking;
 use App\Models\Complaint;
@@ -115,15 +116,7 @@ class DashboardService
     {
         $stats = [
             'active_bookings'    => Booking::where('customer_id', $user->id)
-                ->whereIn('status', [
-                    'pending',
-                    'pending_payment',
-                    'waiting_payment',
-                    'waiting_agent_confirmation',
-                    'confirmed',
-                    'ready_for_pickup',
-                    'ongoing',
-                ])->count(),
+                ->whereIn('status', BookingStatus::activeStatuses())->count(),
             'completed_bookings' => Booking::where('customer_id', $user->id)
                 ->where('status', 'completed')
                 ->count(),
@@ -132,15 +125,7 @@ class DashboardService
 
         $activeBookings = Booking::with(['agentProfile', 'items.vehicle', 'payments'])
             ->where('customer_id', $user->id)
-            ->whereIn('status', [
-                'pending',
-                'pending_payment',
-                'waiting_payment',
-                'waiting_agent_confirmation',
-                'confirmed',
-                'ready_for_pickup',
-                'ongoing',
-            ])
+            ->whereIn('status', BookingStatus::activeStatuses())
             ->latest()
             ->limit(5)
             ->get();

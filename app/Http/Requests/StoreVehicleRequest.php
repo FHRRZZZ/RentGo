@@ -17,9 +17,12 @@ class StoreVehicleRequest extends FormRequest
         return [
             'agent_profile_id' => [
                 Rule::requiredIf(fn () => $this->user()?->hasRole('admin')),
-               'nullable',
+                'nullable',
                 'integer',
-                'exists:agent_profiles,id',
+                Rule::exists('agent_profiles', 'id')->where(function ($query) {
+                    $query->where('onboarding_status', 'approved')
+                        ->where('is_active', true);
+                }),
             ],
 
             'vehicle_category_id' => [
@@ -137,7 +140,7 @@ class StoreVehicleRequest extends FormRequest
                 'Mitra wajib dipilih.',
 
             'agent_profile_id.exists' =>
-                'Mitra tidak ditemukan.',
+                'Mitra tidak ditemukan, belum disetujui, atau sedang tidak aktif.',
 
             'vehicle_category_id.required' =>
                 'Kategori kendaraan wajib dipilih.',

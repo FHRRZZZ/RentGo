@@ -22,7 +22,6 @@ class ExpirePendingBookingsCommand extends Command
             ->whereIn('status', [
                 BookingStatus::PENDING,
                 BookingStatus::WAITING_PAYMENT,
-                'pending_payment',
             ])
             ->whereNotNull('payment_deadline')
             ->where('payment_deadline', '<=', now())

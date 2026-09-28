@@ -694,7 +694,7 @@
             Kembali ke Booking
         </a>
 
-        @if ($payment->booking->status === 'pending_payment')
+        @if (in_array($payment->booking->status, ['waiting_payment', 'pending']))
     <a
         href="{{ route('payments.create', $payment->booking) }}"
         class="btn btn-primary"

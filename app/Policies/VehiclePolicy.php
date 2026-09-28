@@ -63,8 +63,12 @@ class VehiclePolicy
         }
 
         if ($user->hasRole('mitra')) {
-            return $vehicle->agent_profile_id ===
-                $user->agentProfile?->id;
+            $agentProfile = $user->agentProfile;
+
+            return $agentProfile
+                && $agentProfile->onboarding_status === 'approved'
+                && $agentProfile->is_active
+                && $vehicle->agent_profile_id === $agentProfile->id;
         }
 
         return false;
@@ -72,7 +76,7 @@ class VehiclePolicy
 
     /**
      * Admin dapat menghapus semua kendaraan.
-     * Mitra hanya dapat menghapus kendaraan miliknya sendiri.
+     * Mitra aktif yang telah disetujui hanya dapat menghapus kendaraan miliknya sendiri.
      */
     public function delete(User $user, Vehicle $vehicle): bool
     {
@@ -81,8 +85,12 @@ class VehiclePolicy
         }
 
         if ($user->hasRole('mitra')) {
-            return $vehicle->agent_profile_id ===
-                $user->agentProfile?->id;
+            $agentProfile = $user->agentProfile;
+
+            return $agentProfile
+                && $agentProfile->onboarding_status === 'approved'
+                && $agentProfile->is_active
+                && $vehicle->agent_profile_id === $agentProfile->id;
         }
 
         return false;

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\VerifyPaymentRequest;
 use Illuminate\Support\Facades\Storage;
+use App\Constants\BookingStatus;
 use App\Models\Booking;
 use App\Models\Payment;
 use App\Services\PaymentService;
@@ -79,7 +80,7 @@ class PaymentController extends Controller
             abort(403);
         }
 
-        if ($booking->status !== 'pending_payment') {
+        if (!in_array($booking->status, [BookingStatus::WAITING_PAYMENT, BookingStatus::PENDING], true)) {
             abort(422, 'Booking ini tidak dapat melakukan pembayaran.');
         }
 

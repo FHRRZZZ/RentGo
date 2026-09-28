@@ -657,9 +657,11 @@ class BookingService
                 !in_array(
                     $booking->status,
                     [
-                        'pending_payment',
-                        'cancelled',
-                        'rejected',
+                        BookingStatus::PENDING,
+                        BookingStatus::WAITING_PAYMENT,
+                        BookingStatus::CANCELLED,
+                        BookingStatus::REJECTED,
+                        BookingStatus::EXPIRED,
                     ],
                     true
                 )
