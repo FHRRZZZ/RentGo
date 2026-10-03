@@ -4,7 +4,7 @@ export default function ApplicationLogo({
     iconOnly = false,
     height = 'h-8',
     iconSize,
-    alt = 'RentGo',
+    alt = 'VRent',
     ...props
 }) {
     const isDark = theme === 'dark';

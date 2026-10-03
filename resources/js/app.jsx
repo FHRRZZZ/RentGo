@@ -7,7 +7,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import MorphStage from '@/Components/MorphStage';
 import PageTransition from '@/Components/PageTransition';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'VRent';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
