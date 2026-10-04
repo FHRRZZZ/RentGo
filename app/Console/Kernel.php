@@ -12,7 +12,19 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Generate tagihan pajak pemasaran mitra — setiap tanggal 1 pukul 00:05 WIB
+        $schedule->command('marketing-tax:generate')
+            ->monthlyOn(1, '00:05')
+            ->timezone('Asia/Jakarta')
+            ->withoutOverlapping()
+            ->runInBackground();
+
+        // Proses tagihan jatuh tempo & nonaktifkan mitra — setiap hari pukul 01:00 WIB
+        $schedule->command('marketing-tax:process-overdue')
+            ->dailyAt('01:00')
+            ->timezone('Asia/Jakarta')
+            ->withoutOverlapping()
+            ->runInBackground();
     }
 
     /**

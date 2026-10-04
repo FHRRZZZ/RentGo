@@ -72,6 +72,18 @@ const ADMIN_NAV = [
             </svg>
         ),
     },
+    {
+        href: "/admin/marketing-tax",
+        key: "marketing-tax",
+        label: "Pajak Pemasaran",
+        badge: null,
+        badgeColor: "bg-orange-400/15 text-orange-400 border-orange-500/30",
+        icon: (
+            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" />
+            </svg>
+        ),
+    },
 ];
 
 export default function AdminLayout({ children, activeTab = null, onTabChange = null }) {

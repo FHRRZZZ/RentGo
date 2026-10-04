@@ -15,6 +15,7 @@
 use App\Http\Controllers\Admin\AgentVerificationController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\MarketingTaxController as AdminMarketingTaxController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\SupportController;
 use App\Http\Controllers\Admin\VehicleManagementController as AdminVehicleManagementController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\Admin\VehicleManagementController as AdminVehicleManage
 // Agent (Mitra)
 use App\Http\Controllers\Agent\BookingController as AgentBookingController;
 use App\Http\Controllers\Agent\DashboardController as AgentDashboardController;
+use App\Http\Controllers\Agent\MarketingTaxController as AgentMarketingTaxController;
 use App\Http\Controllers\Agent\MitraApplicationController;
 use App\Http\Controllers\Agent\ReviewController as AgentReviewController;
 use App\Http\Controllers\Agent\VehicleManagementController as AgentVehicleManagementController;
@@ -461,6 +463,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/reviews/{review}/moderate', [SupportController::class, 'moderateReview'])->name('reviews.moderate');
 
     Route::post('/agents/{agentProfile}/verify', [AgentVerificationController::class, 'verify'])->name('agents.verify');
+
+    // ==========================================
+    // PAJAK PEMASARAN MITRA (Admin)
+    // ==========================================
+    Route::get('/marketing-tax', [AdminMarketingTaxController::class, 'index'])->name('marketing-tax.index');
+    Route::post('/marketing-tax/generate', [AdminMarketingTaxController::class, 'generate'])->name('marketing-tax.generate');
+    Route::post('/marketing-tax/{marketingTax}/confirm', [AdminMarketingTaxController::class, 'confirm'])->name('marketing-tax.confirm');
+    Route::post('/marketing-tax/{marketingTax}/reject-proof', [AdminMarketingTaxController::class, 'rejectProof'])->name('marketing-tax.reject-proof');
+    Route::post('/marketing-tax/{marketingTax}/waive', [AdminMarketingTaxController::class, 'waive'])->name('marketing-tax.waive');
 });
 
 /*
@@ -571,6 +582,13 @@ Route::middleware(['auth', 'role:mitra'])->prefix('mitra')->name('mitra.')->grou
 
         return redirect()->back()->with('success', 'Profil kemitraan berhasil diperbarui.');
     })->name('profile.update');
+
+    // ==========================================
+    // PAJAK PEMASARAN MITRA (Mitra Portal)
+    // ==========================================
+    Route::get('/pajak-pemasaran', [AgentMarketingTaxController::class, 'index'])->name('marketing-tax.index');
+    Route::post('/pajak-pemasaran/{marketingTax}/upload-bukti', [AgentMarketingTaxController::class, 'uploadProof'])->name('marketing-tax.upload-proof');
+    Route::get('/pajak-pemasaran/{marketingTax}/bukti', [AgentMarketingTaxController::class, 'proofFile'])->name('marketing-tax.proof-file');
 });
 
 require __DIR__.'/auth.php';

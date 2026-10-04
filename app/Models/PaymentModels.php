@@ -332,3 +332,4 @@ class AgentPayout extends Model
         );
     }
 }
+

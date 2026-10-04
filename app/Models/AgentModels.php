@@ -82,6 +82,11 @@ class AgentProfile extends Model
     {
         return $this->hasMany(Review::class);
     }
+
+    public function marketingTaxes()
+    {
+        return $this->hasMany(MarketingTax::class);
+    }
 }
 
 class AgentDocument extends Model
